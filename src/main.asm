@@ -1,22 +1,37 @@
-;;----------LICENSE NOTICE-------------------------------------------------------------------------------------------------------;;
-;;  This file is part of GBTelera: A Gameboy Development Framework                                                               ;;
-;;  Copyright (C) 2024 ronaldo / Cheesetea / ByteRealms (@FranGallegoBR)                                                         ;;
-;;                                                                                                                               ;;
-;; Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation    ;;
-;; files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy,    ;;
-;; modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the         ;;
-;; Softwareis furnished to do so, subject to the following conditions:                                                           ;;
-;;                                                                                                                               ;;
-;; The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.;;
-;;                                                                                                                               ;;
-;; THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE          ;;
-;; WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR         ;;
-;; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,   ;;
-;; ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                         ;;
-;;-------------------------------------------------------------------------------------------------------------------------------;;
+INCLUDE "constants.inc"
+
+SECTION "Tile Data" , ROM0
+
+fence_tiles:
+   DB $00, $00, $00, $00
+   DB $3C, $3C, $7E, $7E
+   DB $7E, $7E, $7A, $5E
+   DB $72, $4E, $72, $4E
+   DB $72, $4E, $72, $4E
+   DB $56, $4A, $4E, $42
+   DB $6A, $46, $34, $6E
+   DB $18, $3C, $00, $00
 
 SECTION "Entry point", ROM0[$150]
 
+memcpy_256::
+      ld a, [hl+]
+      ld [de], a
+      inc de
+      dec b
+   jr nz, memcpy_256
+   ret
+
 main::
+   call wait_vblank_start
+
+   ld a, DEFAULT_PAL
+   ld [rBGP], a
+   
+   ld hl, fence_tiles
+   ld de, VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
+   ld b, 2 * VRAM_TILE_SIZE
+   call memcpy_256
+
    di     ;; Disable Interrupts
    halt   ;; Halt the CPU (stop procesing here)
