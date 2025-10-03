@@ -10,6 +10,7 @@ sys_render_update::
    ;; HL: sprite_components
    ;; B: sprite_components_size
    ld de, OAM_START
+   ld b, sprite_components_size
    call memcpy_256
 
 
