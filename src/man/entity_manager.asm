@@ -25,7 +25,7 @@ man_entity_init::
    xor a
    call memset_256
 
-   ;; Invalidate all components (FF infirst item, Y coordinate)
+   ;; Invalidate all components (FF in first item, Y coordinate)
    ld hl, sprite_components
    ld de, COMPONENT_SIZE
    ld b, MAX_ENTITIES
@@ -54,8 +54,13 @@ man_entity_alloc::
    .found:
    ;; HL = Component Address
    ld [hl], RESERVED_COMPONENT
+
+   ld d, h ;; Preserve in DE the component address to reassign it later again to HL
+   ld e, l
    ld hl, alive_entities
    inc [hl]
+   ld h, d
+   ld l, e
 
    ret
 
