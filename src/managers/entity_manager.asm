@@ -68,7 +68,7 @@ man_entity_alloc::
 ;; RETURNS
 ;; HL: Address of Sprite Components Start
 ;; B: Sprite compnents size
-man_entity_get_sprite_components:
+man_entity_get_sprite_components::
    ld hl, sprite_components
    ld b, sprite_components_size
    ret

@@ -31,6 +31,7 @@ sc_game_init::
 
 sc_game_run::
    .loop:
+      call sys_movement_update
       call sys_render_update
       ;; sys.....
    jr .loop

@@ -63,3 +63,22 @@ memset_256::
       dec b
    jr nz, memset_256
    ret
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; CHECK PAD
+;; RETURNS:
+;; B: Current state of the joypad
+;; 
+;; DESTROYS: A, B, HL
+;;
+
+check_pad::
+   ld a, SELECT_PAD
+   ld hl, rJOYP
+   ld [rJOYP], a ;;Select pad
+   ld b, [hl]
+   ld b, [hl]
+   ld b, [hl]
+
+   ret
