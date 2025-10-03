@@ -28,6 +28,14 @@ sc_game_init::
    ld bc, SIZE_OF_MAURICIO
    call memcpy
 
+   call lcd_on
+
+   call lcd_off
+   ld hl, main_game_screen_tiles
+   ld de, VRAM_SCREEN_START
+   ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
+   call memcpy
+
    ld hl, rLCDC
    set rLCDC_OBJ_ENABLE, [hl]
    set rLCDC_OBJ_16x8, [hl]
