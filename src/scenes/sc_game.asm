@@ -11,14 +11,7 @@ sc_game_init::
    ;; HL: Component Address (write)
    ld d, h
    ld e, l
-   ld hl, sc_game_sprite_1
-   ld b, 4
-   call memcpy_256
-   call man_entity_alloc
-   ;; HL: Component Address (write)
-   ld d, h
-   ld e, l
-   ld hl, sc_game_sprite_2
+   ld hl, sc_game_sprite_prota
    ld b, 4
    call memcpy_256
 

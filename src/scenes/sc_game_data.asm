@@ -11,5 +11,4 @@ sc_game_fence_tiles::
    DB $6A, $46, $34, $6E
    DB $18, $3C, $00, $00
 
-sc_game_sprite_1:: DB 32, 16, $20, %00000000
-sc_game_sprite_2:: DB 32, 120, $20, %00000000
+sc_game_sprite_prota:: DB 32, 120, $20, %00000000
