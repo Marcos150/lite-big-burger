@@ -48,6 +48,25 @@ memcpy_256::
    jr nz, memcpy_256
    ret
 
+;; BC: Bytes to copy
+;; DESTROYS: AF, BC, HL, DE
+
+memcpy::
+ld      a, b
+or      c
+ret     z
+
+.copy_loop:
+   ld      a, [hl+]
+   ld      [de], a
+   inc     de
+   dec     bc
+   ld      a, b
+   or      c
+   jr      nz, .copy_loop
+
+ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MEMSET 256
 ;; INPUT:

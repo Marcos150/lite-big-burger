@@ -8,6 +8,9 @@ SECTION "Scene Game", ROM0
 sc_game_init::
    call man_entity_init
    call man_entity_alloc
+
+   SET_BGP DEFAULT_PAL
+   SET_OBP1 DEFAULT_PAL
    ;; HL: Component Address (write)
    ld d, h
    ld e, l
@@ -15,11 +18,15 @@ sc_game_init::
    ld b, 4
    call memcpy_256
 
-
    call lcd_off
-   SET_BGP DEFAULT_PAL
-   SET_OBP1 DEFAULT_PAL
-   MEMCPY_256 sc_game_fence_tiles, VRAM_TILE_20, 2*VRAM_TILE_SIZE
+   ld hl, main_game_tiles
+   ld de, VRAM_TILE_START
+   ld bc, SIZE_OF_MAINGAME
+   call memcpy
+
+   ld hl, mauricio
+   ld bc, SIZE_OF_MAURICIO
+   call memcpy
 
    ld hl, rLCDC
    set rLCDC_OBJ_ENABLE, [hl]

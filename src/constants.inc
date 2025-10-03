@@ -24,3 +24,8 @@ def PAD_R         	   equ 0
 def PAD_L         	   equ 1
 def PAD_U              equ 2
 def PAD_D              equ 3
+
+; Tileset sizes
+def SIZE_OF_MAINGAME equ 54 * 8 * 2
+def SIZE_OF_MAURICIO equ 17 * 8 * 2
+
