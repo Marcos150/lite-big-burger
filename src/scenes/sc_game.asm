@@ -17,6 +17,7 @@ sc_game_init::
 
 
    call lcd_off
+   call init_dma_copy
    SET_BGP DEFAULT_PAL
    SET_OBP1 DEFAULT_PAL
    MEMCPY_256 sc_game_fence_tiles, VRAM_TILE_20, 2*VRAM_TILE_SIZE

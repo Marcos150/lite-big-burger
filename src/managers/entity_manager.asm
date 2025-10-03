@@ -8,6 +8,10 @@ sprite_components_end:
 DEF sprite_components_size = sprite_components_end - sprite_components
 EXPORT sprite_components_size
 
+;; Throws error when assembling if components don't start at xx00 adress. Needed for DMA
+;; Extracted from Game Boy Coding Adventure Early Access, page 230
+assert low(components) == 0, "components must be 256-byte-aligned"
+
 alive_entities: DS 1
 
 SECTION "Entity Manager Code", ROM0
