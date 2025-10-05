@@ -1,6 +1,7 @@
 INCLUDE "managers/entity_manager.inc"
+INCLUDE "constants.inc"
 
-SECTION "Entity Manager Data", WRAM0[$C000]
+SECTION "Entity Manager Data", WRAM0[_WRAM]
 
 components:
 sprite_components: DS MAX_ENTITIES*COMPONENT_SIZE
