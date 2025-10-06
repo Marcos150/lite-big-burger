@@ -12,6 +12,7 @@ DEF rLCDC_OBJ_16x8 equ 2
 DEF rLCDC_OBJ_ENABLE equ 1
 
 DEF DEFAULT_PAL equ %11100100
+DEF SPRITE_PAL equ %11100000
 DEF VBLANK_START_LINE equ $90
 DEF VRAM_TILE_START equ $8000
 DEF VRAM_SCREEN_START equ $9800
@@ -21,14 +22,14 @@ DEF VRAM_TILE_32 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 ;; Joypad options
 def SELECT_BUTTONS     equ $10
 def SELECT_PAD         equ $20
-def PAD_R         	   equ 0
-def PAD_L         	   equ 1
-def PAD_U              equ 2
-def PAD_D              equ 3
+def PAD_R_A            equ 0
+def PAD_L_B      	   equ 1
+def PAD_U_SELECT       equ 2
+def PAD_D_START        equ 3
 
 ; Tileset sizes
-def SIZE_OF_MAINGAME equ 54 * 8 * 2
-def SIZE_OF_MAURICIO equ 17 * 8 * 2
+def SIZE_OF_MAINGAME equ 138 * 8 * 2
+def SIZE_OF_MAURICIO equ 18 * 8 * 2
 
 def SCREEN_WIDTH  EQU $20
 def SCREEN_HEIGHT EQU $20

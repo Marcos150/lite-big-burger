@@ -101,3 +101,13 @@ check_pad::
    ld b, [hl]
 
    ret
+
+check_buttons::
+   ld a, SELECT_BUTTONS
+   ld hl, rJOYP
+   ld [rJOYP], a ;;Select pad
+   ld b, [hl]
+   ld b, [hl]
+   ld b, [hl]
+
+   ret

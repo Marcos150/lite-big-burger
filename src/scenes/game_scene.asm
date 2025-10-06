@@ -3,6 +3,11 @@ INCLUDE "macros.inc"
 
 DEF VRAM_TILE_20 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 
+SECTION "Scene Game Data" , ROM0
+
+;; Fence: 2 tiles
+sc_game_sprite_prota:: DB 32, 120, $8C, %00000000
+
 SECTION "Scene Game", ROM0
 
 sc_game_init::
@@ -10,7 +15,7 @@ sc_game_init::
    call man_entity_alloc
 
    SET_BGP DEFAULT_PAL
-   SET_OBP1 DEFAULT_PAL
+   SET_OBP1 SPRITE_PAL
    ;; HL: Component Address (write)
    ld d, h
    ld e, l
@@ -43,11 +48,3 @@ sc_game_init::
    call lcd_on
 
 	ret
-
-sc_game_run::
-   .loop:
-      call sys_movement_update
-      call sys_render_update
-      ;; sys.....
-   jr .loop
-   ret
