@@ -7,6 +7,6 @@ main::
       call render_update
       ;; sys.....
    jr .loop
-   ret
+   
    di
    halt
