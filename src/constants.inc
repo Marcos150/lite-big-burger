@@ -5,6 +5,9 @@ def rLCDC equ $FF40
 def rOBP1 equ $FF48
 def rOBP2 equ $FF49
 def rJOYP equ $FF00
+def rDMA  equ $FF46
+def _HRAM equ $FF80
+def _WRAM equ $C000
 
 ;; rLCDC bits
 DEF rLCDC_LCD_ENABLE equ 7
