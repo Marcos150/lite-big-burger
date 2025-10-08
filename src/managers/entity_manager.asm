@@ -34,9 +34,11 @@ man_entity_init::
    ld hl, sprite_components
    ld de, COMPONENT_SIZE
    ld b, MAX_ENTITIES
-   ld [hl], INVALID_COMPONENT
-   add hl, de
-   dec b
+   .loop:
+      ld [hl], INVALID_COMPONENT
+      add hl, de
+      dec b
+   jr nz, .loop
 
    ret
 
