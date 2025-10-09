@@ -41,6 +41,10 @@ sc_game_init::
    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
    call memcpy
 
+   call init_dma_copy
+   SET_BGP DEFAULT_PAL
+   SET_OBP1 DEFAULT_PAL
+
    ld hl, rLCDC
    set rLCDC_OBJ_ENABLE, [hl]
    set rLCDC_OBJ_16x8, [hl]

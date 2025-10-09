@@ -1,12 +1,17 @@
 INCLUDE "managers/entity_manager.inc"
+INCLUDE "constants.inc"
 
-SECTION "Entity Manager Data", WRAM0[$C000]
+SECTION "Entity Manager Data", WRAM0[_WRAM]
 
 components:
 sprite_components: DS MAX_ENTITIES*COMPONENT_SIZE
 sprite_components_end:
 DEF sprite_components_size = sprite_components_end - sprite_components
 EXPORT sprite_components_size
+
+;; Throws error when assembling if components don't start at xx00 adress. Needed for DMA
+;; Extracted from Game Boy Coding Adventure Early Access, page 230
+assert low(components) == 0, "components must be 256-byte-aligned"
 
 alive_entities: DS 1
 
@@ -29,9 +34,11 @@ man_entity_init::
    ld hl, sprite_components
    ld de, COMPONENT_SIZE
    ld b, MAX_ENTITIES
-   ld [hl], INVALID_COMPONENT
-   add hl, de
-   dec b
+   .loop:
+      ld [hl], INVALID_COMPONENT
+      add hl, de
+      dec b
+   jr nz, .loop
 
    ret
 
