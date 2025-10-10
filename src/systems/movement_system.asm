@@ -9,7 +9,7 @@ movement_update::
 
    check_prota_movement:
       ;; For now we will act like the first sprite is always the protagonist one
-      call man_entity_get_sprite_components
+      call man_entity_get_entities
       ;; HL: sprite_components
       ld d, h ;; DE: sprite_components
       ld e, l

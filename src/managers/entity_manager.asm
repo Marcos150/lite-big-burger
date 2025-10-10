@@ -7,17 +7,18 @@ mau_x:: dw    ; Dirección de memoria de X de Maurice
 
 SECTION "Entity Manager Data", WRAM0[_WRAM]
 
-components:
-sprite_components: DS MAX_ENTITIES*COMPONENT_SIZE
+sprite_components: DS MAX_ENTITIES*SPRITE_SIZE
 sprite_components_end:
 DEF sprite_components_size = sprite_components_end - sprite_components
 EXPORT sprite_components_size
 
 ;; Throws error when assembling if components don't start at xx00 adress. Needed for DMA
 ;; Extracted from Game Boy Coding Adventure Early Access, page 230
-assert low(components) == 0, "components must be 256-byte-aligned"
+assert low(sprite_components) == 0, "components must be 256-byte-aligned"
 
 alive_entities: DS 1
+
+entities: DS MAX_ENTITIES*ENTITY_SIZE
 
 SECTION "Entity Manager Code", ROM0
 
@@ -36,7 +37,7 @@ man_entity_init::
 
    ;; Invalidate all components (FF in first item, Y coordinate)
    ld hl, sprite_components
-   ld de, COMPONENT_SIZE
+   ld de, SPRITE_SIZE
    ld b, MAX_ENTITIES
    .loop:
       ld [hl], INVALID_COMPONENT
@@ -44,14 +45,24 @@ man_entity_init::
       dec b
    jr nz, .loop
 
+   ;; Invalidate all entities (FF in first item)
+   ld hl, entities
+   ld de, ENTITY_SIZE
+   ld b, MAX_ENTITIES
+   .loop2:
+      ld [hl], INVALID_COMPONENT
+      add hl, de
+      dec b
+   jr nz, .loop2
+
    ret
 
 ;; Allocate space for one entity
 ;; RETURNS
 ;; HL: Address of allocated component
 man_entity_alloc::
-   ld hl, sprite_components
-   ld de, COMPONENT_SIZE
+   ld hl, entities
+   ld de, ENTITY_SIZE
    .loop:
       ld a, [hl] ;; A = Component_Sprite.Y
       cp INVALID_COMPONENT
@@ -73,11 +84,39 @@ man_entity_alloc::
 
    ret
 
-;; Returns the address of the sprite compnent array
+;; Returns the address of the sprite component array
 ;; RETURNS
 ;; HL: Address of Sprite Components Start
-;; B: Sprite compnents size
+;; B: Sprite components size
 man_entity_get_sprite_components::
    ld hl, sprite_components
    ld b, sprite_components_size
+   ret
+
+;; Returns the address of the entities array
+;; RETURNS
+;; HL: Address of Entities Start
+;; B: Entities size
+man_entity_get_entities::
+   ld hl, entities
+   ld b, sprite_components_size
+   ret
+
+
+;; Copies entities to sprites array
+;; DESTROYS hl, de, bc
+man_copy_entities_to_sprites::
+   ld hl, entities
+   ld de, sprite_components
+   ld c, MAX_ENTITIES
+
+   .for:
+      ld b, SPRITE_SIZE
+      call memcpy_256
+      REPT ENTITY_SIZE - SPRITE_SIZE
+         inc hl
+      ENDR
+      dec c
+   jr nz, .for
+
    ret
