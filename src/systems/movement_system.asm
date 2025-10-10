@@ -1,8 +1,8 @@
 INCLUDE "constants.inc"
 
-DEF SPEED equ 1
+DEF SPEED equ %1
 
-SECTION "Movement System Code", ROM0
+SECTION "Movement System", ROM0
 
 movement_update::
    ;; Left ladder X: 24
@@ -29,40 +29,53 @@ movement_update::
       ld d, h ;; DE: sprite_components
       ld e, l
 
-      call check_pad
+      call read_input
       ;; B: State of the pad
-      ld a, [de]
 
-      bit PAD_U_SELECT, b
-      jr z, move_u
-      bit PAD_D_START, b
-      jr z, move_d
-
-      inc de
-      ld a, [de]
-      bit PAD_R_A, b
-      jr z, move_r
-      bit PAD_L_B, b
-      jr z, move_l
-
+      ld a, b
+      and BUTTON_UP
+      jr z, .no_u
+      call move_u
+   .no_u:
+      ld a, b
+      and BUTTON_DOWN
+      jr z, .no_d
+      call move_d
+   .no_d:
+      ld a, b
+      and BUTTON_RIGHT
+      jr z, .no_r
+      call move_r
+   .no_r:
+      ld a, b
+      and BUTTON_LEFT
+      jr z, .no_l
+      call move_l
+   .no_l:
       ret
 
       move_r:
+         inc de
+         ld a, [de]
          add a, SPEED
          ld [de], a
          ret
 
       move_l:
+         inc de
+         ld a, [de]
          sub a, SPEED
          ld [de], a
          ret
 
       move_u:
+         ld a, [de]
          sub a, SPEED
          ld [de], a
          ret
 
       move_d:
+         ld a, [de]
          add a, SPEED
          ld [de], a
          ret

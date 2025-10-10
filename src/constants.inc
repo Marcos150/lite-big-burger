@@ -23,16 +23,22 @@ DEF VRAM_TILE_SIZE equ $10
 DEF VRAM_TILE_32 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 
 ;; Joypad options
-def SELECT_BUTTONS     equ $10
-def SELECT_PAD         equ $20
-def PAD_R_A            equ 0
-def PAD_L_B      	   equ 1
-def PAD_U_SELECT       equ 2
-def PAD_D_START        equ 3
+def SELECT_BUTTONS   equ $10
+def SELECT_PAD       equ $20
+def BUTTON_RIGHT     equ $01
+def BUTTON_LEFT      equ $02
+def BUTTON_UP        equ $04
+def BUTTON_DOWN      equ $08
+def BUTTON_A         equ $10
+def BUTTON_B         equ $20
+def BUTTON_SELECT    equ $40
+def BUTTON_START     equ $80
+
 
 ; Tileset sizes
 def SIZE_OF_MAINGAME equ 138 * 8 * 2
-def SIZE_OF_MAURICIO equ 18 * 8 * 2
+def SIZE_OF_MAURICIO equ 24 * 8 * 2
+def SIZE_OF_ELEMENTS equ 56 * 8 * 2
 
 def SCREEN_WIDTH  EQU $20
 def SCREEN_HEIGHT EQU $20

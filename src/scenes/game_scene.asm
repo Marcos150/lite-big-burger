@@ -5,8 +5,8 @@ DEF VRAM_TILE_20 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 
 SECTION "Scene Game Data" , ROM0
 
-;; Fence: 2 tiles
-sc_game_sprite_prota:: DB 32, 120, $8C, %00000000
+;; M A U R I C I O
+mauricio_sprite:: DB $79, $34, $8C, %00000000
 
 SECTION "Scene Game", ROM0
 
@@ -19,7 +19,7 @@ sc_game_init::
    ;; HL: Component Address (write)
    ld d, h
    ld e, l
-   ld hl, sc_game_sprite_prota
+   ld hl, mauricio_sprite
    ld b, 4
    call memcpy_256
 
@@ -29,14 +29,18 @@ sc_game_init::
    ld bc, SIZE_OF_MAINGAME
    call memcpy
 
-   ld hl, mauricio
+   ld hl, mauricio_tiles ;Mauricio
    ld bc, SIZE_OF_MAURICIO
+   call memcpy
+
+   ld hl, elements_tiles
+   ld bc, SIZE_OF_ELEMENTS
    call memcpy
 
    call lcd_on
 
    call lcd_off
-   ld hl, main_game_screen_tiles
+   ld hl, main_game_screen_layout
    ld de, VRAM_SCREEN_START
    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
    call memcpy

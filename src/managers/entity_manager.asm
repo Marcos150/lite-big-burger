@@ -1,6 +1,10 @@
 INCLUDE "managers/entity_manager.inc"
 INCLUDE "constants.inc"
 
+SECTION "Maurice Variables", WRAM0
+mau_y:: dw    ; Dirección de memoria de Y de Maurice
+mau_x:: dw    ; Dirección de memoria de X de Maurice
+
 SECTION "Entity Manager Data", WRAM0[_WRAM]
 
 components:
