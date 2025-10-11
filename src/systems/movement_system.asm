@@ -5,8 +5,8 @@ DEF SPEED equ 1
 SECTION "Movement System", ROM0
 
 movement_update::
-   ld hl, check_prota_movement
-   call man_entity_for_each
+   ld hl, check_prota_movement ;; HL = Function to be executed by every entity 
+   call man_entity_for_each ;; Processes entities with the specified function
    ret
 
    check_prota_movement:

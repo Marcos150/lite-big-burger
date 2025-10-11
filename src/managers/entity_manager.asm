@@ -8,7 +8,7 @@ mau_x:: dw    ; Dirección de memoria de X de Maurice
 
 SECTION "Entity Manager Data", WRAM0[_WRAM]
 
-sprite_components: DS MAX_ENTITIES*SPRITE_SIZE
+sprite_components: DS MAX_SPRITES*SPRITE_SIZE
 sprite_components_end:
 DEF sprite_components_size = sprite_components_end - sprite_components
 EXPORT sprite_components_size
@@ -29,6 +29,12 @@ man_entity_init::
    ;; Alive Entites = 0
    xor a
    ld [alive_entities], a
+
+   ;; Zero all sprites
+   ld hl, sprite_components
+   ld b, sprite_components_size
+   xor a
+   call memset_256
 
    ;; Invalidate all entities (FF in first item and 00 in tags)
    ld hl, entities
@@ -81,16 +87,6 @@ man_entity_get_sprite_components::
    ld hl, sprite_components
    ld b, sprite_components_size
    ret
-
-;; Returns the address of the entities array
-;; RETURNS
-;; HL: Address of Entities Start
-;; B: Entities size
-man_entity_get_entities::
-   ld hl, entities
-   ld b, sprite_components_size
-   ret
-
 
 ;; Copies entities to sprites array
 ;; DESTROYS hl, de, bc
