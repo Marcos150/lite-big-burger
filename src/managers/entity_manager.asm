@@ -45,12 +45,16 @@ man_entity_init::
       dec b
    jr nz, .loop
 
-   ;; Invalidate all entities (FF in first item)
+   ;; Invalidate all entities (FF in first item and 00 in tags)
    ld hl, entities
-   ld de, ENTITY_SIZE
    ld b, MAX_ENTITIES
    .loop2:
+      ld de, E_TAGS
       ld [hl], INVALID_COMPONENT
+      add hl, de
+      ld [hl], INIT_TAGS
+
+      ld de, ENTITY_SIZE - E_TAGS
       add hl, de
       dec b
    jr nz, .loop2
@@ -117,6 +121,69 @@ man_copy_entities_to_sprites::
          inc hl
       ENDR
       dec c
+   jr nz, .for
+
+   ret
+
+;; Checks if entity is an enemy
+;; 📥 INPUT:
+;; DE: Address of the entity
+;; RETURNS:
+;; Flag Z
+check_if_enemy::
+   ld h, d
+   ld l, e
+   ld de, E_TAGS
+   add hl, de ;; Select entity.tags on hl
+   ld a, [hl] ;; a = entity.tags
+
+   ld de, $FFFF - E_TAGS + 1
+   add hl, de ;; hl = hl - E_TAGS
+   ld d, h
+   ld e, l
+
+   bit E_BIT_ENEMY, a
+   ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Processes all alive entities in the entity_array.
+;; So it iterates over all the entity array,
+;; locating the alive ones (E_BIT_ALIVE=1).
+;; To process an entity, it sets DE='entity address'
+;; and calls the processing routine at HL.
+;; The processing routine is given by the caller
+;; in HL, so we can process entities in different
+;; ways.
+;;
+;; 📥 INPUT:
+;; HL: Address of the processing routine
+;;
+man_entity_for_each::
+   ld de, entities
+   ld a, MAX_ENTITIES
+   .for:
+      ;add a, E_TAGS
+      ;bit E_BIT_ALIVE, a
+      ;jr z, .next_item ;; If not alive, next entity
+
+      push af
+      push hl ;; Save HL to recover it later
+      push de ;; Save AF, DE and HL to recover it later
+      ld bc, .ret_dir
+      push bc ;; Next ret will go to .ret_dir
+      jp hl
+
+      .ret_dir:
+      pop de
+      pop hl
+      pop af
+
+      .next_item:
+         ;; TODO: Search for a better way to do this
+         REPT ENTITY_SIZE
+            inc de
+         ENDR
+         dec a
    jr nz, .for
 
    ret

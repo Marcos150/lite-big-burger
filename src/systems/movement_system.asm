@@ -1,18 +1,17 @@
 INCLUDE "constants.inc"
 
-DEF SPEED equ %1
+DEF SPEED equ 1
 
 SECTION "Movement System", ROM0
 
 movement_update::
-
+   ld hl, check_prota_movement
+   call man_entity_for_each
+   ret
 
    check_prota_movement:
-      ;; For now we will act like the first sprite is always the protagonist one
-      call man_entity_get_entities
-      ;; HL: sprite_components
-      ld d, h ;; DE: sprite_components
-      ld e, l
+      call check_if_enemy
+      ret nz ;; If entity is enemy, do nothing 
 
       call read_input
       ;; B: State of the pad
