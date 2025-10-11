@@ -83,8 +83,7 @@ movement_update::
          ld [de], a           ; La guardamos
          .no_ladder:
          ret
-
-      move_r:
+move_r:
          ld a, [de]           ; Guardamos y en a para los calculos
          inc de               ; Seleccionamos la x
             cp $79            ; Cada comprobación aquí es para la base de las plataformas
@@ -103,6 +102,22 @@ movement_update::
             jr z, .no_platform
          add a, SPEED         ; Calculamos la nueva posición del sprite
          ld [de], a           ; La guardamos
+
+         ;; ------------------ CÓDIGO CORREGIDO ------------------
+         ;; Hacemos un espejo del sprite (flip horizontal)
+         push af              ; Salvamos 'a' en la pila
+         push hl              ; Salvamos 'hl' en la pila
+         ld h, d              ; Cargamos D en H
+         ld l, e              ; Cargamos E en L (HL ahora es igual que DE)
+         inc hl               ; hl ahora apunta al tile
+         inc hl               ; hl ahora apunta al byte de atributos
+         ld a, [hl]           ; Cargamos el byte de atributos actual en 'a'
+         or SPRITE_ATTR_FLIP_X; Activamos el bit 5 con un OR
+         ld [hl], a           ; Guardamos el nuevo byte de atributos
+         pop hl               ; Restauramos 'hl'
+         pop af               ; Restauramos 'a'
+         ;; ------------------ FIN DEL CÓDIGO CORREGIDO ------------------
+
          .no_platform:
          ret
 
@@ -125,5 +140,21 @@ movement_update::
             jr z, .no_platform
          sub a, SPEED         ; Calculamos la nueva posición del sprite
          ld [de], a           ; La guardamos
+
+         ;; ------------------ CÓDIGO CORREGIDO ------------------
+         ;; Volvemos el sprite a su estado original (sin flip)
+         push af              ; Salvamos 'a' en la pila
+         push hl              ; Salvamos 'hl' en la pila
+         ld h, d              ; Cargamos D en H
+         ld l, e              ; Cargamos E en L (HL ahora es igual que DE)
+         inc hl               ; hl ahora apunta al tile
+         inc hl               ; hl ahora apunta al byte de atributos
+         ld a, [hl]           ; Cargamos el byte de atributos actual en 'a'
+         and %11011111        ; Desactivamos el bit 5 con un AND (lo pone a 0)
+         ld [hl], a           ; Guardamos el nuevo byte de atributos
+         pop hl               ; Restauramos 'hl'
+         pop af               ; Restauramos 'a'
+         ;; ------------------ FIN DEL CÓDIGO CORREGIDO ------------------
+
          .no_platform:
          ret
