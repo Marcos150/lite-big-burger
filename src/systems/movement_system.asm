@@ -10,8 +10,10 @@ movement_update::
    ret
 
    check_prota_movement:
-      call check_if_enemy
-      ret nz ;; If entity is enemy, do nothing 
+      push de
+      call check_if_prota
+      pop de
+      ret z ;; If entity is not main char, do nothing 
 
       call read_input
       ;; B: State of the pad

@@ -1,5 +1,6 @@
 INCLUDE "managers/entity_manager.inc"
 INCLUDE "constants.inc"
+INCLUDE "macros.inc"
 
 SECTION "Maurice Variables", WRAM0
 mau_y:: dw    ; Dirección de memoria de Y de Maurice
@@ -29,26 +30,10 @@ man_entity_init::
    xor a
    ld [alive_entities], a
 
-   ;; Zero all components
-   ld hl, sprite_components
-   ld b, sprite_components_size
-   xor a
-   call memset_256
-
-   ;; Invalidate all components (FF in first item, Y coordinate)
-   ld hl, sprite_components
-   ld de, SPRITE_SIZE
-   ld b, MAX_ENTITIES
-   .loop:
-      ld [hl], INVALID_COMPONENT
-      add hl, de
-      dec b
-   jr nz, .loop
-
    ;; Invalidate all entities (FF in first item and 00 in tags)
    ld hl, entities
    ld b, MAX_ENTITIES
-   .loop2:
+   .loop:
       ld de, E_TAGS
       ld [hl], INVALID_COMPONENT
       add hl, de
@@ -57,7 +42,7 @@ man_entity_init::
       ld de, ENTITY_SIZE - E_TAGS
       add hl, de
       dec b
-   jr nz, .loop2
+   jr nz, .loop
 
    ret
 
@@ -125,24 +110,26 @@ man_copy_entities_to_sprites::
 
    ret
 
-;; Checks if entity is an enemy
+;; Checks if entity is main character
 ;; 📥 INPUT:
 ;; DE: Address of the entity
 ;; RETURNS:
 ;; Flag Z
-check_if_enemy::
-   ld h, d
-   ld l, e
-   ld de, E_TAGS
-   add hl, de ;; Select entity.tags on hl
-   ld a, [hl] ;; a = entity.tags
+;; DESTROYS: HL, DE
+check_if_prota::
+   call load_tags_to_a   
 
-   ld de, $FFFF - E_TAGS + 1
-   add hl, de ;; hl = hl - E_TAGS
-   ld d, h
-   ld e, l
+   bit E_BIT_PROTA, a
+   ret
 
-   bit E_BIT_ENEMY, a
+;; Sets tags of entity to A register
+;; 📥 INPUT:
+;; DE: Address of the entity
+;; RETURNS:
+;; A: Tag property
+;; DESTROYS: DE, HL
+load_tags_to_a::
+   LOAD_PROPERTY_TO_A E_TAGS
    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -160,13 +147,17 @@ check_if_enemy::
 ;;
 man_entity_for_each::
    ld de, entities
-   ld a, MAX_ENTITIES
+   ld c, MAX_ENTITIES
    .for:
-      ;add a, E_TAGS
-      ;bit E_BIT_ALIVE, a
-      ;jr z, .next_item ;; If not alive, next entity
-
-      push af
+      push hl
+      push de ;; Save HL and DE original value
+      call load_tags_to_a
+      pop de ;; Get back original values
+      pop hl
+      bit E_BIT_ALIVE, a
+      jr z, .next_item ;; If not alive, next entity
+      
+      push bc
       push hl ;; Save HL to recover it later
       push de ;; Save AF, DE and HL to recover it later
       ld bc, .ret_dir
@@ -176,14 +167,14 @@ man_entity_for_each::
       .ret_dir:
       pop de
       pop hl
-      pop af
+      pop bc
 
       .next_item:
          ;; TODO: Search for a better way to do this
          REPT ENTITY_SIZE
             inc de
          ENDR
-         dec a
+         dec c
    jr nz, .for
 
    ret

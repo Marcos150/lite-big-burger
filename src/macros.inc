@@ -17,3 +17,12 @@ MACRO MEMCPY_256
    ld b, \3
    call memcpy_256
 ENDM
+
+MACRO LOAD_PROPERTY_TO_A
+   ld h, d
+   ld l, e
+   ld de, \1
+   add hl, de
+   ld a, [hl] ;; a = property value
+ENDM
+  
