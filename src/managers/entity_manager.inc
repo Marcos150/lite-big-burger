@@ -16,8 +16,8 @@ DEF SPRITE_SIZE RB 0
 ;;; Entity Structure
 ;;; struct Entity { unsigned char x, y, tile, props, tags; };
 RSRESET
-DEF E_X RB 1
 DEF E_Y RB 1
+DEF E_X RB 1
 DEF E_TILE RB 1
 DEF E_PROPS RB 1
 DEF E_TAGS RB 1

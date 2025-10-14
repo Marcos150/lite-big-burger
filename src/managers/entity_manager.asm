@@ -118,6 +118,34 @@ check_if_prota::
    bit E_BIT_PROTA, a
    ret
 
+;; Returns Y and X of prota
+;; RETURNS:
+;; BC: Prota's Y and X
+;; DESTROYS: C, DE, HL
+get_prota_coords::
+   ld hl, entities
+   ld c, MAX_ENTITIES
+   .for:
+      push hl ;; Save HL original value
+      call load_tags_to_a
+      pop hl ;; Get back original values
+      bit E_BIT_PROTA, a
+      jr z, .next_item ;; If not prota, next
+
+      ld b, [hl]
+      inc hl
+      ld c, [hl]
+      ret
+
+      .next_item:
+         REPT ENTITY_SIZE
+            inc de
+         ENDR
+         dec c
+   jr nz, .for
+   ret
+
+
 ;; Sets tags of entity to A register
 ;; 📥 INPUT:
 ;; DE: Address of the entity
@@ -126,6 +154,26 @@ check_if_prota::
 ;; DESTROYS: DE, HL
 load_tags_to_a::
    LOAD_PROPERTY_TO_A E_TAGS
+   ret
+
+;; Sets y of entity to A register
+;; 📥 INPUT:
+;; DE: Address of the entity
+;; RETURNS:
+;; A: y property
+;; DESTROYS: DE, HL
+load_y_to_a::
+   LOAD_PROPERTY_TO_A E_Y
+   ret
+
+;; Sets x of entity to A register
+;; 📥 INPUT:
+;; DE: Address of the entity
+;; RETURNS:
+;; A: x property
+;; DESTROYS: DE, HL
+load_x_to_a::
+   LOAD_PROPERTY_TO_A E_X
    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -15,7 +15,7 @@ movement_update::
     ;; HL = Function to be executed by every (alive) entity
     ld hl, check_prota_movement
     ;; Process entities with the specified function
-    call man_entity_foreach
+    call man_entity_for_each
     ret
 
     check_prota_movement:
