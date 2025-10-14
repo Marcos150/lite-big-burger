@@ -1,0 +1,63 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clean",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "${env:SHELL}",
+                    "args": [
+                        "-l",
+                        "-i",
+                        "-c"
+                    ]
+                }
+            },
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "${env:SHELL}",
+                    "args": [
+                        "-l",
+                        "-i",
+                        "-c"
+                    ]
+                }
+            },
+            "command": "make",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean and build",
+            "dependsOn": [
+                "Clean",
+                "Build"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
