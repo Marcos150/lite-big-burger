@@ -6,9 +6,11 @@ SECTION "Utils", ROM0
 ;; DESTROYS: AF, HL
 lcd_off::
    ;; BEWARE!!
+   di
    call wait_vblank_start
    ld hl, rLCDC
-   res rLCDC_LCD_ENABLE, [hl] ;; LCD OFF
+   res 7, [hl] ;; LCD OFF
+   ei
    ret
 
 ;; LCD ON
@@ -24,7 +26,7 @@ lcd_on::
 
 wait_vblank_start::
    ld hl, rLY
-   ld a, VBLANK_START_LINE
+   ld a, $90
    .loop:
       cp [hl]
    jr nz, .loop
