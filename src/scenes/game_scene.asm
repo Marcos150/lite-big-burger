@@ -8,6 +8,7 @@ SECTION "Scene Game Data" , ROM0
 ;; M A U R I C I O
 ;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y
 mauricio_entity:: DB $79, $34, $8C, %00000000, %11000000, 8, 16, 0, 0
+collectible_entity:: DB $62, $10, $D4, %00000000, %10000000, 8, 16, 0, 0
 
 SECTION "Scene Game", ROM0
 
@@ -21,6 +22,13 @@ sc_game_init::
    ld d, h
    ld e, l
    ld hl, mauricio_entity
+   ld b, ENTITY_SIZE
+   call memcpy_256
+
+   call man_entity_alloc
+   ld d, h
+   ld e, l
+   ld hl, collectible_entity
    ld b, ENTITY_SIZE
    call memcpy_256
 
