@@ -25,6 +25,8 @@ movement_update::
 
 ## Acceso a componentes de entidades
 
+> **Aviso**: Este apartado se encuentra desactualizado tras los cambios de la última clase.
+
 Para acceder a los datos de una entidad se recomienda definir una función que haga uso de la macro `LOAD_PROPERTY_TO_A`, la cual carga el valor de la propiedad cuyo índice se pase como primer parámetro.
 
 **Importante**: La macro cambia el registro `DE`, por lo que si se quiere mantener su valor hay que hacer `push de` antes de llamarla para guardar el valor y `pop de` después de llamarla para recuperar el valor.

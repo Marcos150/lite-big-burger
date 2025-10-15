@@ -113,6 +113,9 @@ check_buttons::
    ld b, [hl]
 
    ret
+
+simulated_call_hl::
+   jp hl
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DMA CODE
 ;; Inspired by Game Boy Coding Adventure Early Access, chapter 12
@@ -124,7 +127,7 @@ dma_copy::
 
 ;; DMA activation code. This is the code that needs to be copied to the HRAM as ROM is unaccessible during DMA
 dma_copy_func:
-   ld a, high(_WRAM)
+   ld a, CMP_SPRITE_H
    ldh [rDMA], a
    ld c, 40
    .wait_copy:

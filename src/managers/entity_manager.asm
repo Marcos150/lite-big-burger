@@ -8,18 +8,24 @@ mau_x:: dw    ; Dirección de memoria de X de Maurice
 
 SECTION "Entity Manager Data", WRAM0[_WRAM]
 
-sprite_components: DS MAX_SPRITES*SPRITE_SIZE
-sprite_components_end:
-DEF sprite_components_size = sprite_components_end - sprite_components
-EXPORT sprite_components_size
+components:
+EXPORT DEF CMP_INFO_H = HIGH(@)
+components_info: DS SIZEOF_ARRAY_CMP
+DS ALIGN[8]
 
+
+EXPORT DEF CMP_SPRITE_H = HIGH(@)
 ;; Throws error when assembling if components don't start at xx00 adress. Needed for DMA
 ;; Extracted from Game Boy Coding Adventure Early Access, page 230
-assert low(sprite_components) == 0, "components must be 256-byte-aligned"
+assert low(@) == 0, "components must be 256-byte-aligned {CMP_SPRITE_H}"
+components_sprite: DS SIZEOF_ARRAY_CMP
+DS ALIGN[8]
+
+EXPORT DEF CMP_PHYSICS_H = HIGH(@)
+components_physics: DS SIZEOF_ARRAY_CMP
+DS ALIGN[8]
 
 alive_entities: DS 1
-
-entities: DS MAX_ENTITIES*ENTITY_SIZE
 
 SECTION "Entity Manager Code", ROM0
 
@@ -27,28 +33,25 @@ SECTION "Entity Manager Code", ROM0
 ;; DESTROYS: AF, B, HL
 man_entity_init::
    ;; Alive Entites = 0
+   .zero_alive_entities
    xor a
    ld [alive_entities], a
 
-   ;; Zero all sprites
-   ld hl, sprite_components
-   ld b, sprite_components_size
-   xor a
-   call memset_256
+   .zero_info:
+      ld hl, components_info
+      ld b, SIZEOF_ARRAY_CMP
+      xor a
+      call memset_256
+   
+   .zero_sprite:
+      ld hl, components_sprite
+      ld b, SIZEOF_ARRAY_CMP
+      call memset_256
 
-   ;; Invalidate all entities (FF in first item and 00 in tags)
-   ld hl, entities
-   ld b, MAX_ENTITIES
-   .loop:
-      ld de, E_TAGS
-      ld [hl], INVALID_COMPONENT
-      add hl, de
-      ld [hl], INIT_TAGS
-
-      ld de, ENTITY_SIZE - E_TAGS
-      add hl, de
-      dec b
-   jr nz, .loop
+   .zero_physics:
+      ld hl, components_physics
+      ld b, SIZEOF_ARRAY_CMP
+      call memset_256
 
    ret
 
@@ -56,27 +59,20 @@ man_entity_init::
 ;; RETURNS
 ;; HL: Address of allocated component
 man_entity_alloc::
-   ld hl, entities
-   ld de, ENTITY_SIZE
-   .loop:
-      ld a, [hl] ;; A = Component_Sprite.Y
-      cp INVALID_COMPONENT
-      jr z, .found
-      ;; Not found
-      add hl, de
-   jr .loop
-
-   .found:
-   ;; HL = Component Address
-   ld [hl], RESERVED_COMPONENT
-
-   ld d, h ;; Preserve in DE the component address to reassign it later again to HL
-   ld e, l
+   .one_more_alive_entity:
    ld hl, alive_entities
    inc [hl]
-   ld h, d
-   ld l, e
 
+   .find_first_free_slot:
+   ld hl, (components_info - SIZEOF_CMP)
+   ld de, SIZEOF_CMP
+   .loop:
+      add hl, de
+      bit CMP_BIT_USED, [hl]
+   jr nz, .loop
+
+   .found_free_slot:
+   ld [hl], RESERVED_COMPONENT
    ret
 
 ;; Returns the address of the sprite component array
@@ -84,93 +80,54 @@ man_entity_alloc::
 ;; HL: Address of Sprite Components Start
 ;; B: Sprite components size
 man_entity_get_sprite_components::
-   ld hl, sprite_components
-   ld b, sprite_components_size
+   ld hl, components_sprite
+   ld b, SIZEOF_ARRAY_CMP
    ret
 
-;; Copies entities to sprites array
-;; DESTROYS hl, de, bc
-man_copy_entities_to_sprites::
-   ld hl, entities
-   ld de, sprite_components
-   ld c, MAX_ENTITIES
-
-   .for:
-      ld b, SPRITE_SIZE
-      call memcpy_256
-      REPT ENTITY_SIZE - SPRITE_SIZE
-         inc hl
-      ENDR
-      dec c
-   jr nz, .for
-
-   ret
-
-;; Checks if entity is main character
+;; Checks if entity is controllable
 ;; 📥 INPUT:
 ;; DE: Address of the entity
 ;; RETURNS:
 ;; Flag Z
-;; DESTROYS: HL, DE
-check_if_prota::
-   call load_tags_to_a   
-
-   bit E_BIT_PROTA, a
-   ret
-
-;; Sets tags of entity to A register
-;; 📥 INPUT:
-;; DE: Address of the entity
-;; RETURNS:
-;; A: Tag property
-;; DESTROYS: DE, HL
-load_tags_to_a::
-   LOAD_PROPERTY_TO_A E_TAGS
+;; DESTROYS: A
+check_if_controllable::
+   ld a, [de]
+   bit CMP_BIT_CONTROLLABLE, a
    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Processes all alive entities in the entity_array.
-;; So it iterates over all the entity array,
-;; locating the alive ones (E_BIT_ALIVE=1).
-;; To process an entity, it sets DE='entity address'
-;; and calls the processing routine at HL.
-;; The processing routine is given by the caller
-;; in HL, so we can process entities in different
-;; ways.
+;; Processes all alive entities
 ;;
 ;; 📥 INPUT:
 ;; HL: Address of the processing routine
 ;;
 man_entity_for_each::
-   ld de, entities
-   ld c, MAX_ENTITIES
+   ld a, [alive_entities]
+   .check_if_zero_entities
+   cp 0
+   ret z
+   .process_alive_entities
+   ld de, components_info ;; DONT GO OUT OF $Cx00!
+   ld b, a
    .for:
-      push hl
-      push de ;; Save HL and DE original value
-      call load_tags_to_a
-      pop de ;; Get back original values
-      pop hl
-      bit E_BIT_ALIVE, a
-      jr z, .next_item ;; If not alive, next entity
-      
+      .check_if_valid
+      ld a, [de] ;; CMPS
+      and VALID_ENTITY
+      cp VALID_ENTITY
+      jr nz, .next
+      .process
       push bc
-      push hl ;; Save HL to recover it later
-      push de ;; Save AF, DE and HL to recover it later
-      ld bc, .ret_dir
-      push bc ;; Next ret will go to .ret_dir
-      jp hl
-
-      .ret_dir:
+      push hl
+      push de
+      call simulated_call_hl
       pop de
       pop hl
       pop bc
-
-      .next_item:
-         ;; TODO: Search for a better way to do this
-         REPT ENTITY_SIZE
-            inc de
-         ENDR
-         dec c
-   jr nz, .for
-
-   ret
+      .check_end
+      dec b
+      ret z
+      .next
+      ld a, e ;; ONLY VALID FOR 64 ENTITIES
+      add SIZEOF_CMP
+      ld e, a
+   jr .for

@@ -10,11 +10,10 @@ movement_update::
    ret
 
    check_prota_movement:
-      push de
-      call check_if_prota
-      pop de
+      call check_if_controllable
       ret z ;; If entity is not main char, do nothing 
 
+      ld d, CMP_SPRITE_H
       call read_input
       ;; B: State of the pad
 

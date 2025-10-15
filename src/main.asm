@@ -22,6 +22,7 @@ main::
       ld [frameCounter], a
 
       call movement_update
+      call physics_update
       call render_update
 
    .skip
