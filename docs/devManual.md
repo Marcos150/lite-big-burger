@@ -25,22 +25,22 @@ movement_update::
 
 ## Acceso a componentes de entidades
 
-> **Aviso**: Este apartado se encuentra desactualizado tras los cambios de la última clase.
+Para acceder a los datos de una entidad primero hay que cambiar el valor del registro `D` (o donde se guarde la dirección de la entidad) al del componente correspondiente. Una vez hecho esto, solo hay que sumar a `DE` (o al registro usado antes) el valor de la propiedad a obtener.
 
-Para acceder a los datos de una entidad se recomienda definir una función que haga uso de la macro `LOAD_PROPERTY_TO_A`, la cual carga el valor de la propiedad cuyo índice se pase como primer parámetro.
-
-**Importante**: La macro cambia el registro `DE`, por lo que si se quiere mantener su valor hay que hacer `push de` antes de llamarla para guardar el valor y `pop de` después de llamarla para recuperar el valor.
-
-A continuación se muestra un ejemplo de una función que devuelve en a los tags de una entidad que se pasa por `DE`:
+A continuación se muestra un ejemplo:
 
 ```asm
-;; Sets tags of entity to A register
-;; 📥 INPUT:
-;; DE: Address of the entity
-;; RETURNS:
-;; A: Tag property
-;; DESTROYS: DE, HL
-load_tags_to_a::
-   LOAD_PROPERTY_TO_A E_TAGS
-   ret
+change_sprite_to_19::
+    ;; Select sprite component
+    ld d, CMP_SPRITE_H
+
+    ;; HL = sprite tile address
+    ld bc, CMP_SPRITE_TILE
+    ld h, d
+    ld l, e
+    add hl, bc
+
+    ;; Change sprite tile to $19
+    ld [hl], $19
+ret
 ```
