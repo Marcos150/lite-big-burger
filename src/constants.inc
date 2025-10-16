@@ -40,7 +40,7 @@ def BUTTON_START     equ $80
 ; Tileset sizes
 def SIZE_OF_MAINGAME equ 138 * 8 * 2
 def SIZE_OF_MAURICIO equ 24 * 8 * 2
-def SIZE_OF_ELEMENTS equ 72 * 8 * 2
+def SIZE_OF_ELEMENTS equ 81 * 8 * 2
 
 def SCREEN_WIDTH  EQU $20
 def SCREEN_HEIGHT EQU $20
