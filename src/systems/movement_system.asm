@@ -58,20 +58,43 @@ check_prota_movement:
     and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
     jr nz, .done                    ; Si se pulsó algo, las funciones de `move` ya gestionaron el tile.
 
-    ; Si no se pulsó ninguna dirección, establecemos el tile de reposo.
+    ;; CAMBIO: Comprobar si estamos en una escalera antes de poner el tile de reposo.
+    push de                         ; Salvar DE (apunta a Y)
+    inc de                          ; Apuntar a X
+    ld a, [de]                      ; Cargar la posición X en A
+    pop de                          ; Restaurar DE (vuelve a apuntar a Y)
+
+    cp $24                          ; ¿Estamos en la columna X de una escalera?
+    jr z, .set_ladder_idle_frame
+    cp $44                          ; ¿Y en la otra?
+    jr z, .set_ladder_idle_frame
+
+    ; No estamos en una escalera, poner el frame de reposo normal.
     ld h, d
     ld l, e
-    inc hl                          ; hl apunta a la posición X (offset +1).
-    inc hl                          ;; CORRECCIÓN: hl AHORA apunta al byte del tile (offset +2).
+    inc hl                          ; Apunta a la Posición X
+    inc hl                          ; Apunta al byte del Tile
     ld a, PROTA_STATIC_TILE         ; Cargamos el tile de reposo ($8E).
+    ld [hl], a
+    jr .done                        ; Hemos terminado.
+
+.set_ladder_idle_frame:
+    ; Sí estamos en una escalera, poner el frame de escalera.
+    ld h, d
+    ld l, e
+    inc hl                          ; Apunta a la Posición X
+    inc hl                          ; Apunta al byte del Tile
+    ld a, LADDER_TILE               ; Cargar el tile de escalera ($96).
     ld [hl], a
 
 .done:
     ret
 
+
 ; =============================================================================
-; == Rutina de Animación de Caminata (Sin cambios)
+; == Rutinas de Animación y Movimiento (SIN CAMBIOS)
 ; =============================================================================
+
 animate_walk:
     push af
     push hl
@@ -94,9 +117,6 @@ animate_walk:
     pop af
     ret
 
-; =============================================================================
-; == Rutina de Animación de Escalera (Sin cambios)
-; =============================================================================
 animate_ladder_climb:
     push hl
     push de
@@ -122,9 +142,6 @@ animate_ladder_climb:
     pop hl
     ret
 
-; =============================================================================
-; == Funciones de Movimiento (Sin cambios)
-; =============================================================================
 move_u:
     inc de
     ld a, [de]
