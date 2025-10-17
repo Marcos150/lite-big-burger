@@ -30,7 +30,25 @@ wait_vblank_start::
    .loop:
       cp [hl]
    jr nz, .loop
-   ret
+ret
+
+;; E=> Times
+wait_vblank_ntimes:
+   .do:
+      call wait_vblank_start
+      call consume_time
+      dec e
+   jr nz, .do
+ret
+
+consume_time:
+   ld b, 127
+   .do:
+      nop
+      nop
+      dec b
+   jr nz, .do
+ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MEMCPY

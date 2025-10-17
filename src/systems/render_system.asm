@@ -5,7 +5,6 @@ SECTION "Render System Code", ROM0
 DEF OAM_START equ $FE00
 
 render_update::
-   call wait_vblank_start
 	;call man_entity_get_sprite_components
    ;; HL: sprite_components
    ;; B: sprite_components_size
