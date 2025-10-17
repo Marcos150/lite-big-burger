@@ -145,55 +145,6 @@ sub_bc_de::
    ld d, a
 ret
 
-;;-------------------------------------------------------
-;; Input: HL (16-bit number)
-;; Output: HL = 10 * HL
-;; ES PROBABLE QUE HAYA UNA MEJOR MANERA DE HACERLO
-mul_hl_10::
-   ;; HL * 10 = HL * 2 * 5
-
-   ;; *2
-   rl h
-   rl l
-
-   ;; *5
-   ld d, h
-   ld e, l
-   REPT 4
-      add hl, de
-   ENDR
-ret
-
-;;-------------------------------------------------------
-;; Input: DE (16-bit number)
-;; Output: DE = 6 * DE
-;; Condition: HL cannot be used
-;; ES PROBABLE QUE HAYA UNA MEJOR MANERA DE HACERLO
-mul_de_6::
-   ;; DE * 6 = DE * 2 * 3
-   ;; *2
-   rl d
-   rl e
-
-   ;; *3
-   ld b, d
-   ld c, e
-   call add_de_bc
-   call add_de_bc
-ret
-
-;;-------------------------------------------------------
-;; Input: DE (16-bit number)
-;; Output: DE = DE / 4
-div_de_4::
-   ;; /2
-   rrc d
-   rr e
-
-   ;; /4
-   rrc d
-   rr e
-ret
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DMA CODE
