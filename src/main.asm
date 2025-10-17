@@ -1,30 +1,38 @@
 SECTION "Movement Variables", WRAM0
 
-frameCounter:: db ; De momento voy a poner esto en el main
+frameCounter:: db
+animation_frame_counter:: db ; Correcto, los '::' la hacen global.
 def FRAME_LIMITER equ 4
 
 SECTION "Entry point", ROM0[$150]
 
 main::
-   xor a
-   ld [frameCounter], a
+    xor a
+    ld [frameCounter], a
+    ld [animation_frame_counter], a 
 
-   call sc_game_init
-   .loop:
-      call wait_vblank_start
-      ld a, [frameCounter]
-      inc a
-      ld [frameCounter], a
-      cp FRAME_LIMITER
-      jr nz, .skip
+    call sc_game_init
+.loop:
+    call wait_vblank_start
 
-      xor a
-      ld [frameCounter], a
+    ; -- Incrementamos el contador de animación SIEMPRE --
+    ld hl, animation_frame_counter
+    inc [hl]
 
-      call movement_update
-      call physics_update
-      call render_update
-      call collision_update
+    ; -- Lógica del limitador de frames --
+    ld a, [frameCounter]
+    inc a
+    ld [frameCounter], a
+    cp FRAME_LIMITER
+    jr nz, .skip
 
-   .skip
-      jr .loop
+    xor a
+    ld [frameCounter], a
+
+    call movement_update
+    call physics_update
+    call render_update
+    call collision_update
+
+.skip
+    jr .loop

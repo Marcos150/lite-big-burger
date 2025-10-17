@@ -3,29 +3,26 @@ INCLUDE "constants.inc"
 DEF SPEED equ 1
 
 ; =============================================================================
-; == DEFINICIÓN DE TILES DEL PERSONAJE
+; == DEFINICIÓN DE TILES Y ANIMACIÓN
 ; =============================================================================
 DEF LADDER_TILE equ $96     ; Tile del personaje en la escalera.
-
-; Tile que el personaje usa para caminar (valor corregido).
-DEF PROTA_WALK_TILE equ $8C   ; <--- CORREGIDO
+DEF PROTA_WALK_TILE equ $8C ; Tile del personaje al caminar.
+DEF LADDER_ANIM_SPEED equ 4 ; Velocidad de la animación.
 ; =============================================================================
-
 
 SECTION "Movement System", ROM0
 
 movement_update::
-    ld hl, check_prota_movement ;; HL = Function to be executed by every entity 
-    call man_entity_for_each    ;; Processes entities with the specified function
+    ld hl, check_prota_movement
+    call man_entity_for_each
     ret
 
 check_prota_movement:
     call check_if_controllable
-    ret z ;; If entity is not main char, do nothing 
+    ret z
 
     ld d, CMP_SPRITE_H
     call read_input
-    ;; B: State of the pad
 
     ld a, b
     and BUTTON_UP
@@ -49,74 +46,106 @@ check_prota_movement:
 .no_l:
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; MOVIMIENTO DE MAURICIO EN LAS PLATAFORMAS
-;; ¡¡ Los números son hexadecimales !!
-;; Left ladder X: 24
-;; Right ladder X: 44
-;; Spawn point X: 34, Y: 79
-;; Platforms  [Y: 79, Y: 61, Y: 49, Y: 31, Y: 19]
-;; Limits     {X: 10, X: 58}
-;; Falls      {X: 2B, X: 3C}
+; =============================================================================
+; == Rutina de Animación de Escalera (CORREGIDA)
+; == Ahora salva y restaura los registros HL y DE para evitar corrupción.
+; =============================================================================
+animate_ladder_climb:
+    push hl             ; Salvar HL para no corromperlo
+    push de             ; Salvar DE
+    
+    ld hl, animation_frame_counter
+    ld a, [hl]
+    
+    bit LADDER_ANIM_SPEED, a
+    
+    ld h, d             ; Hacemos que HL apunte al componente del sprite (Y)
+    ld l, e
+    inc hl              ; -> X
+    inc hl              ; -> Tile
+    inc hl              ; -> Atributos (Props)
+    ld a, [hl]          ; Cargamos los atributos actuales
+
+    jr z, .no_flip      ; Si el bit del contador es 0, no volteamos
+    
+.flip:
+    or a, SPRITE_ATTR_FLIP_X ; Activamos el bit de volteo
+    ld [hl], a
+    jr .done
+
+.no_flip:
+    and a, %11011111         ; Desactivamos el bit de volteo
+    ld [hl], a
+    
+.done:
+    pop de              ; Restauramos DE
+    pop hl              ; Restauramos HL
+    ret
 
 move_u:
-    inc de              ; Seleccionamos la x
-    ld a, [de]          ; Guardamos x en a para los cálculos
-    dec de              ; Volvemos a la y
-    cp $24              ; Comprobamos si su x está en la escalera izquierda
+    inc de
+    ld a, [de]
+    dec de
+    cp $24
     jr z, .move
-    cp $44              ; Comprobamos si su x está en la escalera derecha
+    cp $44
     jr nz, .no_ladder
 .move:
-    ld a, [de]          ; Guardamos y en a 
-    cp $19              ; Si está en la plataforma superior no le dejamos moverse
+    ld a, [de]
+    cp $19
     jr z, .no_ladder
-    sub a, SPEED        ; Calculamos la nueva posición del sprite
-    ld [de], a          ; La guardamos
+    sub a, SPEED
+    ld [de], a
 
-    ;-- Cambiamos al tile de la escalera --
-    push de             ; Salvamos DE para no perder el puntero a Y
-    inc de              ; DE ahora apunta a X
-    inc de              ; DE ahora apunta a TILE
-    ld a, LADDER_TILE   ; Cargamos el tile de la escalera
-    ld [de], a          ; Lo asignamos al personaje
-    pop de              ; Restauramos DE a su valor original (apuntando a Y)
+    ;-- Lógica de Escalera --
+    push de
+    inc de
+    inc de
+    ld a, LADDER_TILE
+    ld [de], a
+    pop de
+    call animate_ladder_climb ; Llamamos a la animación
 
 .no_ladder:
     ret
 
 move_d:
-    inc de              ; Seleccionamos la x
-    ld a, [de]          ; Guardamos x en a para los cálculos
-    dec de              ; Volvemos a la y
-    cp $24              ; Comprobamos si su x está en la escalera izquierda
+    inc de
+    ld a, [de]
+    dec de
+    cp $24
     jr z, .move
-    cp $44              ; Comprobamos si su x está en la escalera derecha
+    cp $44
     jr nz, .no_ladder
 .move:
-    ld a, [de]          ; Guardamos y en a 
-    cp $79              ; Si está en la plataforma inferior no le dejamos moverse
+    ld a, [de]
+    cp $79
     jr z, .no_ladder
-    add a, SPEED        ; Calculamos la nueva posición del sprite
-    ld [de], a          ; La guardamos
+    add a, SPEED
+    ld [de], a
 
-    ;-- Cambiamos al tile de la escalera --
-    push de             ; Salvamos DE para no perder el puntero a Y
-    inc de              ; DE ahora apunta a X
-    inc de              ; DE ahora apunta a TILE
-    ld a, LADDER_TILE   ; Cargamos el tile de la escalera
-    ld [de], a          ; Lo asignamos al personaje
-    pop de              ; Restauramos DE a su valor original (apuntando a Y)
+    ;-- Lógica de Escalera --
+    push de
+    inc de
+    inc de
+    ld a, LADDER_TILE
+    ld [de], a
+    pop de
+    call animate_ladder_climb ; Llamamos a la animación
 
 .no_ladder:
     ret
     
+; =============================================================================
+; == move_r (CORREGIDA)
+; == La lógica de volteo ahora es correcta y funciona como en el original.
+; =============================================================================
 move_r:
     ld a, [de]          ; Guardamos y en a para los calculos
     inc de              ; Seleccionamos la x
     cp $79              ; Cada comprobación aquí es para la base de las plataformas
     jr z, .move
-    cp $61              ; Estamos viendo si la y coincide con una plataforma
+    cp $61
     jr z, .move
     cp $49
     jr z, .move
@@ -126,40 +155,40 @@ move_r:
     jr nz, .no_platform
 .move:
     ;-- Restauramos el tile de caminar al original --
-    push de             ; Salvamos DE (apunta a X)
-    inc de              ; DE ahora apunta a TILE
+    push de             ; de apunta a X
+    inc de              ; de apunta a Tile
     ld a, PROTA_WALK_TILE
     ld [de], a
-    pop de              ; Restauramos DE (vuelve a apuntar a X)
+    pop de              ; de vuelve a apuntar a X
     
     ld a, [de]          ; Guardamos x en a
-    cp $58              ; Si está en el borde derecho no le dejamos moverse
+    cp $58
     jr z, .no_platform
-    add a, SPEED        ; Calculamos la nueva posición del sprite
-    ld [de], a          ; La guardamos
+    add a, SPEED
+    ld [de], a
 
-    ;; Hacemos un espejo del sprite (flip horizontal)
-    push af             ; Salvamos 'a' en la pila
-    push hl             ; Salvamos 'hl' en la pila
-    ld h, d             ; Cargamos D en H
-    ld l, e             ; Cargamos E en L (HL ahora es igual que DE)
-    inc hl              ; hl ahora apunta al tile
-    inc hl              ; hl ahora apunta al byte de atributos
-    ld a, [hl]          ; Cargamos el byte de atributos actual en 'a'
-    or SPRITE_ATTR_FLIP_X ; Activamos el bit 5 con un OR
-    ld [hl], a          ; Guardamos el nuevo byte de atributos
-    pop hl              ; Restauramos 'hl'
-    pop af              ; Restauramos 'a'
+    ;-- Lógica de volteo (CORREGIDA) --
+    push af
+    push hl
+    ld h, d             ; de apunta a X, por tanto HL apunta a X
+    ld l, e
+    inc hl              ; HL ahora apunta a TILE
+    inc hl              ; HL ahora apunta a PROPS
+    ld a, [hl]
+    or SPRITE_ATTR_FLIP_X
+    ld [hl], a
+    pop hl
+    pop af
 
 .no_platform:
     ret
 
 move_l:
-    ld a, [de]          ; Guardamos y en a para los calculos
-    inc de              ; Seleccionamos la x
-    cp $79              ; Cada comprobación aquí es para la base de las plataformas
+    ld a, [de]
+    inc de
+    cp $79
     jr z, .move
-    cp $61              ; Estamos viendo si la y coincide con una plataforma
+    cp $61
     jr z, .move
     cp $49
     jr z, .move
@@ -168,31 +197,29 @@ move_l:
     cp $19
     jr nz, .no_platform
 .move:
-    ;-- Restauramos el tile de caminar al original --
-    push de             ; Salvamos DE (apunta a X)
-    inc de              ; DE ahora apunta a TILE
+    push de
+    inc de
     ld a, PROTA_WALK_TILE
     ld [de], a
-    pop de              ; Restauramos DE (vuelve a apuntar a X)
+    pop de
     
-    ld a, [de]          ; Guardamos x en a
-    cp $10              ; Si está en el borde izquierdo no le dejamos moverse
+    ld a, [de]
+    cp $10
     jr z, .no_platform
-    sub a, SPEED        ; Calculamos la nueva posición del sprite
-    ld [de], a          ; La guardamos
+    sub a, SPEED
+    ld [de], a
 
-    ;; Volvemos el sprite a su estado original (sin flip)
-    push af             ; Salvamos 'a' en la pila
-    push hl             ; Salvamos 'hl' en la pila
-    ld h, d             ; Cargamos D en H
-    ld l, e             ; Cargamos E en L (HL ahora es igual que DE)
-    inc hl              ; hl ahora apunta al tile
-    inc hl              ; hl ahora apunta al byte de atributos
-    ld a, [hl]          ; Cargamos el byte de atributos actual en 'a'
-    and %11011111       ; Desactivamos el bit 5 con un AND (lo pone a 0)
-    ld [hl], a          ; Guardamos el nuevo byte de atributos
-    pop hl              ; Restauramos 'hl'
-    pop af              ; Restauramos 'a'
+    push af
+    push hl
+    ld h, d
+    ld l, e
+    inc hl
+    inc hl
+    ld a, [hl]
+    and %11011111
+    ld [hl], a
+    pop hl
+    pop af
 
 .no_platform:
     ret
