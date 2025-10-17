@@ -154,7 +154,7 @@ man_entity_non_controllable_for_each::
       jr nz, .next
       ld a, [de]
       and CMP_MASK_CONTROLLABLE
-      jr nz, .next
+      jr nz, .check_end
       .process
       push bc
       push hl

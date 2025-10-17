@@ -33,24 +33,19 @@ check_prota_movement:
 
     ld a, b
     and BUTTON_UP
-    jr z, .no_u
-    call move_u
+    call nz, move_u
 .no_u:
     ld a, b
     and BUTTON_DOWN
-    jr z, .no_d
-    call move_d
+    call nz, move_d
 .no_d:
     ld a, b
     and BUTTON_RIGHT
-    jr z, .no_r
-    call move_r
+    call nz, move_r
 .no_r:
     ld a, b
     and BUTTON_LEFT
-    jr z, .no_l
-    call move_l
-
+    call nz, move_l
 .no_l:
     ; Lógica de reposo (idle)
     pop bc                          ; Recuperamos el estado original del input.

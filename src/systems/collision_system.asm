@@ -62,14 +62,14 @@ check_collision_prota:
    ;; Y and height
    ld a, [de]
    ld [hl+], a
-   ld [hl], SPRITE_HEIGHT
+   ld [hl], SPRITE_HEIGHT_2_SPRITES
 
    ;; X and width
    inc de
    inc hl
    ld a, [de]
    ld [hl+], a
-   ld [hl], SPRITE_WIDTH
+   ld [hl], SPRITE_WIDTH_2_SPRITES
 
    ld de, bbox_prota
    ld hl, bbox_other
@@ -173,8 +173,9 @@ ret
 ;; HL: Address of the Sprite Component
 ;; 🔙 OUTPUT;
 ;; HL: VRAM Address of the tile the sprite is touching
+;; DESTROYS: A, B
 ;:
-get_address_of_tile_being_touched:
+get_address_of_tile_being_touched::
    ;; Y
    ld a, [hl+]
    call convert_y_to_ty
@@ -203,7 +204,7 @@ jr calculate_address_from_tx_and_ty
 convert_x_to_tx:
    ;; For the 8 non-visible pixels
    sub a, 8
-   call convert_x_to_tx
+
    ;; a = a/8 (8 pixels per tile)
    srl a
    srl a
@@ -242,7 +243,8 @@ ret
 ;; A: TX coordinate
 ;; 🔙 OUTPUT:
 ;; HL: Address where the (TX, TY) tile is stored
-;:
+;: DESTROYS: A, BC, DE 
+;;
 calculate_address_from_tx_and_ty:
    ;; de = $9800 + A (TX)
    ld e, a
