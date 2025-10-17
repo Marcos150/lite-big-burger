@@ -5,9 +5,13 @@ DEF SPEED equ 1
 ; =============================================================================
 ; == DEFINICIÓN DE TILES Y ANIMACIÓN
 ; =============================================================================
-DEF LADDER_TILE equ $96     ; Tile del personaje en la escalera.
-DEF PROTA_WALK_TILE equ $8C ; Tile del personaje al caminar.
-DEF LADDER_ANIM_SPEED equ 4 ; Velocidad de la animación.
+DEF LADDER_TILE         equ $96     ; Tile del personaje en la escalera.
+DEF PROTA_STATIC_TILE   equ $8C     ; Tile 1 de caminar y tile de REPOSO.
+DEF PROTA_WALK_TILE     equ $8E     ; Tile 1 de caminar y tile de REPOSO.
+DEF PROTA_WALK_TILE_2   equ $90     ; Tile 2 del personaje al caminar.
+
+DEF LADDER_ANIM_SPEED   equ 4       ; Velocidad de la animación de la escalera.
+DEF WALK_ANIM_SPEED     equ 4       ; Velocidad de la animación al caminar.
 ; =============================================================================
 
 SECTION "Movement System", ROM0
@@ -23,6 +27,9 @@ check_prota_movement:
 
     ld d, CMP_SPRITE_H
     call read_input
+
+    ; Guardamos el estado del input para comprobarlo al final.
+    push bc
 
     ld a, b
     and BUTTON_UP
@@ -43,45 +50,81 @@ check_prota_movement:
     and BUTTON_LEFT
     jr z, .no_l
     call move_l
+
 .no_l:
+    ; Lógica de reposo (idle)
+    pop bc                          ; Recuperamos el estado original del input.
+    ld a, b
+    and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
+    jr nz, .done                    ; Si se pulsó algo, las funciones de `move` ya gestionaron el tile.
+
+    ; Si no se pulsó ninguna dirección, establecemos el tile de reposo.
+    ld h, d
+    ld l, e
+    inc hl                          ; hl apunta a la posición X (offset +1).
+    inc hl                          ;; CORRECCIÓN: hl AHORA apunta al byte del tile (offset +2).
+    ld a, PROTA_STATIC_TILE         ; Cargamos el tile de reposo ($8E).
+    ld [hl], a
+
+.done:
     ret
 
 ; =============================================================================
-; == Rutina de Animación de Escalera (CORREGIDA)
-; == Ahora salva y restaura los registros HL y DE para evitar corrupción.
+; == Rutina de Animación de Caminata (Sin cambios)
 ; =============================================================================
-animate_ladder_climb:
-    push hl             ; Salvar HL para no corromperlo
-    push de             ; Salvar DE
-    
+animate_walk:
+    push af
+    push hl
     ld hl, animation_frame_counter
     ld a, [hl]
-    
-    bit LADDER_ANIM_SPEED, a
-    
-    ld h, d             ; Hacemos que HL apunte al componente del sprite (Y)
+    bit WALK_ANIM_SPEED, a
+    ld h, d
     ld l, e
-    inc hl              ; -> X
-    inc hl              ; -> Tile
-    inc hl              ; -> Atributos (Props)
-    ld a, [hl]          ; Cargamos los atributos actuales
-
-    jr z, .no_flip      ; Si el bit del contador es 0, no volteamos
-    
-.flip:
-    or a, SPRITE_ATTR_FLIP_X ; Activamos el bit de volteo
+    inc hl
+    jr z, .set_frame_1
+.set_frame_2:
+    ld a, PROTA_WALK_TILE_2
     ld [hl], a
-    jr .done
-
-.no_flip:
-    and a, %11011111         ; Desactivamos el bit de volteo
+    jr .animation_done
+.set_frame_1:
+    ld a, PROTA_WALK_TILE
     ld [hl], a
-    
-.done:
-    pop de              ; Restauramos DE
-    pop hl              ; Restauramos HL
+.animation_done:
+    pop hl
+    pop af
     ret
 
+; =============================================================================
+; == Rutina de Animación de Escalera (Sin cambios)
+; =============================================================================
+animate_ladder_climb:
+    push hl
+    push de
+    ld hl, animation_frame_counter
+    ld a, [hl]
+    bit LADDER_ANIM_SPEED, a
+    ld h, d
+    ld l, e
+    inc hl
+    inc hl
+    inc hl
+    ld a, [hl]
+    jr z, .no_flip
+.flip:
+    or a, SPRITE_ATTR_FLIP_X
+    ld [hl], a
+    jr .climb_done
+.no_flip:
+    and a, %11011111
+    ld [hl], a
+.climb_done:
+    pop de
+    pop hl
+    ret
+
+; =============================================================================
+; == Funciones de Movimiento (Sin cambios)
+; =============================================================================
 move_u:
     inc de
     ld a, [de]
@@ -96,16 +139,13 @@ move_u:
     jr z, .no_ladder
     sub a, SPEED
     ld [de], a
-
-    ;-- Lógica de Escalera --
     push de
     inc de
     inc de
     ld a, LADDER_TILE
     ld [de], a
     pop de
-    call animate_ladder_climb ; Llamamos a la animación
-
+    call animate_ladder_climb
 .no_ladder:
     ret
 
@@ -123,27 +163,20 @@ move_d:
     jr z, .no_ladder
     add a, SPEED
     ld [de], a
-
-    ;-- Lógica de Escalera --
     push de
     inc de
     inc de
     ld a, LADDER_TILE
     ld [de], a
     pop de
-    call animate_ladder_climb ; Llamamos a la animación
-
+    call animate_ladder_climb
 .no_ladder:
     ret
     
-; =============================================================================
-; == move_r (CORREGIDA)
-; == La lógica de volteo ahora es correcta y funciona como en el original.
-; =============================================================================
 move_r:
-    ld a, [de]          ; Guardamos y en a para los calculos
-    inc de              ; Seleccionamos la x
-    cp $79              ; Cada comprobación aquí es para la base de las plataformas
+    ld a, [de]
+    inc de
+    cp $79
     jr z, .move
     cp $61
     jr z, .move
@@ -154,32 +187,23 @@ move_r:
     cp $19
     jr nz, .no_platform
 .move:
-    ;-- Restauramos el tile de caminar al original --
-    push de             ; de apunta a X
-    inc de              ; de apunta a Tile
-    ld a, PROTA_WALK_TILE
-    ld [de], a
-    pop de              ; de vuelve a apuntar a X
-    
-    ld a, [de]          ; Guardamos x en a
+    ld a, [de]
     cp $58
     jr z, .no_platform
     add a, SPEED
     ld [de], a
-
-    ;-- Lógica de volteo (CORREGIDA) --
     push af
     push hl
-    ld h, d             ; de apunta a X, por tanto HL apunta a X
+    ld h, d
     ld l, e
-    inc hl              ; HL ahora apunta a TILE
-    inc hl              ; HL ahora apunta a PROPS
+    inc hl
+    inc hl
     ld a, [hl]
     or SPRITE_ATTR_FLIP_X
     ld [hl], a
     pop hl
     pop af
-
+    call animate_walk
 .no_platform:
     ret
 
@@ -197,18 +221,11 @@ move_l:
     cp $19
     jr nz, .no_platform
 .move:
-    push de
-    inc de
-    ld a, PROTA_WALK_TILE
-    ld [de], a
-    pop de
-    
     ld a, [de]
     cp $10
     jr z, .no_platform
     sub a, SPEED
     ld [de], a
-
     push af
     push hl
     ld h, d
@@ -220,6 +237,6 @@ move_l:
     ld [hl], a
     pop hl
     pop af
-
+    call animate_walk
 .no_platform:
     ret
