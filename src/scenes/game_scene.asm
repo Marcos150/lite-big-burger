@@ -13,6 +13,13 @@ mauricio_entity:
    DB $79, $34, $8C, %00000000 ;; CMP_SPRITE
    DB 0, 0, 0, 0 ;; CMP_PHYSICS
 
+;; Test entity
+;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y
+test_entity:
+   DB ENTITY_NO_PHYSICS_NO_CONTROLLABLE, 0, 0, 0 ;; CMP_INFO
+   DB $60, $14, $F0, %00000000 ;; CMP_SPRITE
+   DB 0, 0, 0, 0 ;; CMP_PHYSICS
+
 SECTION "Scene Game", ROM0
 
 ;; CREATE ONE ENTITY
@@ -60,9 +67,12 @@ sc_game_init::
 
    .init_managers_and_systems
    call man_entity_init
+   call collision_init
 
    .create_entities
    ld hl, mauricio_entity
+   call create_one_entity
+   ld hl, test_entity
    call create_one_entity
 
    ld hl, main_game_tiles

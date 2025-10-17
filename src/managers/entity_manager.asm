@@ -131,3 +131,43 @@ man_entity_for_each::
       add SIZEOF_CMP
       ld e, a
    jr .for
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Processes all alive non-controllable entities
+;;
+;; 📥 INPUT:
+;; HL: Address of the processing routine
+;;
+man_entity_non_controllable_for_each::
+   ld a, [alive_entities]
+   .check_if_zero_entities
+   cp 0
+   ret z
+   .process_alive_entities
+   ld de, components_info ;; DONT GO OUT OF $Cx00!
+   ld b, a
+   .for:
+      .check_if_valid
+      ld a, [de] ;; CMPS
+      and VALID_ENTITY
+      cp VALID_ENTITY
+      jr nz, .next
+      ld a, [de]
+      and CMP_MASK_CONTROLLABLE
+      jr nz, .next
+      .process
+      push bc
+      push hl
+      push de
+      call simulated_call_hl
+      pop de
+      pop hl
+      pop bc
+      .check_end
+      dec b
+      ret z
+      .next
+      ld a, e ;; ONLY VALID FOR 64 ENTITIES
+      add SIZEOF_CMP
+      ld e, a
+   jr .for

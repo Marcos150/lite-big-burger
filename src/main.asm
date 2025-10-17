@@ -24,6 +24,7 @@ main::
       call movement_update
       call physics_update
       call render_update
+      call collision_update
 
    .skip
       jr .loop
