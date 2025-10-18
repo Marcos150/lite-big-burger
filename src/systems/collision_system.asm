@@ -4,6 +4,8 @@ INCLUDE "managers/entity_manager.inc"
 SECTION "Collision Data", WRAM0
 bbox_prota: ds 4
 bbox_other: ds 4
+touching_tile_l::  ds 1
+touching_tile_r::  ds 1
 
 SECTION "Collision System", ROM0
 
@@ -22,8 +24,22 @@ ret
 
 collision_update::
    ld hl, check_collision
-jp man_entity_for_each
+   call man_entity_for_each
 
+   ld hl, check_tile
+jp man_entity_controllable_for_each
+
+
+check_tile:
+   ld h, CMP_SPRITE_H
+   ld l, e
+   call get_address_of_tile_being_touched
+   ld a, [hl+]
+   ld [touching_tile_l], a
+   ld a, [hl]
+   ld [touching_tile_r], a
+
+ret
 
 ;; INPUT:
 ;; DE: Prota entity address
@@ -86,14 +102,14 @@ win:
    ld bc, $9800
    .for:
       call wait_vblank_start
-      ld a, $E6
+      ld a, $C8
       ld [bc], a
       inc bc
       ld a, b
       cp $9B
       jr nz, .for
-   di 
-halt
+
+jp main
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension
@@ -173,9 +189,17 @@ ret
 ;; HL: Address of the Sprite Component
 ;; 🔙 OUTPUT;
 ;; HL: VRAM Address of the tile the sprite is touching
-;; DESTROYS: A, B
+;; DESTROYS: A, BC, DE
 ;:
 get_address_of_tile_being_touched::
+   ;; Wait until VRAM is readable 
+   push hl
+   ld hl, rSTAT
+   .wait
+      bit 1, [hl]
+      jr nz, .wait
+   pop hl
+
    ;; Y
    ld a, [hl+]
    call convert_y_to_ty

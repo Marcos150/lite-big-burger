@@ -19,8 +19,6 @@ main::
     ; -- Incrementamos el contador de animación SIEMPRE --
     ld hl, animation_frame_counter
     inc [hl]
-    inc [hl]
-    inc [hl]
 
     call render_update
     call movement_update

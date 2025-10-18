@@ -13,6 +13,7 @@ def _WRAM equ $C000
 DEF rLCDC_LCD_ENABLE equ 7
 DEF rLCDC_OBJ_16x8 equ 2
 DEF rLCDC_OBJ_ENABLE equ 1
+DEF rSTAT equ $FF41
 
 ;; Atributos de Sprite <-- AÑADIDO AQUÍ, EN UN LUGAR LÓGICO
 DEF SPRITE_ATTR_FLIP_X equ %00100000  ; Bit 5 para el flip horizontal

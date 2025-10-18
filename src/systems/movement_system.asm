@@ -10,8 +10,8 @@ DEF PROTA_STATIC_TILE   equ $8C     ; Tile 1 de caminar y tile de REPOSO.
 DEF PROTA_WALK_TILE     equ $8E     ; Tile 1 de caminar y tile de REPOSO.
 DEF PROTA_WALK_TILE_2   equ $90     ; Tile 2 del personaje al caminar.
 
-DEF LADDER_ANIM_SPEED   equ 4       ; Velocidad de la animación de la escalera.
-DEF WALK_ANIM_SPEED     equ 4       ; Velocidad de la animación al caminar.
+DEF LADDER_ANIM_SPEED   equ 2       ; Velocidad de la animación de la escalera.
+DEF WALK_ANIM_SPEED     equ 2       ; Velocidad de la animación al caminar.
 ; =============================================================================
 
 SECTION "Movement System", ROM0
@@ -47,40 +47,7 @@ check_prota_movement:
     and BUTTON_LEFT
     call nz, move_l
 .no_l:
-    ; Lógica de reposo (idle)
-    pop bc                          ; Recuperamos el estado original del input.
-    ld a, b
-    and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
-    jr nz, .done                    ; Si se pulsó algo, las funciones de `move` ya gestionaron el tile.
-
-    ;; CAMBIO: Comprobar si estamos en una escalera antes de poner el tile de reposo.
-    push de                         ; Salvar DE (apunta a Y)
-    inc de                          ; Apuntar a X
-    ld a, [de]                      ; Cargar la posición X en A
-    pop de                          ; Restaurar DE (vuelve a apuntar a Y)
-
-    cp $24                          ; ¿Estamos en la columna X de una escalera?
-    jr z, .set_ladder_idle_frame
-    cp $44                          ; ¿Y en la otra?
-    jr z, .set_ladder_idle_frame
-
-    ; No estamos en una escalera, poner el frame de reposo normal.
-    ld h, d
-    ld l, e
-    inc hl                          ; Apunta a la Posición X
-    inc hl                          ; Apunta al byte del Tile
-    ld a, PROTA_STATIC_TILE         ; Cargamos el tile de reposo ($8E).
-    ld [hl], a
-    jr .done                        ; Hemos terminado.
-
-.set_ladder_idle_frame:
-    ; Sí estamos en una escalera, poner el frame de escalera.
-    ld h, d
-    ld l, e
-    inc hl                          ; Apunta a la Posición X
-    inc hl                          ; Apunta al byte del Tile
-    ld a, LADDER_TILE               ; Cargar el tile de escalera ($96).
-    ld [hl], a
+    pop bc ; Recuperamos el estado original del input.
 
 .done:
     ret
