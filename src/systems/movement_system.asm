@@ -1,4 +1,5 @@
 INCLUDE "constants.inc"
+INCLUDE "managers/entity_manager.inc"
 
 DEF SPEED equ 1
 
@@ -155,7 +156,7 @@ animate_ladder_climb:
 ;; INPUT: HL: Starting address of tile pair to check
 ;; RETURNS: Flag Z if touching, NZ otherwise
 ;; DESTROYS: AF, C, HL
-check_if_touching_stairs:
+check_if_touching_stairs::
     ld c, 2
     .check_stairs:
         ld a, [hl+]
@@ -171,9 +172,9 @@ check_if_touching_stairs:
 ;; INPUT: HL: Address of the tile to check
 ;; RETURNS: Flag Z if touching, NZ otherwise
 ;; DESTROYS: AF, C, HL
-check_if_touching_floor:
+check_if_touching_floor::
     .check_floor:
-        ld a, [hl+]
+        ld a, [hl]
         cp $1C
         ret c ;; Rets if < 1C
         cp $1F
@@ -239,9 +240,13 @@ move_d:
     ret
     
 move_r:
-    ld hl, touching_tile_ddr
-    call check_if_touching_floor
-    ret nz
+    push de
+    ld d, CMP_PHYSICS_H
+    ld e, CMP_PHYSICS_VY
+    ld a, [de]
+    cp MAX_SPEED + 1
+    pop de
+    ret c
 .move:
     ld a, [de]
     call get_closest_divisible_by_8
@@ -272,9 +277,14 @@ move_r:
     ret
 
 move_l:
-    ld hl, touching_tile_ddl
-    call check_if_touching_floor
-    ret nz
+    push de
+    ld d, CMP_PHYSICS_H
+    ld e, CMP_PHYSICS_VY
+    ld a, [de]
+    cp MAX_SPEED + 1
+    pop de
+    ret c
+
 .move:
     ld a, [de]
     call get_closest_divisible_by_8

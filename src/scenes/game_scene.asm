@@ -10,8 +10,8 @@ SECTION "Scene Game Data" , ROM0
 ;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y
 mauricio_entity:
    DB ENTITY_NO_PHYSICS_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
-   DB $79, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
-   DB 0, 0, 0, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
+   DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
+   DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
 ;; Test entity
 ;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y

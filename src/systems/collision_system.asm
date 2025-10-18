@@ -28,7 +28,7 @@ ret
 
 collision_update::
    ld hl, check_collision
-   call man_entity_for_each
+   call man_entity_controllable_for_each
 
    ld hl, check_tile
 jp man_entity_controllable_for_each
@@ -83,12 +83,37 @@ ret
 ;; INPUT:
 ;; DE: Prota entity address
 check_collision:
-   ld d, CMP_INFO_H
-   ld a, [de]
-   ;; Checks if prota
-   and CMP_MASK_CONTROLLABLE
-   ret z
+   ;; Checks if floor underneath or on stairs to stop entity then
+   ld hl, touching_tile_ddl
+   call check_if_touching_floor
+   jr z, .stop_entity
+   inc hl
+   call check_if_touching_floor
+   jr z, .stop_entity
 
+   ld hl, touching_tile_dl
+   call check_if_touching_stairs
+   jr nz, .bbox
+
+   .stop_entity
+   ld d, CMP_PHYSICS_H
+   ld e, CMP_PHYSICS_VY
+   ld a, [de]
+   cp MAX_SPEED
+   jr nz, .reduce_accel
+
+   ld d, CMP_SPRITE_H
+   ld a, [de]
+   dec a
+   dec a
+   ld [de], a
+   
+   .reduce_accel
+   ld d, CMP_PHYSICS_H
+   ld a, -1
+   ld [de], a
+   
+   .bbox:
    ld d, CMP_SPRITE_H
    ld hl, bbox_prota
 
