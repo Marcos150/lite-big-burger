@@ -85,7 +85,7 @@ check_prota_movement:
 
     push hl
     ld hl, touching_tile_dl
-    call check_if_touching_stairs
+    call check_if_touching_ladders
     pop hl
     jr z, .set_ladder_idle_frame
 
@@ -152,13 +152,13 @@ animate_ladder_climb:
     pop hl
     ret
 
-;; Assumes stairs tile ids range is $1F - $25
+;; Assumes ladders tile ids range is $1F - $25
 ;; INPUT: HL: Starting address of tile pair to check
 ;; RETURNS: Flag Z if touching, NZ otherwise
 ;; DESTROYS: AF, C, HL
-check_if_touching_stairs::
+check_if_touching_ladders::
     ld c, 2
-    .check_stairs:
+    .check_ladders:
         ld a, [hl+]
         cp $1F
         ret c ;; Rets if < 1F
@@ -166,7 +166,7 @@ check_if_touching_stairs::
         ret nc ;; Rets if > $25
         dec c
         ret z
-    jr .check_stairs
+    jr .check_ladders
 
 ;; Assumes floor tile ids range is $1C - $1E and $21-$25
 ;; INPUT: HL: Address of the tile to check
@@ -178,10 +178,10 @@ check_if_touching_floor::
         cp $1C
         ret c ;; Rets if < 1C
         cp $1F
-        jr nc, .check_stair_floor ;; Checks for stair with floor if > $1E
+        jr nc, .check_ladder_floor ;; Checks for ladder with floor if > $1E
     jr .is_floor
 
-    .check_stair_floor:
+    .check_ladder_floor:
         cp $21
         ret c ;; Rets if < 21
         cp $26
@@ -193,11 +193,11 @@ ret
 
 move_u:
     ld hl, touching_tile_dl
-    call check_if_touching_stairs
+    call check_if_touching_ladders
     jr z, .move
 
     ld hl, touching_tile_ddl
-    call check_if_touching_stairs
+    call check_if_touching_ladders
     jr nz, .no_ladder
 .move:
     ld a, [de]
@@ -217,11 +217,11 @@ move_u:
 
 move_d:
     ld hl, touching_tile_dl
-    call check_if_touching_stairs
+    call check_if_touching_ladders
     jr z, .move
 
     ld hl, touching_tile_ddl
-    call check_if_touching_stairs
+    call check_if_touching_ladders
     jr nz, .no_ladder
 .move:
     ld a, [de]

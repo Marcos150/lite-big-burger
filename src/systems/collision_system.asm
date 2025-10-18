@@ -83,7 +83,7 @@ ret
 ;; INPUT:
 ;; DE: Prota entity address
 check_collision:
-   ;; Checks if floor underneath or on stairs to stop entity then
+   ;; Checks if floor underneath or on ladders to stop entity then
    ld hl, touching_tile_ddl
    call check_if_touching_floor
    jr z, .stop_entity
@@ -92,7 +92,7 @@ check_collision:
    jr z, .stop_entity
 
    ld hl, touching_tile_dl
-   call check_if_touching_stairs
+   call check_if_touching_ladders
    jr nz, .bbox
 
    .stop_entity
