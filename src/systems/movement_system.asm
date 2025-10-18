@@ -2,6 +2,10 @@ INCLUDE "constants.inc"
 
 DEF SPEED equ 1
 
+SECTION "MovementData", WRAM0
+
+has_moved_to_sides: ds 1
+
 ; =============================================================================
 ; == DEFINICIÓN DE TILES Y ANIMACIÓN
 ; =============================================================================
@@ -19,7 +23,37 @@ SECTION "Movement System", ROM0
 movement_update::
     ld hl, check_prota_movement
     call man_entity_for_each
-    ret
+ret
+
+check_movement:
+    ld hl, has_moved_to_sides
+    ld [hl], 0
+
+    ld a, b
+    and BUTTON_RIGHT
+    call nz, move_r
+
+    ld a, [has_moved_to_sides]
+    cp 0
+    ret nz
+.no_r:
+    ld a, b
+    and BUTTON_LEFT
+    call nz, move_l
+
+    ld a, [has_moved_to_sides]
+    cp 0
+    ret nz
+.no_l:
+    ld a, b
+    and BUTTON_UP
+    jp nz, move_u
+.no_u:
+    ld a, b
+    and BUTTON_DOWN
+    jp nz, move_d
+.no_d:
+ret
 
 check_prota_movement:
     call check_if_controllable
@@ -30,33 +64,19 @@ check_prota_movement:
 
     ; Guardamos el estado del input para comprobarlo al final.
     push bc
+    push de
+    call check_movement
+    pop de
+    pop bc
 
-    ld a, b
-    and BUTTON_UP
-    call nz, move_u
-.no_u:
-    ld a, b
-    and BUTTON_DOWN
-    call nz, move_d
-.no_d:
-    ld a, b
-    and BUTTON_RIGHT
-    call nz, move_r
-.no_r:
-    ld a, b
-    and BUTTON_LEFT
-    call nz, move_l
-.no_l:
     ; Lógica de reposo (idle)
-    pop bc ; Recuperamos el estado original del input.
     ld a, b
     and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
     ret nz                   ; Si se pulsó algo, las funciones de `move` ya gestionaron el tile.
 
-    push de                         ; Salvar DE (apunta a Y)
     inc de                          ; Apuntar a X
     ld a, [de]                      ; Cargar la posición X en A
-    pop de                          ; Restaurar DE (vuelve a apuntar a Y)
+    dec de                          ; Restaurar DE (vuelve a apuntar a Y)
     ld h, d
     ld l, e
     inc hl                          ; Apunta a la Posición X
@@ -132,8 +152,9 @@ animate_ladder_climb:
     ret
 
 ;; Assumes stairs tile ids range is $1F - $25
+;; INPUT: HL: Starting address of tile pair to check
 ;; RETURNS: Flag Z if touching, NZ otherwise
-;; DESTROYS: AF, L
+;; DESTROYS: AF, C, HL
 check_if_touching_stairs:
     ld c, 2
     .check_stairs:
@@ -196,7 +217,6 @@ move_d:
     
 move_r:
     ld a, [de]
-    inc de
     cp $79
     jr z, .move
     cp $61
@@ -208,6 +228,7 @@ move_r:
     cp $19
     jr nz, .no_platform
 .move:
+    inc de
     ld a, [de]
     cp $58
     jr z, .no_platform
@@ -225,12 +246,13 @@ move_r:
     pop hl
     pop af
     call animate_walk
+    ld hl, has_moved_to_sides
+    ld [hl], 1
 .no_platform:
     ret
 
 move_l:
     ld a, [de]
-    inc de
     cp $79
     jr z, .move
     cp $61
@@ -242,6 +264,7 @@ move_l:
     cp $19
     jr nz, .no_platform
 .move:
+    inc de
     ld a, [de]
     cp $10
     jr z, .no_platform
@@ -259,5 +282,7 @@ move_l:
     pop hl
     pop af
     call animate_walk
+    ld hl, has_moved_to_sides
+    ld [hl], 1
 .no_platform:
     ret
