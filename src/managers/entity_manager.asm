@@ -95,6 +95,12 @@ check_if_controllable::
    bit CMP_BIT_CONTROLLABLE, a
    ret
 
+check_if_ingredient::
+   ld a, [de]
+   bit CMP_BIT_INGREDIENT, a
+   ret
+
+
 process_entity:
    push bc
    push hl
