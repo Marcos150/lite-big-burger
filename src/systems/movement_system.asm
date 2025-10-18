@@ -48,8 +48,6 @@ check_prota_movement:
     call nz, move_l
 .no_l:
     pop bc ; Recuperamos el estado original del input.
-
-.done:
     ret
 
 
