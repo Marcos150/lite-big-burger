@@ -22,41 +22,11 @@ DEF WALK_ANIM_SPEED     equ 2       ; Velocidad de la animación al caminar.
 SECTION "Movement System", ROM0
 
 movement_update::
-    ld hl, check_prota_movement
+    ld hl, move_routine
     call man_entity_for_each
 ret
 
-check_movement:
-    ld hl, has_moved_to_sides
-    ld [hl], 0
-
-    ld a, b
-    and BUTTON_RIGHT
-    call nz, move_r
-
-    ld a, [has_moved_to_sides]
-    cp 0
-    ret nz
-.no_r:
-    ld a, b
-    and BUTTON_LEFT
-    call nz, move_l
-
-    ld a, [has_moved_to_sides]
-    cp 0
-    ret nz
-.no_l:
-    ld a, b
-    and BUTTON_UP
-    jp nz, move_u
-.no_u:
-    ld a, b
-    and BUTTON_DOWN
-    jp nz, move_d
-.no_d:
-ret
-
-check_prota_movement:
+move_routine:
     call check_if_controllable
     ret z
 
@@ -99,6 +69,37 @@ check_prota_movement:
     ld a, LADDER_TILE               ; Cargar el tile de escalera ($96).
     ld [hl], a
 ret
+
+check_movement:
+    ld hl, has_moved_to_sides
+    ld [hl], 0
+
+    ld a, b
+    and BUTTON_RIGHT
+    call nz, move_r
+
+    ld a, [has_moved_to_sides]
+    cp 0
+    ret nz
+.no_r:
+    ld a, b
+    and BUTTON_LEFT
+    call nz, move_l
+
+    ld a, [has_moved_to_sides]
+    cp 0
+    ret nz
+.no_l:
+    ld a, b
+    and BUTTON_UP
+    jp nz, move_u
+.no_u:
+    ld a, b
+    and BUTTON_DOWN
+    jp nz, move_d
+.no_d:
+ret
+
 
 
 ; =============================================================================

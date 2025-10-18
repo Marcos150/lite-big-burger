@@ -61,7 +61,7 @@ spawn_one_ingredient:
     ld hl, entity_build_buffer
 
     ; Write CMP_INFO (8 bytes)
-    ld a, ENTITY_NO_PHYSICS_NO_CONTROLLABLE
+    ld a, ENTITY_INGREDIENT_SPAWNING
     ld [hl+], a
     xor a           ; A = 0 (for all padding bytes)
     ld [hl+], a
