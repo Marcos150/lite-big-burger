@@ -13,54 +13,8 @@ mauricio_entity:
    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
    DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
-;; Test entity
-;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y
-test_entity:
-   DB ENTITY_NO_PHYSICS_NO_CONTROLLABLE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
-   DB $60, $14, $A6, %00000000, $60, $14 + $8, $A8, %00000000 ;; CMP_SPRITE
-   DB 0, 0, 0, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
-
 SECTION "Scene Game", ROM0
 
-;; CREATE ONE ENTITY
-;; HL: Entity Template Data
-create_one_entity:
-   push hl ;; Save Template Address
-  
-   .reserve_space_for_entity
-   call man_entity_alloc
-   ;; HL: Component Address (write)
-
-   .copy_info_cmp
-   ld d, h
-   ld e, l
-   pop hl ;; HL -> Entity Template Data
-   push hl
-   push de
-   ld b, SIZEOF_CMP
-   call memcpy_256
-
-   .copy_sprite_cmp
-   pop de
-   pop hl
-   ld d, CMP_SPRITE_H
-   ld bc, SIZEOF_CMP
-   add hl, bc
-   push hl
-   push de
-   ld b, c
-   call memcpy_256
-
-   .copy_physics_cmp
-   pop de
-   pop hl
-   ld d, CMP_PHYSICS_H
-   ld bc, SIZEOF_CMP
-   add hl, bc
-   ld b, c
-   call memcpy_256
-
-   ret
 
 sc_game_init::
    call lcd_off
@@ -72,8 +26,9 @@ sc_game_init::
    .create_entities
    ld hl, mauricio_entity
    call create_one_entity
-   ld hl, test_entity
-   call create_one_entity
+   ld d, %00010000
+   ld e, %00000001
+   call spawn_one_ingredient
 
    ld hl, main_game_tiles
    ld de, VRAM_TILE_START

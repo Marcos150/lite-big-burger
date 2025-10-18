@@ -103,6 +103,47 @@ memset_256::
    jr nz, memset_256
    ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DMA CODE
+;; Inspired by Game Boy Coding Adventure Early Access, chapter 12
+;; Code available here: https://github.com/mdagois/gca
+
+;; Function to call from our code. Initializes the DMA
+dma_copy::
+   jp HRAM_DMA_FUNC
+
+;; DMA activation code. This is the code that needs to be copied to the HRAM as ROM is unaccessible during DMA
+dma_copy_func:
+   ld a, CMP_SPRITE_H
+   ldh [rDMA], a
+   ld c, 40
+   .wait_copy:
+      dec c
+   jr nz, .wait_copy
+   ret
+dma_copy_func_end:
+
+;; Size of the code that has to be copied to the HRAM
+def DMA_FUNC_SIZE equ (dma_copy_func_end - dma_copy_func)
+
+rsset _HRAM
+
+def HRAM_DMA_FUNC rb DMA_FUNC_SIZE
+def HRAM_END rb 0
+
+;; Checks that the DMA function is not too large, so it does not collide with other HRAM data
+def HRAM_USAGE equ (HRAM_END - _HRAM)
+println "HRAM usage: {d:HRAM_USAGE} bytes"
+assert HRAM_USAGE <= $40, "Too many bytes used in HRAM"
+
+;; Copies the DMA function to HRAM
+init_dma_copy:
+   ld de, HRAM_DMA_FUNC
+   ld hl, dma_copy_func
+   ld b, DMA_FUNC_SIZE
+   jr memcpy_256
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CHECK PAD
@@ -170,42 +211,52 @@ get_closest_divisible_by_8::
    and %11111000
 ret              
    
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; DMA CODE
-;; Inspired by Game Boy Coding Adventure Early Access, chapter 12
-;; Code available here: https://github.com/mdagois/gca
+;; CREATE ONE ENTITY
+;; HL: Entity Template Data
+create_one_entity::
+   push hl ;; Save Template Address
+  
+   .reserve_space_for_entity
+   call man_entity_alloc
+   ;; HL: Component Address (write)
 
-;; Function to call from our code. Initializes the DMA
-dma_copy::
-   jp HRAM_DMA_FUNC
+   .copy_info_cmp
+   ld d, h
+   ld e, l
+   pop hl ;; HL -> Entity Template Data
+   push hl
+   push de
+   ld b, SIZEOF_CMP
+   call memcpy_256
 
-;; DMA activation code. This is the code that needs to be copied to the HRAM as ROM is unaccessible during DMA
-dma_copy_func:
-   ld a, CMP_SPRITE_H
-   ldh [rDMA], a
-   ld c, 40
-   .wait_copy:
-      dec c
-   jr nz, .wait_copy
+   .copy_sprite_cmp
+   pop de
+   pop hl
+   ld d, CMP_SPRITE_H
+   ld bc, SIZEOF_CMP
+   add hl, bc
+   push hl
+   push de
+   ld b, c
+   call memcpy_256
+
+   .copy_physics_cmp
+   pop de
+   pop hl
+   ld d, CMP_PHYSICS_H
+   ld bc, SIZEOF_CMP
+   add hl, bc
+   ld b, c
+   call memcpy_256
+
    ret
-dma_copy_func_end:
 
-;; Size of the code that has to be copied to the HRAM
-def DMA_FUNC_SIZE equ (dma_copy_func_end - dma_copy_func)
-
-rsset _HRAM
-
-def HRAM_DMA_FUNC rb DMA_FUNC_SIZE
-def HRAM_END rb 0
-
-;; Checks that the DMA function is not too large, so it does not collide with other HRAM data
-def HRAM_USAGE equ (HRAM_END - _HRAM)
-println "HRAM usage: {d:HRAM_USAGE} bytes"
-assert HRAM_USAGE <= $40, "Too many bytes used in HRAM"
-
-;; Copies the DMA function to HRAM
-init_dma_copy:
-   ld de, HRAM_DMA_FUNC
-   ld hl, dma_copy_func
-   ld b, DMA_FUNC_SIZE
-   jr memcpy_256
+find_first_set_bit_index::
+    ld b, 0
+    cp 0
+    ret z
+.loop
+    rrca
+    ret c
+    inc b
+    jr .loop
