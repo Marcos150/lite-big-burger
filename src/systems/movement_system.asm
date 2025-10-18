@@ -167,6 +167,29 @@ check_if_touching_stairs:
         ret z
     jr .check_stairs
 
+;; Assumes floor tile ids range is $1C - $1E and $21-$25
+;; INPUT: HL: Address of the tile to check
+;; RETURNS: Flag Z if touching, NZ otherwise
+;; DESTROYS: AF, C, HL
+check_if_touching_floor:
+    .check_floor:
+        ld a, [hl+]
+        cp $1C
+        ret c ;; Rets if < 1C
+        cp $1F
+        jr nc, .check_stair_floor ;; Checks for stair with floor if > $1E
+    jr .is_floor
+
+    .check_stair_floor:
+        cp $21
+        ret c ;; Rets if < 21
+        cp $26
+        ret nc ;; Rets if > $25
+    
+    .is_floor:
+    cp a
+ret
+
 move_u:
     ld hl, touching_tile_dl
     call check_if_touching_stairs
@@ -216,18 +239,15 @@ move_d:
     ret
     
 move_r:
-    ld a, [de]
-    cp $79
-    jr z, .move
-    cp $61
-    jr z, .move
-    cp $49
-    jr z, .move
-    cp $31
-    jr z, .move
-    cp $19
-    jr nz, .no_platform
+    ld hl, touching_tile_ddr
+    call check_if_touching_floor
+    ret nz
 .move:
+    ld a, [de]
+    call get_closest_divisible_by_8
+    inc a
+    ld [de], a
+
     inc de
     ld a, [de]
     cp $58
@@ -252,18 +272,15 @@ move_r:
     ret
 
 move_l:
-    ld a, [de]
-    cp $79
-    jr z, .move
-    cp $61
-    jr z, .move
-    cp $49
-    jr z, .move
-    cp $31
-    jr z, .move
-    cp $19
-    jr nz, .no_platform
+    ld hl, touching_tile_ddl
+    call check_if_touching_floor
+    ret nz
 .move:
+    ld a, [de]
+    call get_closest_divisible_by_8
+    inc a
+    ld [de], a
+
     inc de
     ld a, [de]
     cp $10

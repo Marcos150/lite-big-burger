@@ -163,6 +163,12 @@ sub_bc_de::
    ld d, a
 ret
 
+
+;; INPUT:  A = number
+;; OUTPUT: A
+get_closest_divisible_by_8::
+   and %11111000
+ret              
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DMA CODE
