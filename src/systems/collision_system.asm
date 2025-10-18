@@ -6,6 +6,10 @@ bbox_prota: ds 4
 bbox_other: ds 4
 touching_tile_l::  ds 1
 touching_tile_r::  ds 1
+touching_tile_dl::  ds 1
+touching_tile_dr::  ds 1
+touching_tile_ddl::  ds 1
+touching_tile_ddr::  ds 1
 
 SECTION "Collision System", ROM0
 
@@ -29,16 +33,51 @@ collision_update::
    ld hl, check_tile
 jp man_entity_controllable_for_each
 
+wait_until_VRAM_readable:
+   ld hl, rSTAT
+   .wait
+      bit 1, [hl]
+      jr nz, .wait
+ret
+
 
 check_tile:
    ld h, CMP_SPRITE_H
    ld l, e
    call get_address_of_tile_being_touched
+ 
+   push hl
+   call wait_until_VRAM_readable
+   pop hl
+
    ld a, [hl+]
    ld [touching_tile_l], a
    ld a, [hl]
    ld [touching_tile_r], a
 
+   ld bc, $0020
+   add hl, bc
+
+   push hl
+   call wait_until_VRAM_readable
+   pop hl
+
+   ld a, [hl]
+   ld [touching_tile_dr], a
+   dec hl
+   ld a, [hl]
+   ld [touching_tile_dl], a
+  
+   add hl, bc
+
+   push hl
+   call wait_until_VRAM_readable
+   pop hl
+
+   ld a, [hl+]
+   ld [touching_tile_ddl], a
+   ld a, [hl]
+   ld [touching_tile_ddr], a
 ret
 
 ;; INPUT:
@@ -192,14 +231,6 @@ ret
 ;; DESTROYS: A, BC, DE
 ;:
 get_address_of_tile_being_touched::
-   ;; Wait until VRAM is readable 
-   push hl
-   ld hl, rSTAT
-   .wait
-      bit 1, [hl]
-      jr nz, .wait
-   pop hl
-
    ;; Y
    ld a, [hl+]
    call convert_y_to_ty

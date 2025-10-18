@@ -47,8 +47,37 @@ check_prota_movement:
     and BUTTON_LEFT
     call nz, move_l
 .no_l:
+    ; Lógica de reposo (idle)
     pop bc ; Recuperamos el estado original del input.
-    ret
+    ld a, b
+    and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
+    ret nz                   ; Si se pulsó algo, las funciones de `move` ya gestionaron el tile.
+
+    push de                         ; Salvar DE (apunta a Y)
+    inc de                          ; Apuntar a X
+    ld a, [de]                      ; Cargar la posición X en A
+    pop de                          ; Restaurar DE (vuelve a apuntar a Y)
+    ld h, d
+    ld l, e
+    inc hl                          ; Apunta a la Posición X
+    inc hl                          ; Apunta al byte del Tile
+
+    push hl
+    ld hl, touching_tile_dl
+    call check_if_touching_stairs
+    pop hl
+    jr z, .set_ladder_idle_frame
+
+    .idle:
+    ; No estamos en una escalera, poner el frame de reposo normal.
+    ld [hl], PROTA_STATIC_TILE
+    ret                        ; Hemos terminado.
+
+.set_ladder_idle_frame:
+    ; Sí estamos en una escalera, poner el frame de escalera.
+    ld a, LADDER_TILE               ; Cargar el tile de escalera ($96).
+    ld [hl], a
+ret
 
 
 ; =============================================================================
@@ -102,13 +131,28 @@ animate_ladder_climb:
     pop hl
     ret
 
+;; Assumes stairs tile ids range is $1F - $25
+;; RETURNS: Flag Z if touching, NZ otherwise
+;; DESTROYS: AF, L
+check_if_touching_stairs:
+    ld c, 2
+    .check_stairs:
+        ld a, [hl+]
+        cp $1F
+        ret c ;; Rets if < 1F
+        cp $26
+        ret nc ;; Rets if > $25
+        dec c
+        ret z
+    jr .check_stairs
+
 move_u:
-    inc de
-    ld a, [de]
-    dec de
-    cp $24
+    ld hl, touching_tile_dl
+    call check_if_touching_stairs
     jr z, .move
-    cp $44
+
+    ld hl, touching_tile_ddl
+    call check_if_touching_stairs
     jr nz, .no_ladder
 .move:
     ld a, [de]
@@ -127,12 +171,12 @@ move_u:
     ret
 
 move_d:
-    inc de
-    ld a, [de]
-    dec de
-    cp $24
+    ld hl, touching_tile_dl
+    call check_if_touching_stairs
     jr z, .move
-    cp $44
+
+    ld hl, touching_tile_ddl
+    call check_if_touching_stairs
     jr nz, .no_ladder
 .move:
     ld a, [de]
