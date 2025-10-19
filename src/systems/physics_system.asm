@@ -12,8 +12,14 @@ process_accel:
     ld bc, CMP_PHYSICS_AY
     add hl, bc
     ld a, [hl]
-    ld c, a ;; C = Current accel
 
+    cp MAX_ACCEL
+    jr z, .add_accel
+    add a, 1
+    ld [hl], a
+
+    .add_accel:
+    ld c, a ;; C = Current accel
     push bc
     ld bc, CMP_PHYSICS_VY - CMP_PHYSICS_AY
     add hl, bc
@@ -37,7 +43,7 @@ physics_update_one_entity::
     ;; ASSUMES FIRST BYTE => Y
     .y_plus_vY
     ld a, [de]
-    add [hl] ;; A = Y + VY
+    add [hl]
     ld [de], a
 
     ;; ASSUMES SECOND BYTE => X
@@ -46,6 +52,6 @@ physics_update_one_entity::
 
     .x_plus_vX
     ld a, [de]
-    add [hl] ;; A = Y + VY
+    add [hl]
     ld [de], a
 ret

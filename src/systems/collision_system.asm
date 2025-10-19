@@ -97,6 +97,10 @@ check_collision:
 
    .stop_entity
    ld d, CMP_PHYSICS_H
+   ld e, CMP_PHYSICS_VX
+   xor a
+   ld [de], a
+
    ld e, CMP_PHYSICS_VY
    ld a, [de]
    cp MAX_SPEED

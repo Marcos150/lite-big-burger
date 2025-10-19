@@ -221,26 +221,29 @@ move_d:
     ret
     
 move_r:
-    push de
     ld d, CMP_PHYSICS_H
     ld e, CMP_PHYSICS_VY
     ld a, [de]
     cp MAX_SPEED + 1
-    pop de
     ret c
 .move:
-    ld a, [de]
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_Y
+    ld a, [hl]
     call get_closest_divisible_by_8
     inc a
-    ld [de], a
+    ld [hl], a
 
-    inc de
-    ld a, [de]
+    ld l, CMP_SPRITE_X
+    ld a, [hl]
     cp $58 ;; TODO: Esto hace las colisiones con las paredes. Rehacerlas con tiles
     jr z, .no_platform
-    add a, SPEED
+
+    ld e, CMP_PHYSICS_VX
+    ld a, [de]
+    ld a, SPEED
     ld [de], a
-    ld h, CMP_SPRITE_H
+
     ld l, CMP_SPRITE_PROPS
     ld a, [hl]
     or SPRITE_ATTR_FLIP_X
@@ -252,27 +255,30 @@ move_r:
     ret
 
 move_l:
-    push de
     ld d, CMP_PHYSICS_H
     ld e, CMP_PHYSICS_VY
     ld a, [de]
     cp MAX_SPEED + 1
-    pop de
     ret c
 
 .move:
-    ld a, [de]
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_Y
+    ld a, [hl]
     call get_closest_divisible_by_8
     inc a
+    ld [hl], a
+
+    ld l, CMP_SPRITE_X
+    ld a, [hl]
+    cp $58 ;; TODO: Esto hace las colisiones con las paredes. Rehacerlas con tiles
+    jr z, .no_platform
+
+    ld e, CMP_PHYSICS_VX
+    ld a, [de]
+    ld a, -SPEED
     ld [de], a
 
-    inc de
-    ld a, [de]
-    cp $10
-    jr z, .no_platform
-    sub a, SPEED
-    ld [de], a
-    ld h, CMP_SPRITE_H
     ld l, CMP_SPRITE_PROPS
     ld a, [hl]
     and %11011111
