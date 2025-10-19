@@ -1,8 +1,6 @@
 INCLUDE "constants.inc"
 INCLUDE "managers/entity_manager.inc"
 
-DEF SPEED equ 1
-
 SECTION "MovementData", WRAM0
 
 has_moved_to_sides: ds 1
@@ -23,13 +21,10 @@ SECTION "Movement System", ROM0
 
 movement_update::
     ld hl, move_routine
-    call man_entity_for_each
+    call man_entity_controllable_for_each
 ret
 
 move_routine:
-    call check_if_controllable
-    ret z
-
     ld d, CMP_SPRITE_H
     call read_input
 
@@ -99,8 +94,6 @@ check_movement:
     jp nz, move_d
 .no_d:
 ret
-
-
 
 ; =============================================================================
 ; == Rutinas de Animación y Movimiento (SIN CAMBIOS)
@@ -195,15 +188,9 @@ ret
 move_u:
     ld hl, touching_tile_dl
     call check_if_touching_ladders
-    jr z, .move
-
-    ld hl, touching_tile_ddl
-    call check_if_touching_ladders
     jr nz, .no_ladder
 .move:
     ld a, [de]
-    cp $19
-    jr z, .no_ladder
     sub a, SPEED
     ld [de], a
     push de
@@ -217,17 +204,11 @@ move_u:
     ret
 
 move_d:
-    ld hl, touching_tile_dl
-    call check_if_touching_ladders
-    jr z, .move
-
     ld hl, touching_tile_ddl
     call check_if_touching_ladders
     jr nz, .no_ladder
 .move:
     ld a, [de]
-    cp $79
-    jr z, .no_ladder
     add a, SPEED
     ld [de], a
     push de
@@ -256,7 +237,7 @@ move_r:
 
     inc de
     ld a, [de]
-    cp $58
+    cp $58 ;; TODO: Esto hace las colisiones con las paredes. Rehacerlas con tiles
     jr z, .no_platform
     add a, SPEED
     ld [de], a
