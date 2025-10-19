@@ -105,9 +105,8 @@ animate_walk:
     ld hl, animation_frame_counter
     ld a, [hl]
     bit WALK_ANIM_SPEED, a
-    ld h, d
-    ld l, e
-    inc hl
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_TILE
     jr z, .set_frame_1
 .set_frame_2:
     ld a, PROTA_WALK_TILE_2
@@ -241,17 +240,11 @@ move_r:
     jr z, .no_platform
     add a, SPEED
     ld [de], a
-    push af
-    push hl
-    ld h, d
-    ld l, e
-    inc hl
-    inc hl
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_PROPS
     ld a, [hl]
     or SPRITE_ATTR_FLIP_X
     ld [hl], a
-    pop hl
-    pop af
     call animate_walk
     ld hl, has_moved_to_sides
     ld [hl], 1
@@ -279,17 +272,11 @@ move_l:
     jr z, .no_platform
     sub a, SPEED
     ld [de], a
-    push af
-    push hl
-    ld h, d
-    ld l, e
-    inc hl
-    inc hl
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_PROPS
     ld a, [hl]
     and %11011111
     ld [hl], a
-    pop hl
-    pop af
     call animate_walk
     ld hl, has_moved_to_sides
     ld [hl], 1
