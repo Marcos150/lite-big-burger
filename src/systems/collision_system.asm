@@ -101,6 +101,8 @@ check_collision:
    xor a
    ld [de], a
 
+   ld [has_jumped], a
+
    ld e, CMP_PHYSICS_VY
    ld a, [de]
    cp MAX_SPEED

@@ -4,6 +4,7 @@ INCLUDE "managers/entity_manager.inc"
 SECTION "MovementData", WRAM0
 
 has_moved_to_sides: ds 1
+has_jumped:: ds 1
 
 ; =============================================================================
 ; == DEFINICIÓN DE TILES Y ANIMACIÓN
@@ -12,6 +13,7 @@ DEF LADDER_TILE         equ $96     ; Tile del personaje en la escalera.
 DEF PROTA_STATIC_TILE   equ $8C     ; Tile 1 de caminar y tile de REPOSO.
 DEF PROTA_WALK_TILE     equ $8E     ; Tile 1 de caminar y tile de REPOSO.
 DEF PROTA_WALK_TILE_2   equ $90     ; Tile 2 del personaje al caminar.
+DEF PROTA_JUMP_TILE     equ $92
 
 DEF LADDER_ANIM_SPEED   equ 2       ; Velocidad de la animación de la escalera.
 DEF WALK_ANIM_SPEED     equ 2       ; Velocidad de la animación al caminar.
@@ -25,6 +27,10 @@ movement_update::
 ret
 
 move_routine:
+    ld a, [has_jumped]
+    cp 1
+    ret z
+
     ld d, CMP_SPRITE_H
     call read_input
 
@@ -34,6 +40,11 @@ move_routine:
     call check_movement
     pop de
     pop bc
+
+    ; Guardamos el estado del input para comprobarlo al final.
+    push de
+    call check_jump
+    pop de
 
     ; Lógica de reposo (idle)
     ld a, b
@@ -93,6 +104,37 @@ check_movement:
     and BUTTON_DOWN
     jp nz, move_d
 .no_d:
+ret
+
+check_jump:
+    ld a, b
+    and BUTTON_A
+    ret z
+
+    ld hl, touching_tile_dl
+    call check_if_touching_ladders
+    ret z
+
+    ld a, [has_jumped]
+    cp 1
+    ret z
+
+    .jump
+    ld d, CMP_PHYSICS_H
+    ld e, CMP_PHYSICS_AY
+    ld a, -2
+    ld [de], a
+    ld e, CMP_PHYSICS_VY
+    ld a, -2
+    ld [de], a
+
+    ld a, 1
+    ld [has_jumped], a
+
+    ld d, CMP_SPRITE_H
+    ld e, CMP_SPRITE_TILE
+    ld a, PROTA_JUMP_TILE
+    ld [de], a
 ret
 
 ; =============================================================================
@@ -271,7 +313,7 @@ move_l:
 
     ld l, CMP_SPRITE_X
     ld a, [hl]
-    cp $58 ;; TODO: Esto hace las colisiones con las paredes. Rehacerlas con tiles
+    cp $10 ;; TODO: Esto hace las colisiones con las paredes. Rehacerlas con tiles
     jr z, .no_platform
 
     ld e, CMP_PHYSICS_VX
