@@ -30,9 +30,15 @@ sc_game_init::
    .create_entities
    ld hl, mauricio_entity
    call create_one_entity
-   ld d, %00010000
-   ld e, %00000001
-   call spawn_one_ingredient
+   ld d, 0
+   ld e, 1
+   call spawn_one_hazard
+   ld d, 1
+   ld e, 1
+   call spawn_one_hazard
+   ld d, $25
+   ld e, 0
+   call spawn_one_hazard
 
    ld hl, main_game_tiles
    ld de, VRAM_TILE_START

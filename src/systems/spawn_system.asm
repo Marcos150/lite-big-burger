@@ -13,15 +13,16 @@ ing_y:
     DB $19, $31, $49, $61, $19, $31, $49, $61
 
 def BASE_SPRITE_TILE equ $A2
+def KNIFE_SPRITE equ $CE
+def OIL_SPRITE equ $CC
 
 SECTION "Spawn System", ROM0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SPAWN ONE INGREDIENT
 ;; INPUT:
-;; D: Position bits (e.g., %00001000 for index 3)
-;; E: Sprite bits (e.g., %00010000 for index 4)
-;; HL: Address of the entity to modify (e.g., entity_array)
+;; D: Position bits (ex., %00001000 for index 3)
+;; E: Sprite bits (ex., %00010000 for index 4)
 ;; DESTROYS:
 ;; A, B, C, D, E, HL
 spawn_one_ingredient:
@@ -110,3 +111,83 @@ spawn_one_ingredient:
     ld hl, entity_build_buffer
     call create_one_entity
 ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SPAWN ONE HAZARD
+;; INPUT:
+;; D: Position bits (10-58 for oil, 0 (Left) or 1 (Right) for knives)
+;; E: Sprite bits (0 for oil and 1 for knives)
+;; DESTROYS:
+;; A, B, C, D, E, HL
+
+spawn_one_hazard:
+    ld a, e
+    cp 0
+    jr z, .define_oil
+
+    .define_knife:
+    ld b, KNIFE_SPRITE
+    ld a, d
+    cp 0
+    jr nz, .spawn_left
+    .spawn_right:
+    ld c, $58
+    jr .spawn
+    
+    .spawn_left:
+    ld c, $10
+    jr .spawn
+
+    .define_oil:
+    ld b, OIL_SPRITE
+    ld c, d
+
+    .spawn:
+        ld hl, entity_build_buffer
+
+        ; Write CMP_INFO (8 bytes)
+        ld a, ENTITY_HAZARD_SPAWNING
+        ld [hl+], a
+        xor a           ; A = 0 (for all padding bytes)
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+
+        ; Write CMP_SPRITE (8 bytes)
+        ; Sprite 1
+        xor a           ; Y-Pos = 0
+        ld [hl+], a
+        ld a, c         ; Get X-Pos
+        ld [hl+], a
+        ld a, b         ; Get Base Tile ID
+        ld [hl+], a
+        xor a           ; Get Attribute (None)
+        ld [hl+], a
+
+        ; Sprite 2
+        xor a           ; Null
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        
+        
+        ; Write CMP_PHYSICS (8 bytes)
+        xor a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+        ld [hl+], a
+
+        ; HL pointing to the start again
+        ld hl, entity_build_buffer
+        call create_one_entity
+    ret
