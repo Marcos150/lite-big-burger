@@ -269,12 +269,7 @@ move_r:
     cp MAX_SPEED + 1
     ret c
 .move:
-    ld h, CMP_SPRITE_H
-    ld l, CMP_SPRITE_Y
-    ld a, [hl]
-    call get_closest_divisible_by_8
-    inc a
-    ld [hl], a
+    call correct_position
 
     ld l, CMP_SPRITE_X
     ld a, [hl]
@@ -304,12 +299,7 @@ move_l:
     ret c
 
 .move:
-    ld h, CMP_SPRITE_H
-    ld l, CMP_SPRITE_Y
-    ld a, [hl]
-    call get_closest_divisible_by_8
-    inc a
-    ld [hl], a
+    call correct_position
 
     ld l, CMP_SPRITE_X
     ld a, [hl]
@@ -330,3 +320,12 @@ move_l:
     ld [hl], 1
 .no_platform:
     ret
+
+correct_position:
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_Y
+    ld a, [hl]
+    call get_closest_divisible_by_8
+    inc a
+    ld [hl], a
+ret

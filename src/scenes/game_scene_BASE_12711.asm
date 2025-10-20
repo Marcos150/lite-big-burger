@@ -11,8 +11,9 @@ animation_frame_counter:: DS 1
 SECTION "Scene Game Data" , ROM0
 
 ;; M A U R I C I O
+;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y
 mauricio_entity:
-   DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 16, 8, 0, 0, 0 ;; CMP_INFO
+   DB ENTITY_NO_PHYSICS_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
    DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
@@ -21,6 +22,23 @@ SECTION "Scene Game", ROM0
 
 sc_game_init::
    call lcd_off
+
+   .init_managers_and_systems
+   call man_entity_init
+   call collision_init
+
+   .create_entities
+   ld hl, mauricio_entity
+   call create_one_entity
+   ld d, 0
+   ld e, 1
+   call spawn_one_hazard
+   ld d, 1
+   ld e, 1
+   call spawn_one_hazard
+   ld d, $25
+   ld e, 0
+   call spawn_one_hazard
 
    ld hl, main_game_tiles
    ld de, VRAM_TILE_START
@@ -40,16 +58,9 @@ sc_game_init::
    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
    call memcpy
 
-
-   .init_managers_and_systems
-   call man_entity_init
-   call collision_init
-
-
    call init_dma_copy
    SET_BGP DEFAULT_PAL
    SET_OBP1 DEFAULT_PAL
-
 
    ld hl, rLCDC
    set rLCDC_OBJ_ENABLE, [hl]
@@ -60,24 +71,6 @@ sc_game_init::
 
    call lcd_on
 
-   ld e, 2
-   call wait_vblank_ntimes
-
-   call render_update
-   call sc_title_screen_hold
-
-   .create_entities
-   ld hl, mauricio_entity
-   call create_one_entity
-   ld d, 0
-   ld e, 1
-   call spawn_one_hazard
-   ld d, 1
-   ld e, 1
-   call spawn_one_hazard
-   ld d, $25
-   ld e, 0
-   call spawn_one_hazard
 	ret
 
 sc_game_run::

@@ -22,6 +22,25 @@ SECTION "Scene Game", ROM0
 sc_game_init::
    call lcd_off
 
+   .init_managers_and_systems
+   call man_entity_init
+   call collision_init
+
+   .create_entities
+   ld hl, mauricio_entity
+   call create_one_entity
+   ld d, 0
+   ld e, 1
+   call spawn_one_hazard
+   ld d, 1
+   ld e, 1
+   call spawn_one_hazard
+   ld d, $25
+   ld e, 0
+   call spawn_one_ingredient
+   ld d, $25
+   ld e, 0
+
    ld hl, main_game_tiles
    ld de, VRAM_TILE_START
    ld bc, SIZE_OF_MAINGAME
@@ -40,16 +59,9 @@ sc_game_init::
    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
    call memcpy
 
-
-   .init_managers_and_systems
-   call man_entity_init
-   call collision_init
-
-
    call init_dma_copy
    SET_BGP DEFAULT_PAL
    SET_OBP1 DEFAULT_PAL
-
 
    ld hl, rLCDC
    set rLCDC_OBJ_ENABLE, [hl]
@@ -60,24 +72,6 @@ sc_game_init::
 
    call lcd_on
 
-   ld e, 2
-   call wait_vblank_ntimes
-
-   call render_update
-   call sc_title_screen_hold
-
-   .create_entities
-   ld hl, mauricio_entity
-   call create_one_entity
-   ld d, 0
-   ld e, 1
-   call spawn_one_hazard
-   ld d, 1
-   ld e, 1
-   call spawn_one_hazard
-   ld d, $25
-   ld e, 0
-   call spawn_one_hazard
 	ret
 
 sc_game_run::

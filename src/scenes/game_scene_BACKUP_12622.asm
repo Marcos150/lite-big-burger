@@ -22,6 +22,29 @@ SECTION "Scene Game", ROM0
 sc_game_init::
    call lcd_off
 
+<<<<<<< HEAD
+   
+=======
+   .init_managers_and_systems
+   call man_entity_init
+   call collision_init
+
+   .create_entities
+   ld hl, mauricio_entity
+   call create_one_entity
+   ld d, 0
+   ld e, 1
+   call spawn_one_hazard
+   ld d, 1
+   ld e, 1
+   call spawn_one_hazard
+   ld d, $25
+   ld e, 0
+   call spawn_one_ingredient
+   ld d, $25
+   ld e, 0
+
+>>>>>>> f158a988697b3a63149ec62f8730f2f112997b04
    ld hl, main_game_tiles
    ld de, VRAM_TILE_START
    ld bc, SIZE_OF_MAINGAME

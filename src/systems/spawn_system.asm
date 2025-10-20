@@ -25,7 +25,7 @@ SECTION "Spawn System", ROM0
 ;; E: Sprite bits (ex., %00010000 for index 4)
 ;; DESTROYS:
 ;; A, B, C, D, E, HL
-spawn_one_ingredient:
+spawn_one_ingredient::
 	push de
 	ld a, d
 	call find_first_set_bit_index
@@ -65,13 +65,9 @@ spawn_one_ingredient:
     ld a, ENTITY_INGREDIENT_SPAWNING
     ld [hl+], a
     xor a           ; A = 0 (for all padding bytes)
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
+    REPT 7
+        ld [hl+], a
+    ENDR
 
     ; Write CMP_SPRITE (8 bytes)
     ; Sprite 1
@@ -98,14 +94,9 @@ spawn_one_ingredient:
     
     ; Write CMP_PHYSICS (8 bytes)
     xor a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
-    ld [hl+], a
+    REPT 8
+        ld [hl+], a
+    ENDR
 
     ; HL pointing to the start again
     ld hl, entity_build_buffer
@@ -120,7 +111,7 @@ ret
 ;; DESTROYS:
 ;; A, B, C, D, E, HL
 
-spawn_one_hazard:
+spawn_one_hazard::
     ld a, e
     cp 0
     jr z, .define_oil
@@ -149,13 +140,9 @@ spawn_one_hazard:
         ld a, ENTITY_HAZARD_SPAWNING
         ld [hl+], a
         xor a           ; A = 0 (for all padding bytes)
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
+        REPT 7
+            ld [hl+], a
+        ENDR
 
         ; Write CMP_SPRITE (8 bytes)
         ; Sprite 1
@@ -170,22 +157,16 @@ spawn_one_hazard:
 
         ; Sprite 2
         xor a           ; Null
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
+        REPT 4
+            ld [hl+], a
+        ENDR
         
         
         ; Write CMP_PHYSICS (8 bytes)
         xor a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
+        REPT 8
+            ld [hl+], a
+        ENDR
 
         ; HL pointing to the start again
         ld hl, entity_build_buffer
