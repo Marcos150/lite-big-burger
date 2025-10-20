@@ -59,3 +59,10 @@ DEF MAX_SPEED EQU 2
 DEF MAX_ACCEL EQU 1
 DEF JUMP_SPEED EQU -2
 DEF JUMP_ACCEL EQU -2
+
+; Define screen registers
+DEF rSCY = $FF42
+DEF rSCX = $FF43
+
+; Define the maximum scroll value
+DEF MAX_SCROLL_Y = 112

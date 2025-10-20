@@ -164,15 +164,15 @@ check_collision_prota:
    ret nc
 
    ;; Here goes the code that shall execute when the prota collides with a sprite
-   jr win
+   jr die
 ret
 
 
-win:
+die:
    ld bc, $9800
    .for:
       call wait_vblank_start
-      ld a, $C8
+      ld a, $08
       ld [bc], a
       inc bc
       ld a, b

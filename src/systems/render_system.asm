@@ -5,11 +5,6 @@ SECTION "Render System Code", ROM0
 DEF OAM_START equ $FE00
 
 render_update::
-	;call man_entity_get_sprite_components
-   ;; HL: sprite_components
-   ;; B: sprite_components_size
-   ;ld de, OAM_START
-   ;call memcpy_256
    call dma_copy
 
-	ret
+   ret

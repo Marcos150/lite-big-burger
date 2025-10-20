@@ -15,7 +15,7 @@ process_accel:
 
     cp MAX_ACCEL
     jr z, .add_accel
-    add a, 1
+    inc a
     ld [hl], a
 
     .add_accel:
@@ -55,3 +55,5 @@ physics_update_one_entity::
     add [hl]
     ld [de], a
 ret
+
+
