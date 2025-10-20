@@ -81,7 +81,7 @@ sc_game_init::
 	ret
 
 sc_game_run::
-   .loop:
+   .main_loop:
       ld e, 2
       call wait_vblank_ntimes
 
@@ -93,4 +93,60 @@ sc_game_run::
       call movement_update
       call physics_update
       call collision_update
-   jr .loop
+      jr .pause
+   jr .main_loop
+
+.pause:
+   call read_input
+   ld a, b
+   and BUTTON_START
+   jr z, .main_loop
+
+   .is_paused:
+      call wait_vblank_start
+      ld hl, $9800
+      ld a, $8B
+      ld [hl+], a
+      ld a, $E7
+      ld [hl+], a
+      inc a
+      ld [hl+], a
+      inc a
+      ld [hl+], a
+      inc a 
+      ld [hl+], a
+      inc a
+      ld [hl+], a
+      inc a
+      ld a, $8B
+      ld [hl], a
+      .wait_unpress:
+         call read_input
+         ld a, b
+         cp 0
+         jr nz, .wait_unpress
+
+      .loop_paused:
+         call read_input
+         ld a, b
+         and BUTTON_START
+         jr z, .loop_paused
+      
+      call wait_vblank_start
+      ld hl, $9800
+      ld a, $10
+      ld [hl+], a
+      ld [hl+], a
+      ld [hl+], a
+      ld [hl+], a
+      ld [hl+], a
+      ld [hl+], a
+      ld [hl+], a
+
+      .wait_unpress_again:
+         call read_input
+         ld a, b
+         cp 0
+         jr nz, .wait_unpress_again
+
+      jr .main_loop
