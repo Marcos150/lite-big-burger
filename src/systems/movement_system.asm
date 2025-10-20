@@ -122,10 +122,10 @@ check_jump:
     .jump
     ld d, CMP_PHYSICS_H
     ld e, CMP_PHYSICS_AY
-    ld a, -2
+    ld a, JUMP_ACCEL
     ld [de], a
     ld e, CMP_PHYSICS_VY
-    ld a, -2
+    ld a, JUMP_SPEED
     ld [de], a
 
     ld a, 1

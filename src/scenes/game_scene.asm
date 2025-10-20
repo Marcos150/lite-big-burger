@@ -4,6 +4,10 @@ INCLUDE "managers/entity_manager.inc"
 
 DEF VRAM_TILE_20 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 
+SECTION "Game Scene Data", WRAM0
+
+animation_frame_counter:: DS 1
+
 SECTION "Scene Game Data" , ROM0
 
 ;; M A U R I C I O
@@ -56,6 +60,24 @@ sc_game_init::
    set rLCDC_OBJ_ENABLE, [hl]
    set rLCDC_OBJ_16x8, [hl]
 
+   xor a
+   ld [animation_frame_counter], a 
+
    call lcd_on
 
 	ret
+
+sc_game_run::
+   .loop:
+      ld e, 2
+      call wait_vblank_ntimes
+
+      ; -- Incrementamos el contador de animación SIEMPRE --
+      ld hl, animation_frame_counter
+      inc [hl]
+
+      call render_update
+      call movement_update
+      call physics_update
+      call collision_update
+   jr .loop
