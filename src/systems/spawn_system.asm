@@ -140,13 +140,9 @@ spawn_one_hazard::
         ld a, ENTITY_HAZARD_SPAWNING
         ld [hl+], a
         xor a           ; A = 0 (for all padding bytes)
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
+        REPT 7
+            ld [hl+], a
+        ENDR
 
         ; Write CMP_SPRITE (8 bytes)
         ; Sprite 1
@@ -161,22 +157,16 @@ spawn_one_hazard::
 
         ; Sprite 2
         xor a           ; Null
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
+        REPT 4
+            ld [hl+], a
+        ENDR
         
         
         ; Write CMP_PHYSICS (8 bytes)
         xor a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
-        ld [hl+], a
+        REPT 8
+            ld [hl+], a
+        ENDR
 
         ; HL pointing to the start again
         ld hl, entity_build_buffer

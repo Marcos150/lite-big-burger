@@ -12,7 +12,7 @@ SECTION "Scene Game Data" , ROM0
 
 ;; M A U R I C I O
 mauricio_entity:
-   DB ENTITY_NO_PHYSICS_1_SPRITE, 0, 0, 16, 8, 0, 0, 0 ;; CMP_INFO
+   DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 16, 8, 0, 0, 0 ;; CMP_INFO
    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
    DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
