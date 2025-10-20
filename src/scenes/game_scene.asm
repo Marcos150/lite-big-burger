@@ -11,9 +11,8 @@ animation_frame_counter:: DS 1
 SECTION "Scene Game Data" , ROM0
 
 ;; M A U R I C I O
-;; Y, X, Tile, Props, tags, size_x, size_y, vel_y, init_y
 mauricio_entity:
-   DB ENTITY_NO_PHYSICS_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
+   DB ENTITY_NO_PHYSICS_1_SPRITE, 0, 0, 16, 8, 0, 0, 0 ;; CMP_INFO
    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
    DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
@@ -38,7 +37,9 @@ sc_game_init::
    call spawn_one_hazard
    ld d, $25
    ld e, 0
-   call spawn_one_hazard
+   call spawn_one_ingredient
+   ld d, $25
+   ld e, 0
 
    ld hl, main_game_tiles
    ld de, VRAM_TILE_START

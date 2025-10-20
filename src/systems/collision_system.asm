@@ -142,20 +142,40 @@ jp man_entity_non_controllable_for_each
 ;; INPUT:
 ;; DE: Other entity address
 check_collision_prota:
+   ld b, SPRITE_HEIGHT
+   ld c, SPRITE_WIDTH 
+   ld a, [de]
+
+   bit CMP_BIT_HAZARD, a
+   jr z, .check_if_ingredient
+
+   ld b, ENEMY_HEIGHT
+   ld c, ENEMY_WIDTH 
+
+   .check_if_ingredient
+   bit CMP_BIT_INGREDIENT, a
+   jr z, .detect
+
+   ld b, SPRITE_HEIGHT_2_SPRITES
+   ld c, SPRITE_WIDTH_2_SPRITES 
+
+   .detect
    ld d, CMP_SPRITE_H
    ld hl, bbox_other
 
    ;; Y and height
    ld a, [de]
    ld [hl+], a
-   ld [hl], SPRITE_HEIGHT_2_SPRITES
+   ld a, b
+   ld [hl], a
 
    ;; X and width
    inc de
    inc hl
    ld a, [de]
    ld [hl+], a
-   ld [hl], SPRITE_WIDTH_2_SPRITES
+   ld a, c
+   ld [hl], c
 
    ld de, bbox_prota
    ld hl, bbox_other
