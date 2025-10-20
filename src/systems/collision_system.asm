@@ -28,10 +28,10 @@ ret
 
 collision_update::
    ld hl, check_collision
-   call man_entity_controllable_for_each
+   call man_entity_controllable
 
    ld hl, check_tile
-jp man_entity_controllable_for_each
+jp man_entity_controllable
 
 wait_until_VRAM_readable:
    ld hl, rSTAT
@@ -136,7 +136,9 @@ check_collision:
    ld [hl], a
 
    ld hl, check_collision_prota
-jp man_entity_non_controllable_for_each
+   xor a ;; We clear a first to not use filters
+   ;; If we want to use a filter we can do [ld a, CMP_MASK_INGREDIENT]
+jp man_entity_for_each_filtered
 
 
 ;; INPUT:

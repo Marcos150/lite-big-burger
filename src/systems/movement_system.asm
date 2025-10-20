@@ -23,7 +23,7 @@ SECTION "Movement System", ROM0
 
 movement_update::
     ld hl, move_routine
-    call man_entity_controllable_for_each
+    call man_entity_controllable
 ret
 
 move_routine:

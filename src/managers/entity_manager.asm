@@ -143,37 +143,52 @@ man_entity_for_each::
    jr .for
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Processes all alive non-controllable entities
+;; Processes entities that are ALIVE, NON-CONTROLLABLE,
+;; and match an ADDITIONAL filter mask.
 ;;
 ;; 📥 INPUT:
-;; HL: Address of the processing routine
+;; HL: Address of the processing routine to call.
+;; A:  Additional filter mask (e.g., CMP_MASK_ENEMY).
+;;     Use 0 for no additional filter.
+;;     MAKE SURE TO CLEAR A IF NO FILTER IS BEING USED
 ;;
-man_entity_non_controllable_for_each::
+man_entity_for_each_filtered::
+   ; Store the additional mask from A into C for safekeeping.
+   ld c, a
+
    ld a, [alive_entities]
-   .check_if_zero_entities
    cp 0
    ret z
-   .process_alive_entities
    ld de, components_info ;; DONT GO OUT OF $Cx00!
-   ld b, a
+   ld b, a                
    .for:
-      .check_if_valid
-      ld a, [de] ;; CMPS
-      and VALID_ENTITY
-      cp VALID_ENTITY
-      jr nz, .next
-      ld a, [de]
-      and CMP_MASK_CONTROLLABLE
-      jr nz, .check_end
-      .process
-      call process_entity
-      .check_end
-      dec b
-      ret z
-      .next
-      ld a, e ;; ONLY VALID FOR 64 ENTITIES
-      add SIZEOF_CMP
-      ld e, a
+   ld a, [de]
+   and VALID_ENTITY
+   cp VALID_ENTITY
+   jr nz, .next
+
+   ld a, [de]
+   and CMP_MASK_CONTROLLABLE
+   jr nz, .next
+
+   ld a, c                
+   or a                  ; Check if it's 0 and don't apply filter
+   jr z, .process         
+   ld a, [de]
+   and c
+   cp c                   
+
+   jr nz, .next 
+
+   .process:
+   call process_entity
+
+   .next:
+   dec b
+   ret z
+   ld a, e                ;; ONLY VALID FOR 64 ENTITIES
+   add SIZEOF_CMP
+   ld e, a
    jr .for
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -182,7 +197,7 @@ man_entity_non_controllable_for_each::
 ;; 📥 INPUT:
 ;; HL: Address of the processing routine
 ;;
-man_entity_controllable_for_each::
+man_entity_controllable::
    ld a, [alive_entities]
    .check_if_zero_entities
    cp 0
@@ -201,6 +216,7 @@ man_entity_controllable_for_each::
       jr z, .check_end
       .process
       call process_entity
+      ret
       .check_end
       dec b
       ret z
