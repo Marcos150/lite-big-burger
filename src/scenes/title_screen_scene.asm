@@ -9,10 +9,20 @@ animation_delay:: DS 1
 SECTION "Title Screen Scene" , ROM0
 
 sc_title_screen_hold::
+	.music_driver_init:
+   	ld hl, funiculi
+   	call hUGE_init
+	
+	;; Lowers the volume
+	ld a, %00110011
+	ld [NR50], a
+
 	call set_screen_to_bottom
 	ld a, $30
 	ld [animation_delay], a
 	.loop:
+		;; Plays music.
+      	;call hUGE_dosound
 
 		ld a, [animation_delay]
 		cp 0
@@ -32,6 +42,7 @@ sc_title_screen_hold::
 
 		jr z, .loop
 
+		AUDIO_OFF
 	.scroll_loop:
     	call wait_vblank_start
     	ld a, [rSCY]

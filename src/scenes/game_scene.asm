@@ -56,7 +56,7 @@ sc_game_init::
    set rLCDC_OBJ_16x8, [hl]
 
    xor a
-   ld [animation_frame_counter], a 
+   ld [animation_frame_counter], a
 
    call lcd_on
 
@@ -85,7 +85,6 @@ sc_game_run::
       ld e, 2
       call wait_vblank_ntimes
 
-      ; -- Incrementamos el contador de animación SIEMPRE --
       ld hl, animation_frame_counter
       inc [hl]
 

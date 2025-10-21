@@ -33,7 +33,7 @@ wait_vblank_start::
 ret
 
 ;; E=> Times
-wait_vblank_ntimes:
+wait_vblank_ntimes::
    .do:
       call wait_vblank_start
       call consume_time
@@ -137,7 +137,7 @@ println "HRAM usage: {d:HRAM_USAGE} bytes"
 assert HRAM_USAGE <= $40, "Too many bytes used in HRAM"
 
 ;; Copies the DMA function to HRAM
-init_dma_copy:
+init_dma_copy::
    ld de, HRAM_DMA_FUNC
    ld hl, dma_copy_func
    ld b, DMA_FUNC_SIZE

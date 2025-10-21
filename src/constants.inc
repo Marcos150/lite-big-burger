@@ -8,6 +8,8 @@ def rJOYP equ $FF00
 def rDMA  equ $FF46
 def _HRAM equ $FF80
 def _WRAM equ $C000
+DEF NR50  equ $FF24 ;; Master Volume & VIN panning
+DEF NR52  equ $FF26 ;; Audio master control
 
 ;; rLCDC bits
 DEF rLCDC_LCD_ENABLE equ 7

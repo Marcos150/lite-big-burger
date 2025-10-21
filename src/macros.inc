@@ -26,3 +26,12 @@ MACRO LOAD_PROPERTY_TO_A
    ld a, [hl] ;; a = property value
 ENDM
   
+MACRO AUDIO_OFF
+   xor a
+   ld [NR52], a   
+ENDM
+
+MACRO AUDIO_ON
+   ld a, $FF
+   ld [NR52], a   
+ENDM

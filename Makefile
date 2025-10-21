@@ -23,7 +23,7 @@ include cfg/projectpaths.mk   # Local paths and files for the project
 PRJNAME  :=game
 PAD      :=0xFF
 INCLUDE  :=-Isrc
-ASMFLAGS :=-E -Weverything
+ASMFLAGS :=-Weverything
 FIXFLAGS :=-v
 TARGET   :=$(PRJNAME).gb
 SAV_FILE :=$(PRJNAME).sav
