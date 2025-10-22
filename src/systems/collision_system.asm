@@ -11,6 +11,8 @@ touching_tile_dr::  ds 1
 touching_tile_ddl::  ds 1
 touching_tile_ddr::  ds 1
 
+collided_entity_type: ds 1
+
 SECTION "Collision System", ROM0
 
 ;; TODO: Store and check with different sprite H and W 
@@ -145,21 +147,30 @@ jp man_entity_for_each_filtered
 ;; DE: Other entity address
 check_collision_prota:
    ld b, SPRITE_HEIGHT
-   ld c, SPRITE_WIDTH 
+   ld c, SPRITE_WIDTH
+   ld a, CMP_BIT_CONTROLLABLE
+   ld [collided_entity_type], a
    ld a, [de]
 
    bit CMP_BIT_HAZARD, a
    jr z, .check_if_ingredient
 
+   ;; Collides with enemy or hazard
    ld b, ENEMY_HEIGHT
-   ld c, ENEMY_WIDTH 
+   ld c, ENEMY_WIDTH
+   ld a, CMP_BIT_HAZARD
+   ld [collided_entity_type], a
+   jr .detect
 
    .check_if_ingredient
    bit CMP_BIT_INGREDIENT, a
    jr z, .detect
 
+   ;; Collides with ingredient
    ld b, SPRITE_HEIGHT_2_SPRITES
-   ld c, SPRITE_WIDTH_2_SPRITES 
+   ld c, SPRITE_WIDTH_2_SPRITES
+   ld a, CMP_BIT_INGREDIENT
+   ld [collided_entity_type], a
 
    .detect
    ld d, CMP_SPRITE_H
@@ -185,10 +196,12 @@ check_collision_prota:
 
    ret nc
 
-   ;; Here goes the code that shall execute when the prota collides with a sprite
-   jr die
+   ld a, [collided_entity_type]
+   cp CMP_BIT_HAZARD
+   jr z, die ;; Collides with enemy or hazard
+   cp CMP_BIT_INGREDIENT
+   jr z, ingredient_col ;; Collides with ingredient
 ret
-
 
 die:
    ld bc, $9800
@@ -202,6 +215,10 @@ die:
       jr nz, .for
 
 jp main
+
+ingredient_col:
+   ld e, 10
+   jp wait_vblank_ntimes
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension
