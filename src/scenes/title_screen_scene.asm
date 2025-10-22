@@ -10,11 +10,19 @@ SECTION "Title Screen Scene" , ROM0
 
 sc_title_screen_hold::
 	.music_driver_init:
-   	ld hl, funiculi
+    ld hl, funiculi
    	call hUGE_init
+
+	;; Unmute used channels
+	ld c, UNMUTE_CHANNEL
+	ld b, CHANNEL_1
+	call hUGE_mute_channel
+	ld c, UNMUTE_CHANNEL
+	ld b, CHANNEL_2
+	call hUGE_mute_channel
 	
 	;; Lowers the volume
-	ld a, %00110011
+	ld a, INIT_VOLUME
 	ld [NR50], a
 
 	call set_screen_to_bottom
@@ -22,7 +30,7 @@ sc_title_screen_hold::
 	ld [animation_delay], a
 	.loop:
 		;; Plays music.
-      	;call hUGE_dosound
+      	call hUGE_dosound
 
 		ld a, [animation_delay]
 		cp 0
@@ -42,7 +50,13 @@ sc_title_screen_hold::
 
 		jr z, .loop
 
-		AUDIO_OFF
+		;; Mute used channels
+		ld c, MUTE_CHANNEL
+		ld b, CHANNEL_1
+		call hUGE_mute_channel
+		ld c, MUTE_CHANNEL
+		ld b, CHANNEL_2
+		call hUGE_mute_channel
 	.scroll_loop:
     	call wait_vblank_start
     	ld a, [rSCY]

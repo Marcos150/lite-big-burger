@@ -32,6 +32,6 @@ MACRO AUDIO_OFF
 ENDM
 
 MACRO AUDIO_ON
-   ld a, $FF
+   ld a, $80
    ld [NR52], a   
 ENDM

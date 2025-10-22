@@ -71,3 +71,10 @@ DEF rSCX = $FF43
 
 ; Define the maximum scroll value
 DEF MAX_SCROLL_Y = 112
+
+; Audio constants
+DEF INIT_VOLUME EQU %01010101 ; 5 (available values: 0-8)
+DEF MUTE_CHANNEL EQU 1
+DEF UNMUTE_CHANNEL EQU 0
+DEF CHANNEL_1 EQU 0
+DEF CHANNEL_2 EQU 1
