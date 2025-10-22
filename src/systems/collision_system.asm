@@ -205,6 +205,7 @@ ret
 
 die:
    ld bc, $9800
+   call death_sound
    .for:
       call wait_vblank_start
       ld a, $08
@@ -214,6 +215,7 @@ die:
       cp $9B
       jr nz, .for
 
+      call stop_ch_4
 jp main
 
 ingredient_col:

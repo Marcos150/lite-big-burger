@@ -120,6 +120,8 @@ check_jump:
     ret z
 
     .jump
+    call jump_sound
+
     ld d, CMP_PHYSICS_H
     ld e, CMP_PHYSICS_AY
     ld a, JUMP_ACCEL

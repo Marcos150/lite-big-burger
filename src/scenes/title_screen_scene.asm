@@ -23,7 +23,7 @@ sc_title_screen_hold::
 	
 	;; Lowers the volume
 	ld a, INIT_VOLUME
-	ld [NR50], a
+	ld [rNR50], a
 
 	call set_screen_to_bottom
 	ld a, $30
