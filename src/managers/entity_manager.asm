@@ -90,6 +90,9 @@ man_entity_destroy::
    add a, CMP_SPRITE_Y_2
    ld l, a
    ld [hl], 0
+
+   ld hl, alive_entities
+   dec [hl]
 ret
 
 ;; Returns the address of the sprite component array
@@ -177,35 +180,36 @@ man_entity_for_each_filtered::
    cp 0
    ret z
    ld de, components_info ;; DONT GO OUT OF $Cx00!
-   ld b, a                
+   ld b, a
    .for:
-   ld a, [de]
-   and VALID_ENTITY
-   cp VALID_ENTITY
-   jr nz, .next
+      ld a, [de]
+      and VALID_ENTITY
+      cp VALID_ENTITY
+      jr nz, .next
 
-   ld a, [de]
-   and CMP_MASK_CONTROLLABLE
-   jr nz, .next
+      ld a, [de]
+      and CMP_MASK_CONTROLLABLE
+      jr nz, .next
 
-   ld a, c                
-   or a                  ; Check if it's 0 and don't apply filter
-   jr z, .process         
-   ld a, [de]
-   and c
-   cp c                   
+      ld a, c                
+      or a                  ; Check if it's 0 and don't apply filter
+      jr z, .process         
+      ld a, [de]
+      and c
+      cp c                   
 
-   jr nz, .next 
+      jr nz, .next 
 
-   .process:
-   call process_entity
+      .process:
+      call process_entity
 
-   .next:
-   dec b
-   ret z
-   ld a, e                ;; ONLY VALID FOR 64 ENTITIES
-   add SIZEOF_CMP
-   ld e, a
+      .check_end:
+      dec b
+      ret z
+      .next:
+      ld a, e                ;; ONLY VALID FOR 64 ENTITIES
+      add SIZEOF_CMP
+      ld e, a
    jr .for
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

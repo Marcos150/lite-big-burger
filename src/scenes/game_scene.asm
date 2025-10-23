@@ -44,6 +44,7 @@ sc_game_init::
    .init_managers_and_systems
    call man_entity_init
    call collision_init
+   call movement_init
 
 
    call init_dma_copy
@@ -110,8 +111,8 @@ sc_game_run::
       call collision_update
 
 
-      ld hl, obliterate_entities
-      call man_entity_for_each
+      ;ld hl, obliterate_entities
+      ;call man_entity_for_each
       jr .pause
    jr .main_loop
 

@@ -104,8 +104,7 @@ spawn_one_ingredient::
 
     ; HL pointing to the start again
     ld hl, entity_build_buffer
-    call create_one_entity
-ret
+    jp create_one_entity
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SPAWN ONE HAZARD

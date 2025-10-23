@@ -221,11 +221,13 @@ die:
 jp main
 
 
-;; En esta función debería poner el bit de ser afectado por las físicas a 1
 ingredient_col:
    call start_sound
    ld h, CMP_INFO_H
    ld l, e
+
+   set CMP_BIT_PHYSICS, [hl]
+   ret
 
    ld a, [alive_ingredients]
    dec a

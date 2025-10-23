@@ -24,6 +24,11 @@ DEF ING_MOVEMENT_DELAY  equ 2
 
 SECTION "Movement System", ROM0
 
+movement_init::
+    ld a, 200
+    ld [ing_movement_count], a
+ret
+
 movement_update::
     ld hl, move_routine
     call man_entity_controllable
@@ -413,8 +418,4 @@ ret
     ld [de], a
 
 
-    jr .ing_moved
-
-.dec_counter:
-    dec a
     jr .ing_moved
