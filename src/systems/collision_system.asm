@@ -222,18 +222,16 @@ jp main
 
 
 ingredient_col:
-   call start_sound
    ld h, CMP_INFO_H
    ld l, e
+   bit CMP_BIT_PHYSICS, [hl]
+   ret nz
 
+   call start_sound ;; TODO: Find a way to work with longer sounds
    set CMP_BIT_PHYSICS, [hl]
-   ret
-
-   ld a, [alive_ingredients]
-   dec a
-   ld [alive_ingredients], a 
-
-   jp man_entity_destroy
+   ld hl, alive_ingredients
+   dec [hl]
+ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension

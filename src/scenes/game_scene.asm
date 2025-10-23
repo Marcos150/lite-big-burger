@@ -111,10 +111,9 @@ sc_game_run::
       call collision_update
 
 
-      ;ld hl, obliterate_entities
-      ;call man_entity_for_each
-      jr .pause
-   jr .main_loop
+      ld hl, obliterate_entities
+      call man_entity_for_each
+   jr .pause
 
 .pause:
    call read_input
@@ -128,16 +127,12 @@ sc_game_run::
       ld a, $8B
       ld [hl+], a
       ld a, $E7
-      ld [hl+], a
-      inc a
-      ld [hl+], a
-      inc a
-      ld [hl+], a
-      inc a 
-      ld [hl+], a
-      inc a
-      ld [hl+], a
-      inc a
+
+      REPT 5
+         ld [hl+], a
+         inc a
+      ENDR
+
       ld a, $8B
       ld [hl], a
       .wait_unpress:
@@ -155,13 +150,9 @@ sc_game_run::
       call wait_vblank_start
       ld hl, $9800
       ld a, $10
-      ld [hl+], a
-      ld [hl+], a
-      ld [hl+], a
-      ld [hl+], a
-      ld [hl+], a
-      ld [hl+], a
-      ld [hl+], a
+      REPT 7
+         ld [hl+], a
+      ENDR
 
       .wait_unpress_again:
          call read_input
@@ -179,17 +170,12 @@ obliterate_entities:
    inc de
    ld a, [de]           ;;Check x
    cp $B0
-   jr nc, .obliterate_dec
-   .end_kill:
+   dec de
+   jr nc, .obliterate
 ret
 
 .obliterate:
-   ld d, CMP_INFO_H
+   ld h, CMP_INFO_H
+   ld l, e
    call man_entity_destroy
-   jr .end_kill
-.obliterate_dec:
-   ld d, CMP_INFO_H
-   dec de
-   call man_entity_destroy
-   jr .end_kill
-
+ret

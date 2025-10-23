@@ -51,16 +51,14 @@ falling_sound::
 ret
 
 start_sound::
-    ld  a, $00
-    ldh [rNR10], a
     ld  a, $81
-    ldh [rNR11], a
+    ldh [rNR21], a
     ld  a, $F1
-    ldh [rNR12], a
+    ldh [rNR22], a
     ld  a, $D2
-    ldh [rNR13], a
+    ldh [rNR23], a
     ld  a, %11000110
-    ldh [rNR14], a
+    ldh [rNR24], a
 ret
 
 life_sound::

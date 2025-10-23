@@ -360,11 +360,10 @@ ret
 
 
 ing_move_routine:
-
     ld d, CMP_SPRITE_H
     
     ld a, [de]
-    cp $70
+    cp $83
     jr nc, .conveyor_move
 
     inc de
@@ -405,6 +404,13 @@ ret
     jr .ing_moved
 
 .conveyor_move:
+    ;; Removes physics bit
+    ld d, CMP_INFO_H
+    ld a, [de]
+    res CMP_BIT_PHYSICS, a
+    ld [de], a
+    ld d, CMP_SPRITE_H
+
     inc de
     ld a, [de]
     add a, SPEED

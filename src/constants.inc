@@ -16,6 +16,11 @@ DEF rNR12  equ $FF12 ;; Channel 1 volume and envelope
 DEF rNR13  equ $FF13 ;; Channel 1 period low
 DEF rNR14  equ $FF14 ;; Channel 1 period high and control
 
+DEF rNR21  equ $FF16 ;; Channel 1 length timer & duty cycle
+DEF rNR22  equ $FF17 ;; Channel 1 volume and envelope
+DEF rNR23  equ $FF18 ;; Channel 1 period low
+DEF rNR24  equ $FF19 ;; Channel 1 period high and control
+
 DEF rNR41  equ $FF20 ;; Channel 4 length timer
 DEF rNR42  equ $FF21 ;; Channel 4 volume and envelope
 DEF rNR43  equ $FF22 ;; Channel 4 frequency and randomness
