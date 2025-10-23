@@ -183,6 +183,7 @@ check_collision_prota:
    ld [hl], a
 
    ;; X and width
+   push de
    inc de
    inc hl
    ld a, [de]
@@ -194,6 +195,7 @@ check_collision_prota:
    ld hl, bbox_other
    call are_boxes_colliding
 
+   pop de
    ret nc
 
    ld a, [collided_entity_type]
@@ -221,8 +223,15 @@ jp main
 
 ;; En esta función debería poner el bit de ser afectado por las físicas a 1
 ingredient_col:
-   ld e, 10
-   jp wait_vblank_ntimes
+   call start_sound
+   ld h, CMP_INFO_H
+   ld l, e
+
+   ld a, [alive_ingredients]
+   dec a
+   ld [alive_ingredients], a 
+
+   jp man_entity_destroy
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension

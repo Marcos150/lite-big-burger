@@ -98,6 +98,10 @@ spawn_one_ingredient::
         ld [hl+], a
     ENDR
 
+    ld a, [alive_ingredients]
+    inc a
+    ld [alive_ingredients], a
+
     ; HL pointing to the start again
     ld hl, entity_build_buffer
     call create_one_entity

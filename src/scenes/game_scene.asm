@@ -12,7 +12,7 @@ SECTION "Scene Game Data" , ROM0
 
 ;; M A U R I C I O
 mauricio_entity:
-   DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 16, 8, 0, 0, 0 ;; CMP_INFO
+   DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
    DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
@@ -76,19 +76,24 @@ sc_game_init::
    ld d, 1
    ld e, 1
    call spawn_one_hazard
-   ld d, $25
-   ld e, 0
-   call spawn_one_hazard
 
-   ld d, %00100000
-   ld e, %00001000
-   call spawn_one_ingredient
-   ld d, %00000001
-   ld e, %00000001
-   call spawn_one_ingredient
-   ld d, %10000000
-   ld e, %10000000
-   call spawn_one_ingredient
+   .create_ingredients
+   ld d, 1
+   ld e, 1
+   ld a, 0
+   .for
+      push de
+      push af 
+      call spawn_one_ingredient
+      pop af
+      pop de
+      sla e
+      sla d
+      inc a
+      cp 8
+      jr nz, .for
+
+
 	ret
 
 sc_game_run::
@@ -179,11 +184,11 @@ ret
 
 .obliterate:
    ld d, CMP_INFO_H
-   call man_entity_kill
+   call man_entity_destroy
    jr .end_kill
 .obliterate_dec:
    ld d, CMP_INFO_H
    dec de
-   call man_entity_kill
+   call man_entity_destroy
    jr .end_kill
 
