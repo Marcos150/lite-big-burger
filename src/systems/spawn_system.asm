@@ -7,7 +7,7 @@ entity_build_buffer:
 
 SECTION "Spawn Data", ROM0
 ing_x:
-    DB $01, $01, $01, $01, $60, $60, $60, $60
+    DB $50, $50, $50, $50, $10, $10, $10, $10
 
 ing_y:
     DB $19, $31, $49, $61, $19, $31, $49, $61
@@ -97,6 +97,10 @@ spawn_one_ingredient::
     REPT 8
         ld [hl+], a
     ENDR
+
+    ld a, [alive_ingredients]
+    inc a
+    ld [alive_ingredients], a
 
     ; HL pointing to the start again
     ld hl, entity_build_buffer

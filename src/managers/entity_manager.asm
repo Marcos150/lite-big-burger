@@ -26,6 +26,7 @@ components_physics: DS SIZEOF_ARRAY_CMP
 DS ALIGN[8]
 
 alive_entities: DS 1
+alive_ingredients:: DS 1
 
 SECTION "Entity Manager Code", ROM0
 
@@ -36,6 +37,7 @@ man_entity_init::
    .zero_alive_entities
    xor a
    ld [alive_entities], a
+   ld [alive_ingredients], a
 
    .zero_info:
       ld hl, components_info
@@ -74,6 +76,21 @@ man_entity_alloc::
    .found_free_slot:
    ld [hl], RESERVED_COMPONENT
    ret
+
+;; Destroys one entity
+;; RETURNS
+;; HL: Address of allocated component
+man_entity_destroy::
+   ld [hl], 0
+
+   ld h, CMP_SPRITE_H
+   ld [hl], 0
+
+   ld a, l
+   add a, CMP_SPRITE_Y_2
+   ld l, a
+   ld [hl], 0
+ret
 
 ;; Returns the address of the sprite component array
 ;; RETURNS
