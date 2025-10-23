@@ -8,6 +8,19 @@ def rJOYP equ $FF00
 def rDMA  equ $FF46
 def _HRAM equ $FF80
 def _WRAM equ $C000
+
+;; Audio registers 
+DEF rNR10  equ $FF10 ;; Channel 1 sweep
+DEF rNR11  equ $FF11 ;; Channel 1 length timer & duty cycle
+DEF rNR12  equ $FF12 ;; Channel 1 volume and envelope
+DEF rNR13  equ $FF13 ;; Channel 1 period low
+DEF rNR14  equ $FF14 ;; Channel 1 period high and control
+
+DEF rNR41  equ $FF20 ;; Channel 4 length timer
+DEF rNR42  equ $FF21 ;; Channel 4 volume and envelope
+DEF rNR43  equ $FF22 ;; Channel 4 frequency and randomness
+DEF rNR44  equ $FF23 ;; Channel 4 control
+
 DEF rNR50  equ $FF24 ;; Master Volume & VIN panning
 DEF rNR52  equ $FF26 ;; Audio master control
 

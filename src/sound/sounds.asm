@@ -1,4 +1,4 @@
-INCLUDE "hardware.inc"
+INCLUDE "constants.inc"
 
 SECTION "Sounds", ROM0
 
@@ -18,9 +18,9 @@ jump_sound::
     ldh [rNR10], a
     ld  a, $40
     ldh [rNR11], a
-    ld  a, $e1
+    ld  a, $E1
     ldh [rNR12], a
-    ld  a, $5a
+    ld  a, $5A
     ldh [rNR13], a
     ld  a, $84
     ldh [rNR14], a
@@ -35,6 +35,45 @@ death_sound::
     ldh [rNR43], a
     ld  a, %10000000
     ldh [rNR44], a
+ret
+
+falling_sound::
+    ld  a, $7E
+    ldh [rNR10], a
+    ld  a, $08
+    ldh [rNR11], a
+    ld  a, $C5
+    ldh [rNR12], a
+    ld  a, $72
+    ldh [rNR13], a
+    ld  a, $85
+    ldh [rNR14], a
+ret
+
+start_sound::
+    ld  a, $00
+    ldh [rNR10], a
+    ld  a, $81
+    ldh [rNR11], a
+    ld  a, $F1
+    ldh [rNR12], a
+    ld  a, $D2
+    ldh [rNR13], a
+    ld  a, %11000110
+    ldh [rNR14], a
+ret
+
+life_sound::
+    ld  a, $35
+    ldh [rNR10], a
+    ld  a, $01
+    ldh [rNR11], a
+    ld  a, $CF
+    ldh [rNR12], a
+    ld  a, $03
+    ldh [rNR13], a
+    ld  a, $85
+    ldh [rNR14], a
 ret
 
 stop_ch_4::
