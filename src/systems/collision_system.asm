@@ -218,6 +218,8 @@ die:
       call stop_ch_4
 jp main
 
+
+;; En esta función debería poner el bit de ser afectado por las físicas a 1
 ingredient_col:
    ld e, 10
    jp wait_vblank_ntimes

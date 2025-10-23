@@ -75,6 +75,39 @@ man_entity_alloc::
    ld [hl], RESERVED_COMPONENT
    ret
 
+;; Kills one entity
+;; INPUT:
+;; DE: Address of the entity to kill
+man_entity_kill::
+   xor a
+   ld h, d
+   ld l, e
+
+   REPT 8
+      ld [hl+], a
+   ENDR
+
+   ld d, CMP_SPRITE_H
+
+   ld h, d
+   ld l, e
+
+   REPT 8
+      ld [hl+], a
+   ENDR
+
+   ld d, CMP_PHYSICS_H
+
+   ld h, d
+   ld l, e
+
+   REPT 8
+      ld [hl+], a
+   ENDR
+   ret
+
+
+
 ;; Returns the address of the sprite component array
 ;; RETURNS
 ;; HL: Address of Sprite Components Start

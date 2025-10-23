@@ -69,6 +69,7 @@ sc_game_init::
    .create_entities
    ld hl, mauricio_entity
    call create_one_entity
+
    ld d, 0
    ld e, 1
    call spawn_one_hazard
@@ -78,6 +79,16 @@ sc_game_init::
    ld d, $25
    ld e, 0
    call spawn_one_hazard
+
+   ld d, %00100000
+   ld e, %00001000
+   call spawn_one_ingredient
+   ld d, %00000001
+   ld e, %00000001
+   call spawn_one_ingredient
+   ld d, %10000000
+   ld e, %10000000
+   call spawn_one_ingredient
 	ret
 
 sc_game_run::
@@ -92,6 +103,10 @@ sc_game_run::
       call movement_update
       call physics_update
       call collision_update
+
+
+      ld hl, obliterate_entities
+      call man_entity_for_each
       jr .pause
    jr .main_loop
 
@@ -149,3 +164,26 @@ sc_game_run::
          jr nz, .wait_unpress_again
 
       jr .main_loop
+
+obliterate_entities:
+   ld d, CMP_SPRITE_H
+   ld a, [de]           ;;Check y
+   cp $B0
+   jr nc, .obliterate
+   inc de
+   ld a, [de]           ;;Check x
+   cp $B0
+   jr nc, .obliterate_dec
+   .end_kill:
+ret
+
+.obliterate:
+   ld d, CMP_INFO_H
+   call man_entity_kill
+   jr .end_kill
+.obliterate_dec:
+   ld d, CMP_INFO_H
+   dec de
+   call man_entity_kill
+   jr .end_kill
+

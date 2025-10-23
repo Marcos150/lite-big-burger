@@ -5,6 +5,7 @@ SECTION "MovementData", WRAM0
 
 has_moved_to_sides: ds 1
 has_jumped:: ds 1
+ing_movement_count:: ds 1
 
 ; =============================================================================
 ; == DEFINICIÓN DE TILES Y ANIMACIÓN
@@ -17,6 +18,8 @@ DEF PROTA_JUMP_TILE     equ $92
 
 DEF LADDER_ANIM_SPEED   equ 2       ; Velocidad de la animación de la escalera.
 DEF WALK_ANIM_SPEED     equ 2       ; Velocidad de la animación al caminar.
+
+DEF ING_MOVEMENT_DELAY  equ 2
 ; =============================================================================
 
 SECTION "Movement System", ROM0
@@ -24,6 +27,24 @@ SECTION "Movement System", ROM0
 movement_update::
     ld hl, move_routine
     call man_entity_controllable
+ret
+
+ingredient_movement_update::
+    ld a, [ing_movement_count]
+    cp 0
+    jr z, .run_movement_logic
+
+    dec a
+    ld [ing_movement_count], a
+ret
+
+.run_movement_logic
+    ld a, ING_MOVEMENT_DELAY
+    ld [ing_movement_count], a
+
+    ld hl, ing_move_routine
+    ld a, CMP_MASK_INGREDIENT
+    call man_entity_for_each_filtered
 ret
 
 move_routine:
@@ -331,3 +352,69 @@ correct_position:
     inc a
     ld [hl], a
 ret
+
+
+ing_move_routine:
+
+    ld d, CMP_SPRITE_H
+    
+    ld a, [de]
+    cp $70
+    jr nc, .conveyor_move
+
+    inc de
+    ld a, [de]
+    cp $10
+    jr c, .left_tube_move
+
+    cp $51
+    jr nc, .rigth_tuve_move
+
+    .ing_moved:
+ret
+
+.left_tube_move:
+    add a, SPEED
+    ld [de], a
+    inc e
+    inc e
+    inc e
+    inc e
+    ld a, [de]
+    add a, SPEED
+    ld [de], a
+
+    jr .ing_moved
+
+ .rigth_tuve_move:
+    sub a, SPEED
+    ld [de], a
+    inc e
+    inc e
+    inc e
+    inc e
+    ld a, [de]
+    sub a, SPEED
+    ld [de], a
+
+    jr .ing_moved
+
+.conveyor_move:
+    inc de
+    ld a, [de]
+    add a, SPEED
+    ld [de], a
+    inc e
+    inc e
+    inc e
+    inc e
+    ld a, [de]
+    add a, SPEED
+    ld [de], a
+
+
+    jr .ing_moved
+
+.dec_counter:
+    dec a
+    jr .ing_moved

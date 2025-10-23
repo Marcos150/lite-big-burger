@@ -33,7 +33,15 @@ process_accel:
     ld [hl], a
 ret
 
+;;Cambio: Ahora solo las entidades afectadas por la gravedad son actualizadas
 physics_update_one_entity::
+    ;;;;;;;;;;;;;;;;;;;;;;;;
+    ld a, [de]
+    and CMP_MASK_PHYSICS
+    cp CMP_MASK_PHYSICS
+    jr nz, .move_ingredient
+    ;;;;;;;;;;;;;;;;;;;;;;;;
+
     ld h, CMP_PHYSICS_H
     ld d, CMP_SPRITE_H
     ld b, CMP_INFO_H
@@ -82,3 +90,6 @@ physics_update_one_entity::
 ret
 
 
+.move_ingredient:
+    call ingredient_movement_update
+ret
