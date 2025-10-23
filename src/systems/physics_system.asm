@@ -5,7 +5,10 @@ SECTION "Physics System Code", ROM0
 
 physics_update::
     ld hl, physics_update_one_entity
-    call man_entity_for_each
+    call man_entity_controllable
+
+    ld a, CMP_MASK_PHYSICS
+    call man_entity_for_each_filtered
 ret
 
 process_accel:
