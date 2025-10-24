@@ -29,6 +29,9 @@ alive_entities: DS 1
 alive_ingredients:: DS 1
 wPlayerLives:: DS 1
 wPlayerInvincibilityTimer:: DS 1
+wPlayerScore:: DS 2
+wOrderProgress:: DS 1
+wPointsForExtraLife:: DS 2
 
 SECTION "Entity Manager Code", ROM0
 
@@ -198,9 +201,9 @@ man_entity_for_each_filtered::
        and CMP_MASK_CONTROLLABLE
        jr nz, .next
 
-       ld a, c            
+       ld a, c          
        or a               ; Check if it's 0 and don't apply filter
-       jr z, .process       
+       jr z, .process     
        ld a, [de]
        and c
        cp c               

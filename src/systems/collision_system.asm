@@ -69,7 +69,7 @@ check_tile:
     dec hl
     ld a, [hl]
     ld [touching_tile_dl], a
-  
+ 
     add hl, bc
 
     push hl
@@ -247,6 +247,33 @@ jp main
 
 ingredient_col:
     call start_sound
+    
+    ;; --- BUG FIX: Save HL and DE before calling score function ---
+    push hl
+    push de
+
+    ;; --- Add points for ingredient ---
+    ld bc, POINTS_PER_INGREDIENT
+    call sc_game_add_score
+
+    ;; --- Check for order complete ---
+    ld hl, wOrderProgress
+    inc [hl]
+    ld a, [hl]
+    cp INGREDIENTS_PER_ORDER
+    jr nz, .skip_order_bonus
+
+    ;; --- Grant bonus and reset counter ---
+    xor a
+    ld [hl], a
+    ld bc, POINTS_PER_ORDER_BONUS
+    call sc_game_add_score
+
+.skip_order_bonus:
+    ;; --- BUG FIX: Restore HL and DE ---
+    pop de
+    pop hl
+    
     ld h, CMP_INFO_H
     ld l, e
 
