@@ -191,17 +191,16 @@ sc_game_update_hud::
     call wait_vblank_start
 
     ld hl, VRAM_SCREEN_START
-    ld bc, (HUD_LIVES_VALUE_Y * 32) + HUD_LIVES_VALUE_X
+    ld bc, (HUD_Y * 32) + HUD_VALUE_X
     add hl, bc
     
     ld a, [wPlayerLives]
     add a, TILE_ID_NUM_0
-    ld [hl], a
-
-    ld hl, VRAM_SCREEN_START
-    ld bc, (HUD_LIVES_ICON_Y * 32) + HUD_LIVES_ICON_X
-    add hl, bc
+    ld [hl+], a
     
+    ld a, TILE_ID_HUD_X
+    ld [hl+], a
+
     ld a, TILE_ID_HUD_ICON
     ld [hl], a
     
