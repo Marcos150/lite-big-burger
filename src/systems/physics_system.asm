@@ -110,7 +110,7 @@ confine_mauricio::
     ld a, [de]
     cp $10
     jr c, .reposition_left
-    cp $58
+    cp $96
     jr nc, .reposition_right
 ret
 
@@ -120,7 +120,7 @@ ret
 ret
 
 .reposition_right:
-    ld a, $57
+    ld a, $96
     ld [de], a
 ret
 

@@ -7,6 +7,8 @@ DEF VRAM_TILE_20 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 SECTION "Game Scene Data", WRAM0
 
 animation_frame_counter:: DS 1
+current_level: DS 1
+ingredients_left:: DS 1
 
 SECTION "Scene Game Data" , ROM0
 
@@ -18,6 +20,37 @@ mauricio_entity:
 
 SECTION "Scene Game", ROM0
 
+respawn_entities:
+   ld hl, mauricio_entity
+   call create_one_entity
+   call spawn_init
+ret
+
+init_level:
+   call lcd_off
+
+   call man_entity_init
+   call load_level_layout
+   call respawn_entities
+
+   jp lcd_on
+
+load_level_layout:
+   ld a, INGREDIENTS_TO_WIN
+   ld [ingredients_left], a
+
+   ld hl, main_game_screen_layout
+   ld a, [current_level]
+   ;; Check which is the current level
+   cp 0
+   jr z, .copy_tiles
+
+   ld hl, level2_layout
+
+   .copy_tiles
+   ld de, VRAM_SCREEN_START
+   ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
+   jp memcpy
 
 sc_game_init::
    call lcd_off
@@ -34,12 +67,6 @@ sc_game_init::
    ld hl, elements_tiles
    ld bc, SIZE_OF_ELEMENTS
    call memcpy
-
-   ld hl, main_game_screen_layout
-   ld de, VRAM_SCREEN_START
-   ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
-   call memcpy
-
 
    .init_managers_and_systems
    call man_entity_init
@@ -58,20 +85,18 @@ sc_game_init::
 
    xor a
    ld [animation_frame_counter], a
+   ld [current_level], a
 
    ;; All channels in left and right
    ld a, $FF
    ld [rNR51], a
 
+   call load_level_layout
    call render_update
    call lcd_on
    call sc_title_screen_hold
 
-   .create_entities
-   ld hl, mauricio_entity
-   call create_one_entity
-
-   jp spawn_init
+   jp respawn_entities
 
 sc_game_run::
    .main_loop:
@@ -87,6 +112,16 @@ sc_game_run::
       call physics_update
       call spawn_update
 
+      ;; Checks if enough ingredients delivered to pass to next level
+      ld a, [ingredients_left]
+      cp 0
+      jr nz, .check_out_of_screen
+      ld a, 1
+      ld [current_level], a
+
+      call init_level
+
+      .check_out_of_screen
       ld hl, obliterate_entities
       call man_entity_for_each
    jr .pause

@@ -91,6 +91,8 @@ man_entity_destroy::
    ;; Decreases alive_ingredients if entity is ingredient 
    ld hl, alive_ingredients
    dec [hl]
+   ld hl, ingredients_left
+   dec [hl]
    jr .destroy
 
    .check_if_hazard_enemy
