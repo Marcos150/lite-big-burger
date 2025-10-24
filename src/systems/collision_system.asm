@@ -4,6 +4,7 @@ INCLUDE "managers/entity_manager.inc"
 SECTION "Collision Data", WRAM0
 bbox_prota: ds 4
 bbox_other: ds 4
+prota_y: ds 1
 touching_tile_l::  ds 1
 touching_tile_r::  ds 1
 touching_tile_dl::  ds 1
@@ -28,7 +29,7 @@ collision_init::
 
    ld hl, touching_tile_l
    xor a
-   REPT collided_entity_type - touching_tile_l
+   REPT collided_entity_type - prota_y
       ld [hl+], a
    ENDR
 ret
@@ -90,6 +91,11 @@ ret
 ;; INPUT:
 ;; DE: Prota entity address
 check_collision:
+   ld d, CMP_SPRITE_H
+   ld a, [de]
+   ld [prota_y], a
+   ld d, CMP_INFO_H
+
    ;; Checks if floor underneath or on ladders to stop entity then
    ld hl, touching_tile_ddl
    call check_if_touching_floor
@@ -227,8 +233,18 @@ jp main
 
 
 ingredient_col:
-   ld h, CMP_INFO_H
+   ld h, CMP_SPRITE_H
    ld l, e
+
+   ;; Check that prota is on the same "y" as ingredient 
+   ld a, [prota_y]
+   ld c, a
+   ld a, [hl]
+   cp c
+   ret nz
+
+   ;; Check that ingredient is not already falling
+   ld h, CMP_INFO_H
    bit CMP_BIT_PHYSICS, [hl]
    ret nz
 
