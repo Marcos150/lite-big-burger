@@ -78,6 +78,13 @@ sc_game_init::
    ld e, 1
    call spawn_one_hazard
 
+   ld d, $34
+   ld e, 0
+   call spawn_one_hazard
+   ld d, $22
+   ld e, 0
+   call spawn_one_hazard
+
    .create_ingredients
    ld d, 1
    ld e, 1
@@ -93,7 +100,6 @@ sc_game_init::
       inc a
       cp 8
       jr nz, .for
-
 
 	ret
 

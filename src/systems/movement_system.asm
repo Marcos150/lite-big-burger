@@ -19,13 +19,13 @@ DEF PROTA_JUMP_TILE     equ $92
 DEF LADDER_ANIM_SPEED   equ 2       ; Velocidad de la animación de la escalera.
 DEF WALK_ANIM_SPEED     equ 2       ; Velocidad de la animación al caminar.
 
-DEF ING_MOVEMENT_DELAY  equ 2
+DEF ING_MOVEMENT_DELAY  equ 6
 ; =============================================================================
 
 SECTION "Movement System", ROM0
 
 movement_init::
-    ld a, 200
+    ld a, $FF
     ld [ing_movement_count], a
 ret
 

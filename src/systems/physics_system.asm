@@ -3,9 +3,19 @@ INCLUDE "constants.inc"
 
 SECTION "Physics System Code", ROM0
 
+def KNIFE_SPRITE equ $CE
+def OIL_SPRITE equ $CC
+def OBJ_Y_FLIP equ (1 << 6)  ; %01000000
+def OBJ_X_FLIP equ (1 << 5)  ; %00100000
+
 physics_update::
     ld hl, physics_update_one_entity
     call man_entity_for_each
+    ld hl, confine_mauricio
+    call man_entity_controllable
+    ld hl, hazard_routine
+    ld a, CMP_MASK_HAZARD
+    call man_entity_for_each_filtered
 ret
 
 process_accel:
@@ -93,3 +103,57 @@ ret
 .move_ingredient:
     call ingredient_movement_update
 ret
+
+confine_mauricio::
+    ld d, CMP_SPRITE_H
+    inc de
+    ld a, [de]
+    cp $10
+    jr c, .reposition_left
+    cp $58
+    jr nc, .reposition_right
+ret
+
+.reposition_left:
+    ld a, $11
+    ld [de], a
+ret
+
+.reposition_right:
+    ld a, $57
+    ld [de], a
+ret
+
+hazard_routine::
+    ld d, CMP_SPRITE_H
+    inc de
+    inc de
+    ld a, [de]
+    cp KNIFE_SPRITE
+    ret nz
+
+    .check_bounce:
+        dec de
+        ld a, [de]
+        cp $12
+        jr c, .bounce_left
+        cp $56
+        jr nc, .bounce_right
+
+    .bounce_left:
+        ld a, $13
+        ld [de],a 
+        ld d, CMP_PHYSICS_H
+        inc de
+        ld a, 2
+        ld [de], a
+        ret
+
+    .bounce_right:
+        ld a, $55
+        ld [de],a 
+        ld d, CMP_PHYSICS_H
+        inc de
+        ld a, $FD
+        ld [de], a
+        ret

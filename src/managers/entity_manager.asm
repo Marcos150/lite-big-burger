@@ -81,15 +81,20 @@ man_entity_alloc::
 ;; RETURNS
 ;; HL: Address of allocated component
 man_entity_destroy::
-   ld [hl], 0
+   xor a
+   ld [hl], a
 
    ld h, CMP_SPRITE_H
-   ld [hl], 0
 
-   ld a, l
-   add a, CMP_SPRITE_Y_2
-   ld l, a
-   ld [hl], 0
+   REPT 7
+      ld [hl+], a
+   ENDR
+
+   ld h, CMP_PHYSICS_H
+
+   REPT 7
+      ld [hl+], a
+   ENDR
 
    ld hl, alive_entities
    dec [hl]

@@ -166,8 +166,33 @@ spawn_one_hazard::
         
         
         ; Write CMP_PHYSICS (8 bytes)
+        ld a, 1
+        ld [hl+], a
+        ld a, b
+        cp KNIFE_SPRITE
+        jr nz, .skip_vel_x
+
+        ld a, c
+        cp $10
+        jr z, .vel_x_plus
+        ld a, $FD
+        ld [hl+], a
+        jr .continue
+
+        .vel_x_plus:
+        ld a, 3
+        ld [hl+], a
+        jr .continue
+
+        .skip_vel_x:
         xor a
-        REPT 8
+        ld [hl+], a
+
+        .continue:
+        ld a, 1
+        ld [hl+], a
+        xor a
+        REPT 5
             ld [hl+], a
         ENDR
 

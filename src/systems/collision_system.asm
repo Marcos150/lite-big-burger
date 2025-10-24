@@ -227,7 +227,7 @@ ingredient_col:
    bit CMP_BIT_PHYSICS, [hl]
    ret nz
 
-   call start_sound ;; TODO: Find a way to work with longer sounds
+   call falling_sound
    set CMP_BIT_PHYSICS, [hl]
    ld hl, alive_ingredients
    dec [hl]
