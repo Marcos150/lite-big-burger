@@ -404,13 +404,18 @@ ret
     jr .ing_moved
 
 .conveyor_move:
-    ;; Removes physics bit
     ld d, CMP_INFO_H
     ld a, [de]
+    bit CMP_BIT_PHYSICS, a
+    jr z, .move
+
+    ;; Removes physics bit
     res CMP_BIT_PHYSICS, a
     ld [de], a
-    ld d, CMP_SPRITE_H
+    call stop_ch_1
 
+    .move
+    ld d, CMP_SPRITE_H
     inc de
     ld a, [de]
     add a, SPEED

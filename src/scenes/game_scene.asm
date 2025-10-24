@@ -59,12 +59,12 @@ sc_game_init::
    xor a
    ld [animation_frame_counter], a
 
-   call lcd_on
-
-   ld e, 2
-   call wait_vblank_ntimes
+   ;; All channels in left and right
+   ld a, $FF
+   ld [rNR51], a
 
    call render_update
+   call lcd_on
    call sc_title_screen_hold
 
    .create_entities
@@ -112,9 +112,9 @@ sc_game_run::
       inc [hl]
 
       call render_update
+      call collision_update
       call movement_update
       call physics_update
-      call collision_update
 
 
       ld hl, obliterate_entities

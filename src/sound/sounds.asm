@@ -78,3 +78,8 @@ stop_ch_4::
     ld  a, %01000000
     ldh [rNR44], a
 ret
+
+stop_ch_1::
+    ld  a, %01000000
+    ldh [rNR14], a
+ret

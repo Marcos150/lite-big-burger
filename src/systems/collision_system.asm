@@ -15,7 +15,6 @@ collided_entity_type: ds 1
 
 SECTION "Collision System", ROM0
 
-;; TODO: Store and check with different sprite H and W 
 collision_init::
    ld hl, bbox_prota + 1
 
@@ -26,6 +25,12 @@ collision_init::
    inc hl
    inc hl
    ld [hl], SPRITE_WIDTH
+
+   ld hl, touching_tile_l
+   xor a
+   REPT collided_entity_type - touching_tile_l
+      ld [hl+], a
+   ENDR
 ret
 
 collision_update::
@@ -229,8 +234,6 @@ ingredient_col:
 
    call falling_sound
    set CMP_BIT_PHYSICS, [hl]
-   ld hl, alive_ingredients
-   dec [hl]
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

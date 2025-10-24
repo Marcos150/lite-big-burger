@@ -27,6 +27,7 @@ DEF rNR43  equ $FF22 ;; Channel 4 frequency and randomness
 DEF rNR44  equ $FF23 ;; Channel 4 control
 
 DEF rNR50  equ $FF24 ;; Master Volume & VIN panning
+DEF rNR51  equ $FF25 ;; Sound panning
 DEF rNR52  equ $FF26 ;; Audio master control
 
 ;; rLCDC bits

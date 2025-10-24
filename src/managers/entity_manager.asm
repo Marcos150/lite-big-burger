@@ -81,20 +81,22 @@ man_entity_alloc::
 ;; RETURNS
 ;; HL: Address of allocated component
 man_entity_destroy::
+   ld a, [hl]
+   and CMP_MASK_INGREDIENT
+   push hl
+   jr z, .destroy
+
+   ;; Decreases alive_ingredients if entity is ingredient 
+   ld hl, alive_ingredients
+   dec [hl]
+
+   .destroy
+   pop hl
    xor a
    ld [hl], a
 
    ld h, CMP_SPRITE_H
-
-   REPT 7
-      ld [hl+], a
-   ENDR
-
-   ld h, CMP_PHYSICS_H
-
-   REPT 7
-      ld [hl+], a
-   ENDR
+   ld [hl], a
 
    ld hl, alive_entities
    dec [hl]
@@ -194,7 +196,7 @@ man_entity_for_each_filtered::
 
       ld a, [de]
       and CMP_MASK_CONTROLLABLE
-      jr nz, .next
+      jr nz, .check_end
 
       ld a, c                
       or a                  ; Check if it's 0 and don't apply filter
