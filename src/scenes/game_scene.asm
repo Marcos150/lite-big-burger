@@ -12,176 +12,158 @@ SECTION "Scene Game Data" , ROM0
 
 ;; M A U R I C I O
 mauricio_entity:
-   DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
-   DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
-   DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
+    DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
+    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
+    DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
 SECTION "Scene Game", ROM0
 
 
 sc_game_init::
-   call lcd_off
+    call lcd_off
 
-   ld hl, main_game_tiles
-   ld de, VRAM_TILE_START
-   ld bc, SIZE_OF_MAINGAME
-   call memcpy
+    ld hl, main_game_tiles
+    ld de, VRAM_TILE_START
+    ld bc, SIZE_OF_MAINGAME
+    call memcpy
 
-   ld hl, mauricio_tiles ;Mauricio
-   ld bc, SIZE_OF_MAURICIO
-   call memcpy
+    ld hl, mauricio_tiles ;Mauricio
+    ld bc, SIZE_OF_MAURICIO
+    call memcpy
 
-   ld hl, elements_tiles
-   ld bc, SIZE_OF_ELEMENTS
-   call memcpy
+    ld hl, elements_tiles
+    ld bc, SIZE_OF_ELEMENTS
+    call memcpy
 
-   ld hl, main_game_screen_layout
-   ld de, VRAM_SCREEN_START
-   ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
-   call memcpy
-
-
-   .init_managers_and_systems
-   call man_entity_init
-   call collision_init
-   call movement_init
+    ld hl, main_game_screen_layout
+    ld de, VRAM_SCREEN_START
+    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
+    call memcpy
 
 
-   call init_dma_copy
-   SET_BGP DEFAULT_PAL
-   SET_OBP1 DEFAULT_PAL
+    .init_managers_and_systems
+    call man_entity_init
+    call collision_init
+
+    .init_lives
+    ld a, PLAYER_INITIAL_LIVES
+    ld [wPlayerLives], a
+
+    call init_dma_copy
+    SET_BGP DEFAULT_PAL
+    SET_OBP1 DEFAULT_PAL
 
 
-   ld hl, rLCDC
-   set rLCDC_OBJ_ENABLE, [hl]
-   set rLCDC_OBJ_16x8, [hl]
+    ld hl, rLCDC
+    set rLCDC_OBJ_ENABLE, [hl]
+    set rLCDC_OBJ_16x8, [hl]
 
-   xor a
-   ld [animation_frame_counter], a
+    xor a
+    ld [animation_frame_counter], a
 
-   call lcd_on
+    call lcd_on
 
-   ld e, 2
-   call wait_vblank_ntimes
+    ld e, 2
+    call wait_vblank_ntimes
 
-   call render_update
-   call sc_title_screen_hold
+    call render_update
+    call sc_title_screen_hold
 
-   .create_entities
-   ld hl, mauricio_entity
-   call create_one_entity
+    .create_entities
+    ld hl, mauricio_entity
+    call create_one_entity
+    ld d, 0
+    ld e, 1
+    call spawn_one_hazard
+    ld d, 1
+    ld e, 1
+    call spawn_one_hazard
 
-   ld d, 0
-   ld e, 1
-   call spawn_one_hazard
-   ld d, 1
-   ld e, 1
-   call spawn_one_hazard
+    .create_ingredients
+    ld d, 1
+    ld e, 1
+    ld a, 0
+    .for
+       push de
+       push af 
+       call spawn_one_ingredient
+       pop af
+       pop de
+       sla e
+       sla d
+       inc a
+       cp 8
+       jr nz, .for
 
-   ld d, $34
-   ld e, 0
-   call spawn_one_hazard
-   ld d, $22
-   ld e, 0
-   call spawn_one_hazard
 
-   .create_ingredients
-   ld d, 1
-   ld e, 1
-   ld a, 0
-   .for
-      push de
-      push af 
-      call spawn_one_ingredient
-      pop af
-      pop de
-      sla e
-      sla d
-      inc a
-      cp 8
-      jr nz, .for
-
-	ret
+    ret
 
 sc_game_run::
-   .main_loop:
-      ld e, 2
-      call wait_vblank_ntimes
+    .main_loop:
+       ld e, 2
+       call wait_vblank_ntimes
 
-      ld hl, animation_frame_counter
-      inc [hl]
+       ld hl, animation_frame_counter
+       inc [hl]
 
-      call render_update
-      call movement_update
-      call physics_update
-      call collision_update
-
-
-      ld hl, obliterate_entities
-      call man_entity_for_each
-   jr .pause
+       call render_update
+       call movement_update
+       call physics_update
+       call collision_update
+       jr .pause
+    jr .main_loop
 
 .pause:
-   call read_input
-   ld a, b
-   and BUTTON_START
-   jr z, .main_loop
+    call read_input
+    ld a, b
+    and BUTTON_START
+    jr z, .main_loop
 
-   .is_paused:
-      call wait_vblank_start
-      ld hl, $9800
-      ld a, $8B
-      ld [hl+], a
-      ld a, $E7
+    .is_paused:
+       call wait_vblank_start
+       ld hl, $9800
+       ld a, $8B
+       ld [hl+], a
+       ld a, $E7
+       ld [hl+], a
+       inc a
+       ld [hl+], a
+       inc a
+       ld [hl+], a
+       inc a 
+       ld [hl+], a
+       inc a
+       ld [hl+], a
+       inc a
+       ld a, $8B
+       ld [hl], a
+       .wait_unpress:
+           call read_input
+           ld a, b
+           cp 0
+           jr nz, .wait_unpress
 
-      REPT 5
-         ld [hl+], a
-         inc a
-      ENDR
+       .loop_paused:
+           call read_input
+           ld a, b
+           and BUTTON_START
+           jr z, .loop_paused
+        
+       call wait_vblank_start
+       ld hl, $9800
+       ld a, $10
+       ld [hl+], a
+       ld [hl+], a
+       ld [hl+], a
+       ld [hl+], a
+       ld [hl+], a
+       ld [hl+], a
+       ld [hl+], a
 
-      ld a, $8B
-      ld [hl], a
-      .wait_unpress:
-         call read_input
-         ld a, b
-         cp 0
-         jr nz, .wait_unpress
+       .wait_unpress_again:
+           call read_input
+           ld a, b
+           cp 0
+           jr nz, .wait_unpress_again
 
-      .loop_paused:
-         call read_input
-         ld a, b
-         and BUTTON_START
-         jr z, .loop_paused
-      
-      call wait_vblank_start
-      ld hl, $9800
-      ld a, $10
-      REPT 7
-         ld [hl+], a
-      ENDR
-
-      .wait_unpress_again:
-         call read_input
-         ld a, b
-         cp 0
-         jr nz, .wait_unpress_again
-
-      jr .main_loop
-
-obliterate_entities:
-   ld d, CMP_SPRITE_H
-   ld a, [de]           ;;Check y
-   cp $B0
-   jr nc, .obliterate
-   inc de
-   ld a, [de]           ;;Check x
-   cp $B0
-   dec de
-   jr nc, .obliterate
-ret
-
-.obliterate:
-   ld h, CMP_INFO_H
-   ld l, e
-   call man_entity_destroy
-ret
+       jr .main_loop

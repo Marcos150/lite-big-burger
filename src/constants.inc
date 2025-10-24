@@ -47,16 +47,16 @@ DEF VRAM_TILE_SIZE equ $10
 DEF VRAM_TILE_32 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 
 ;; Joypad options
-def SELECT_BUTTONS   equ $10
-def SELECT_PAD       equ $20
-def BUTTON_RIGHT     equ $01
-def BUTTON_LEFT      equ $02
-def BUTTON_UP        equ $04
-def BUTTON_DOWN      equ $08
-def BUTTON_A         equ $10
-def BUTTON_B         equ $20
-def BUTTON_SELECT    equ $40
-def BUTTON_START     equ $80
+def SELECT_BUTTONS    equ $10
+def SELECT_PAD        equ $20
+def BUTTON_RIGHT      equ $01
+def BUTTON_LEFT       equ $02
+def BUTTON_UP         equ $04
+def BUTTON_DOWN       equ $08
+def BUTTON_A          equ $10
+def BUTTON_B          equ $20
+def BUTTON_SELECT     equ $40
+def BUTTON_START      equ $80
 
 ; Tileset sizes
 def SIZE_OF_MAINGAME equ 138 * 8 * 2
@@ -78,6 +78,7 @@ def SPRITE_HEIGHT EQU 14
 def SPRITE_WIDTH EQU 6
 
 DEF FRAME_LIMITER EQU 4
+DEF PLAYER_INITIAL_LIVES EQU 3
 
 DEF SPEED EQU 1
 DEF MAX_SPEED EQU 2
