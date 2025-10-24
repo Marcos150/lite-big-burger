@@ -229,6 +229,8 @@ player_hit_hazard:
     call man_entity_controllable
     
     call stop_ch_4
+    call sc_game_update_hud
+
     ret
 
 game_over:
@@ -269,6 +271,7 @@ ingredient_col:
     ld bc, POINTS_PER_ORDER_BONUS
     call sc_game_add_score
 
+
 .skip_order_bonus:
     ;; --- BUG FIX: Restore HL and DE ---
     pop de
@@ -282,6 +285,7 @@ ingredient_col:
     ld [alive_ingredients], a 
 
     jp man_entity_destroy
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension

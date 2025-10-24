@@ -113,8 +113,6 @@ sc_game_run::
     .main_loop:
        ld e, 2
        call wait_vblank_ntimes
-
-       call sc_game_update_hud
        
        .update_invincibility_timer
        ld a, [wPlayerInvincibilityTimer]
@@ -239,6 +237,7 @@ sc_game_update_hud::
 
     ld b, 4
     ld de, wTempBCDBuffer
+
 .draw_digit_loop:
     ld a, [de]
     add a, TILE_ID_NUM_0
@@ -325,72 +324,5 @@ sc_game_add_score::
 .no_life:
     pop de
     pop hl
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Converts a 16-bit value in HL to 4-digit BCD
-;; OUTPUT: [wTempBCDBuffer] = 4 bytes (digits 0000-9999)
-;; DESTROYS: A, B, C, DE, HL
-;;
-utils_bcd_convert_16bit::
-    ld de, wTempBCDBuffer
-    xor a
-    ld [de], a
-    inc de
-    ld [de], a
-    inc de
-    ld [de], a
-    inc de
-    ld [de], a
-    
-    ld de, wTempBCDBuffer
-
-    ld bc, 1000
-    call .bcd_digit
-    inc de
-    
-    ld bc, 100
-    call .bcd_digit
-    inc de
-    
-    ld bc, 10
-    call .bcd_digit
-    inc de
-
-    ld a, l
-    ld [de], a
-    ret
-
-;; --- REVISED BCD SUB-ROUTINE ---
-.bcd_digit:
-    xor a
-.digit_loop:
-    ;; Compare hl with bc (16-bit)
-    ld a, h
-    cp a, b
-    jr c, .digit_done
-    jr nz, .subtract
-
-    ld a, l
-    cp a, c
-    jr c, .digit_done
-
-.subtract:
-    ;; hl = hl - bc
-    ld a, l
-    sub a, c
-    ld l, a
-    ld a, h
-    sbc a, b
-    ld h, a
-
-    ;; inc counter (a)
-    ld a, [de]
-    inc a
-    ld [de], a
-
-    jr .digit_loop
-
-.digit_done:
     ret
 

@@ -103,6 +103,8 @@ man_entity_destroy::
 
     ld hl, alive_entities
     dec [hl]
+
+    call sc_game_update_hud
 ret
 
 ;; Returns the address of the sprite component array
