@@ -46,19 +46,6 @@ sc_game_init::
     call man_entity_init
     call collision_init
 
-    .init_game_state
-    ld a, PLAYER_INITIAL_LIVES
-    ld [wPlayerLives], a
-    
-    xor a
-    ld [wPlayerInvincibilityTimer], a
-    ld [wOrderProgress], a
-    ld [wPlayerScore], a
-    ld [wPlayerScore+1], a
-    ld [wPointsForExtraLife], a
-    ld [wPointsForExtraLife+1], a
-
-
     call init_dma_copy
     SET_BGP DEFAULT_PAL
     SET_OBP1 DEFAULT_PAL
@@ -73,13 +60,25 @@ sc_game_init::
 
     call lcd_on
 
-    call sc_game_update_hud
-
     ld e, 2
     call wait_vblank_ntimes
 
     call render_update
     call sc_title_screen_hold
+
+    .init_game_state
+    ld a, PLAYER_INITIAL_LIVES
+    ld [wPlayerLives], a
+    
+    xor a
+    ld [wPlayerInvincibilityTimer], a
+    ld [wOrderProgress], a
+    ld [wPlayerScore], a
+    ld [wPlayerScore+1], a
+    ld [wPointsForExtraLife], a
+    ld [wPointsForExtraLife+1], a
+    call sc_game_update_hud
+
 
     .create_entities
     ld hl, mauricio_entity
