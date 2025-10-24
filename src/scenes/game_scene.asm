@@ -7,7 +7,7 @@ DEF VRAM_TILE_20 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 SECTION "Game Scene Data", WRAM0
 
 animation_frame_counter:: DS 1
-current_level: DS 1
+current_level:: DS 1
 ingredients_left:: DS 1
 
 SECTION "Scene Game Data" , ROM0
@@ -42,7 +42,7 @@ load_level_layout:
    ld hl, main_game_screen_layout
    ld a, [current_level]
    ;; Check which is the current level
-   cp 0
+   cp LEVEL1
    jr z, .copy_tiles
 
    ld hl, level2_layout

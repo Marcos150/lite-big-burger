@@ -1,4 +1,5 @@
 INCLUDE "managers/entity_manager.inc"
+INCLUDE "constants.inc"
 
 SECTION "Entity Buffer", WRAM0
 ; A 24-byte buffer to temporarily build a new entity
@@ -8,6 +9,8 @@ entity_build_buffer:
 SECTION "Spawn Data", ROM0
 ing_x:
     DB $01, $01, $01, $01, $60, $60, $60, $60
+ing_x2:
+    DB $01, $01, $01, $01, $90, $90, $90, $90
 
 ing_y:
     DB $19, $31, $49, $61, $19, $31, $49, $61
@@ -89,7 +92,19 @@ spawn_one_ingredient::
     add hl, de
     ld c, [hl]      ; Store Y-pos in C
 
+
+    ld a, [current_level]
+    cp LEVEL2
+    jr z, .level2
+
+    .level1
     ld hl, ing_x
+    jr .store_x
+
+    .level2
+    ld hl, ing_x2
+
+    .store_x
     add hl, de
     ld b, [hl]      ; Store X-pos in B
 
@@ -182,7 +197,7 @@ spawn_one_hazard::
     jr .spawn
     
     .spawn_left:
-    ld c, $10
+    ld c, LEFT_BORDER
     jr .spawn
 
     .define_oil:
@@ -226,7 +241,7 @@ spawn_one_hazard::
         jr nz, .skip_vel_x
 
         ld a, c
-        cp $10
+        cp LEFT_BORDER
         jr z, .vel_x_plus
         ld a, $FD
         ld [hl+], a

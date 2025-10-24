@@ -108,19 +108,36 @@ confine_mauricio::
     ld d, CMP_SPRITE_H
     inc de
     ld a, [de]
-    cp $10
+    cp LEFT_BORDER
     jr c, .reposition_left
-    cp $96
-    jr nc, .reposition_right
+
+    ld a, [current_level]
+    cp LEVEL2
+    ld a, [de]
+    jr z, .level2
+
+    .level1
+    cp RIGHT_BORDER_LEVEL1
+    jr nc, .reposition_right_level1
+    ret
+
+    .level2
+    cp RIGHT_BORDER_LEVEL2
+    jr nc, .reposition_right_level2
 ret
 
 .reposition_left:
-    ld a, $11
+    ld a, LEFT_BORDER + 1
     ld [de], a
 ret
 
-.reposition_right:
-    ld a, $96
+.reposition_right_level1:
+    ld a, RIGHT_BORDER_LEVEL1 - 1
+    ld [de], a
+ret
+
+.reposition_right_level2:
+    ld a, RIGHT_BORDER_LEVEL2 - 1
     ld [de], a
 ret
 
