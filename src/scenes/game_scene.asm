@@ -71,37 +71,7 @@ sc_game_init::
    ld hl, mauricio_entity
    call create_one_entity
 
-   ld d, 0
-   ld e, 1
-   call spawn_one_hazard
-   ld d, 1
-   ld e, 1
-   call spawn_one_hazard
-
-   ld d, $34
-   ld e, 0
-   call spawn_one_hazard
-   ld d, $22
-   ld e, 0
-   call spawn_one_hazard
-
-   .create_ingredients
-   ld d, 1
-   ld e, 1
-   ld a, 0
-   .for
-      push de
-      push af 
-      call spawn_one_ingredient
-      pop af
-      pop de
-      sla e
-      sla d
-      inc a
-      cp 8
-      jr nz, .for
-
-	ret
+   jp spawn_init
 
 sc_game_run::
    .main_loop:
@@ -115,7 +85,7 @@ sc_game_run::
       call collision_update
       call movement_update
       call physics_update
-
+      call spawn_update
 
       ld hl, obliterate_entities
       call man_entity_for_each

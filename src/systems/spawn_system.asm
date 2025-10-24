@@ -18,6 +18,46 @@ def OIL_SPRITE equ $CC
 
 SECTION "Spawn System", ROM0
 
+spawn_init::
+    ld d, 0
+    ld e, 1
+    call spawn_one_hazard
+    ld d, 1
+    ld e, 1
+    call spawn_one_hazard
+
+    ld d, $34
+    ld e, 0
+    call spawn_one_hazard
+    ld d, $22
+    ld e, 0
+    call spawn_one_hazard
+
+    jp create_ingredients
+
+spawn_update::
+    ld a, [alive_ingredients]
+    cp 1
+    jp z, create_ingredients
+ret
+
+create_ingredients:
+ld d, 1
+    ld e, 1
+    ld a, 0
+    .for
+        push de
+        push af 
+        call spawn_one_ingredient
+        pop af
+        pop de
+        sla e
+        sla d
+        inc a
+        cp 8
+    jr nz, .for
+ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SPAWN ONE INGREDIENT
 ;; INPUT:
