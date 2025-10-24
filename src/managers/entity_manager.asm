@@ -28,6 +28,7 @@ DS ALIGN[8]
 alive_entities: DS 1
 alive_ingredients:: DS 1
 wPlayerLives:: DS 1
+wPlayerInvincibilityTimer:: DS 1
 
 SECTION "Entity Manager Code", ROM0
 
@@ -252,3 +253,4 @@ man_entity_controllable::
        add SIZEOF_CMP
        ld e, a
     jr .for
+

@@ -200,13 +200,25 @@ check_collision_prota:
 
     ld a, [collided_entity_type]
     cp CMP_BIT_HAZARD
-    jr z, player_hit_hazard ;; Collides with enemy or hazard
+    jr nz, .check_ingredient_col
+
+    ld a, [wPlayerInvincibilityTimer]
+    or a
+    ret nz
+
+    jr player_hit_hazard
+
+    .check_ingredient_col
     cp CMP_BIT_INGREDIENT
     jr z, ingredient_col ;; Collides with ingredient
 ret
 
 player_hit_hazard:
     call death_sound
+    
+    ld a, PLAYER_INVINCIBILITY_FRAMES
+    ld [wPlayerInvincibilityTimer], a
+
     ld a, [wPlayerLives]
     dec a
     ld [wPlayerLives], a

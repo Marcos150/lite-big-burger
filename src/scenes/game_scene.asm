@@ -48,6 +48,10 @@ sc_game_init::
     .init_lives
     ld a, PLAYER_INITIAL_LIVES
     ld [wPlayerLives], a
+    
+    xor a
+    ld [wPlayerInvincibilityTimer], a
+
 
     call init_dma_copy
     SET_BGP DEFAULT_PAL
@@ -106,6 +110,14 @@ sc_game_run::
        call wait_vblank_ntimes
 
        call sc_game_update_hud
+       
+       .update_invincibility_timer
+       ld a, [wPlayerInvincibilityTimer]
+       or a
+       jr z, .skip_timer_dec
+       dec a
+       ld [wPlayerInvincibilityTimer], a
+       .skip_timer_dec
 
        ld hl, animation_frame_counter
        inc [hl]
@@ -179,18 +191,18 @@ sc_game_update_hud::
     call wait_vblank_start
 
     ld hl, VRAM_SCREEN_START
+    ld bc, (HUD_LIVES_VALUE_Y * 32) + HUD_LIVES_VALUE_X
+    add hl, bc
+    
+    ld a, [wPlayerLives]
+    add a, TILE_ID_NUM_0
+    ld [hl], a
+
+    ld hl, VRAM_SCREEN_START
     ld bc, (HUD_LIVES_ICON_Y * 32) + HUD_LIVES_ICON_X
     add hl, bc
     
     ld a, TILE_ID_HUD_ICON
-    ld [hl], a
-    
-    inc hl 
-    
-    ld a, [wPlayerLives]
-    
-    add a, TILE_ID_NUM_0
-    
     ld [hl], a
     
     ret
