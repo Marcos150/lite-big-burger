@@ -74,6 +74,33 @@ life_sound::
     ldh [rNR14], a
 ret
 
+mute_music::
+    ;; Mute used channels
+    ld c, MUTE_CHANNEL
+    ld b, CHANNEL_1
+    call hUGE_mute_channel
+    ld c, MUTE_CHANNEL
+    ld b, CHANNEL_2
+    jp hUGE_mute_channel
+
+celebration::
+    ld hl, funiculi
+   	call hUGE_init
+    ld a, 224
+    .for:
+        push af
+        call hUGE_dosound
+        call wait_vblank_start
+        ld hl, animation_frame_counter
+        inc [hl]
+        call animate_walk ;; "Dance" animation
+        call render_update
+        pop af
+        dec a
+        cp 0
+    jr nz, .for
+ret
+
 stop_ch_4::
     ld  a, %01000000
     ldh [rNR44], a

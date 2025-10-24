@@ -13,14 +13,6 @@ sc_title_screen_hold::
     ld hl, funiculi
    	call hUGE_init
 
-	;; Unmute used channels
-	ld c, UNMUTE_CHANNEL
-	ld b, CHANNEL_1
-	call hUGE_mute_channel
-	ld c, UNMUTE_CHANNEL
-	ld b, CHANNEL_2
-	call hUGE_mute_channel
-	
 	;; Lowers the volume
 	ld a, INIT_VOLUME
 	ld [rNR50], a
@@ -50,13 +42,7 @@ sc_title_screen_hold::
 
 		jr z, .loop
 
-		;; Mute used channels
-		ld c, MUTE_CHANNEL
-		ld b, CHANNEL_1
-		call hUGE_mute_channel
-		ld c, MUTE_CHANNEL
-		ld b, CHANNEL_2
-		call hUGE_mute_channel
+		call mute_music
 	.scroll_loop:
     	call wait_vblank_start
     	ld a, [rSCY]

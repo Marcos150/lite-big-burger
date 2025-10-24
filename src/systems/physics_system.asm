@@ -112,18 +112,18 @@ confine_mauricio::
     jr c, .reposition_left
 
     ld a, [current_level]
-    cp LEVEL2
+    cp LEVEL1
     ld a, [de]
-    jr z, .level2
-
-    .level1
-    cp RIGHT_BORDER_LEVEL1
-    jr nc, .reposition_right_level1
-    ret
+    jr z, .level1
 
     .level2
     cp RIGHT_BORDER_LEVEL2
     jr nc, .reposition_right_level2
+    ret
+
+    .level1
+    cp RIGHT_BORDER_LEVEL1
+    jr nc, .reposition_right_level1
 ret
 
 .reposition_left:

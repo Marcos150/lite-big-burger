@@ -94,15 +94,15 @@ spawn_one_ingredient::
 
 
     ld a, [current_level]
-    cp LEVEL2
-    jr z, .level2
-
-    .level1
-    ld hl, ing_x
-    jr .store_x
+    cp LEVEL1
+    jr z, .level1
 
     .level2
     ld hl, ing_x2
+    jr .store_x
+
+    .level1
+    ld hl, ing_x
 
     .store_x
     add hl, de

@@ -169,7 +169,7 @@ ret
 ; == Rutinas de Animación y Movimiento (SIN CAMBIOS)
 ; =============================================================================
 
-animate_walk:
+animate_walk::
     push af
     push hl
     ld hl, animation_frame_counter
@@ -301,18 +301,18 @@ move_r:
 
     ld l, CMP_SPRITE_X
     ld a, [current_level]
-    cp LEVEL2
-    jr z, .level2
-
-    .level1
-    ld a, [hl]
-    cp RIGHT_BORDER_LEVEL1
-    jr z, .no_platform
-    jr .physics
+    cp LEVEL1
+    jr z, .level1
 
     .level2
     ld a, [hl]
     cp RIGHT_BORDER_LEVEL2
+    jr z, .no_platform
+    jr .physics
+
+    .level1
+    ld a, [hl]
+    cp RIGHT_BORDER_LEVEL1
     jr z, .no_platform
 
     .physics
@@ -384,16 +384,17 @@ ing_move_routine:
     jr c, .left_tube_move
 
     ld a, [current_level]
-    cp LEVEL2
+    cp LEVEL1
     ld a, [de]
-    jr z, .level2
-
-    .level1
-    cp RIGHT_BORDER_LEVEL1 - 7
-    jr nc, .rigth_tuve_move
+    jr z, .level1
 
     .level2
     cp RIGHT_BORDER_LEVEL2 - 7
+    jr nc, .rigth_tuve_move
+    ret
+
+    .level1
+    cp RIGHT_BORDER_LEVEL1 - 7
     jr nc, .rigth_tuve_move
 
     .ing_moved:

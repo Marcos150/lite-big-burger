@@ -46,6 +46,10 @@ load_level_layout:
    jr z, .copy_tiles
 
    ld hl, level2_layout
+   cp LEVEL2
+   jr z, .copy_tiles
+
+   ld hl, level3_layout
 
    .copy_tiles
    ld de, VRAM_SCREEN_START
@@ -116,9 +120,11 @@ sc_game_run::
       ld a, [ingredients_left]
       cp 0
       jr nz, .check_out_of_screen
-      ld a, 1
-      ld [current_level], a
+      ld hl, current_level
+      inc [hl]
 
+      call celebration
+      call mute_music
       call init_level
 
       .check_out_of_screen
@@ -171,7 +177,7 @@ sc_game_run::
          cp 0
          jr nz, .wait_unpress_again
 
-      jr .main_loop
+      jp .main_loop
 
 obliterate_entities:
    ld d, CMP_SPRITE_H
