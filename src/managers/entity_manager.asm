@@ -27,6 +27,7 @@ DS ALIGN[8]
 
 alive_entities: DS 1
 alive_ingredients:: DS 1
+alive_hazards_and_enemies:: DS 1
 
 SECTION "Entity Manager Code", ROM0
 
@@ -38,6 +39,7 @@ man_entity_init::
    xor a
    ld [alive_entities], a
    ld [alive_ingredients], a
+   ld [alive_hazards_and_enemies], a
 
    .zero_info:
       ld hl, components_info
@@ -82,12 +84,21 @@ man_entity_alloc::
 ;; HL: Address of allocated component
 man_entity_destroy::
    ld a, [hl]
-   and CMP_MASK_INGREDIENT
+   bit CMP_BIT_INGREDIENT, a
    push hl
-   jr z, .destroy
+   jr z, .check_if_hazard_enemy
 
    ;; Decreases alive_ingredients if entity is ingredient 
    ld hl, alive_ingredients
+   dec [hl]
+   jr .destroy
+
+   .check_if_hazard_enemy
+   and CMP_MASK_HAZARD
+   jr z, .destroy
+
+   ;; Decreases alive_ingredients if entity is ingredient 
+   ld hl, alive_hazards_and_enemies
    dec [hl]
 
    .destroy

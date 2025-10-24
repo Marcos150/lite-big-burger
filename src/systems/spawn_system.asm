@@ -19,26 +19,20 @@ def OIL_SPRITE equ $CC
 SECTION "Spawn System", ROM0
 
 spawn_init::
-    ld d, 0
-    ld e, 1
-    call spawn_one_hazard
-    ld d, 1
-    ld e, 1
-    call spawn_one_hazard
-
-    ld d, $34
-    ld e, 0
-    call spawn_one_hazard
-    ld d, $22
-    ld e, 0
-    call spawn_one_hazard
+    call create_hazards
 
     jp create_ingredients
 
 spawn_update::
+    ;; Re-spawns ingredients if 1 or less left
     ld a, [alive_ingredients]
-    cp 1
-    jp z, create_ingredients
+    cp 2
+    call c, create_ingredients
+
+    ;; Re-spawns enemies and hazards if 1 or less left
+    ld a, [alive_hazards_and_enemies]
+    cp 2
+    jp c, create_hazards
 ret
 
 create_ingredients:
@@ -56,6 +50,25 @@ ld d, 1
         inc a
         cp 8
     jr nz, .for
+ret
+
+create_hazards:
+    ld d, 0
+    ld e, 1
+    call spawn_one_hazard
+    ld d, 1
+    ld e, 1
+    call spawn_one_hazard
+
+    ld d, $34
+    ld e, 0
+    call spawn_one_hazard
+    ld d, $22
+    ld e, 0
+    call spawn_one_hazard
+
+    ld a, 4
+    ld [alive_hazards_and_enemies], a
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
