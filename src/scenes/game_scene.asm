@@ -63,6 +63,8 @@ sc_game_init::
 
     call lcd_on
 
+    call sc_game_update_hud
+
     ld e, 2
     call wait_vblank_ntimes
 
@@ -102,6 +104,8 @@ sc_game_run::
     .main_loop:
        ld e, 2
        call wait_vblank_ntimes
+
+       call sc_game_update_hud
 
        ld hl, animation_frame_counter
        inc [hl]
@@ -167,3 +171,27 @@ sc_game_run::
            jr nz, .wait_unpress_again
 
        jr .main_loop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Actualiza el HUD (Vidas) escribiendo en VRAM
+;;
+sc_game_update_hud::
+    call wait_vblank_start
+
+    ld hl, VRAM_SCREEN_START
+    ld bc, (HUD_LIVES_ICON_Y * 32) + HUD_LIVES_ICON_X
+    add hl, bc
+    
+    ld a, TILE_ID_HUD_ICON
+    ld [hl], a
+    
+    inc hl 
+    
+    ld a, [wPlayerLives]
+    
+    add a, TILE_ID_NUM_0
+    
+    ld [hl], a
+    
+    ret
+
