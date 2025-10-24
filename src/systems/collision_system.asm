@@ -17,10 +17,10 @@ collided_entity_type: ds 1
 SECTION "Collision System", ROM0
 
 collision_init::
-   ld hl, bbox_prota + 1
+    ld hl, bbox_prota + 1
 
-   ;; Height
-   ld [hl], SPRITE_HEIGHT
+    ;; Height
+    ld [hl], SPRITE_HEIGHT
 
    ;; Width
    inc hl
@@ -35,57 +35,57 @@ collision_init::
 ret
 
 collision_update::
-   ld hl, check_collision
-   call man_entity_controllable
+    ld hl, check_collision
+    call man_entity_controllable
 
-   ld hl, check_tile
+    ld hl, check_tile
 jp man_entity_controllable
 
 wait_until_VRAM_readable:
-   ld hl, rSTAT
-   .wait
-      bit 1, [hl]
-      jr nz, .wait
+    ld hl, rSTAT
+    .wait
+       bit 1, [hl]
+       jr nz, .wait
 ret
 
 
 check_tile:
-   ld h, CMP_SPRITE_H
-   ld l, e
-   call get_address_of_tile_being_touched
+    ld h, CMP_SPRITE_H
+    ld l, e
+    call get_address_of_tile_being_touched
  
-   push hl
-   call wait_until_VRAM_readable
-   pop hl
+    push hl
+    call wait_until_VRAM_readable
+    pop hl
 
-   ld a, [hl+]
-   ld [touching_tile_l], a
-   ld a, [hl]
-   ld [touching_tile_r], a
+    ld a, [hl+]
+    ld [touching_tile_l], a
+    ld a, [hl]
+    ld [touching_tile_r], a
 
-   ld bc, $0020
-   add hl, bc
+    ld bc, $0020
+    add hl, bc
 
-   push hl
-   call wait_until_VRAM_readable
-   pop hl
+    push hl
+    call wait_until_VRAM_readable
+    pop hl
 
-   ld a, [hl]
-   ld [touching_tile_dr], a
-   dec hl
-   ld a, [hl]
-   ld [touching_tile_dl], a
-  
-   add hl, bc
+    ld a, [hl]
+    ld [touching_tile_dr], a
+    dec hl
+    ld a, [hl]
+    ld [touching_tile_dl], a
+ 
+    add hl, bc
 
-   push hl
-   call wait_until_VRAM_readable
-   pop hl
+    push hl
+    call wait_until_VRAM_readable
+    pop hl
 
-   ld a, [hl+]
-   ld [touching_tile_ddl], a
-   ld a, [hl]
-   ld [touching_tile_ddr], a
+    ld a, [hl+]
+    ld [touching_tile_ddl], a
+    ld a, [hl]
+    ld [touching_tile_ddr], a
 ret
 
 ;; INPUT:
@@ -104,133 +104,157 @@ check_collision:
    call check_if_touching_floor
    jr z, .stop_entity
 
-   ld hl, touching_tile_dl
-   call check_if_touching_ladders
-   jr nz, .bbox
+    ld hl, touching_tile_dl
+    call check_if_touching_ladders
+    jr nz, .bbox
 
-   .stop_entity
-   ld d, CMP_PHYSICS_H
-   ld e, CMP_PHYSICS_VX
-   xor a
-   ld [de], a
+    .stop_entity
+    ld d, CMP_PHYSICS_H
+    ld e, CMP_PHYSICS_VX
+    xor a
+    ld [de], a
 
-   ld [has_jumped], a
+    ld [has_jumped], a
 
-   ld e, CMP_PHYSICS_VY
-   ld a, [de]
-   cp MAX_SPEED
-   jr nz, .reduce_accel
+    ld e, CMP_PHYSICS_VY
+    ld a, [de]
+    cp MAX_SPEED
+    jr nz, .reduce_accel
 
-   ld d, CMP_SPRITE_H
-   ld a, [de]
-   dec a
-   dec a
-   ld [de], a
-   
-   .reduce_accel
-   ld d, CMP_PHYSICS_H
-   ld a, -1
-   ld [de], a
-   
-   .bbox:
-   ld d, CMP_SPRITE_H
-   ld hl, bbox_prota
+    ld d, CMP_SPRITE_H
+    ld a, [de]
+    dec a
+    dec a
+    ld [de], a
+    
+    .reduce_accel
+    ld d, CMP_PHYSICS_H
+    ld a, -1
+    ld [de], a
+    
+    .bbox:
+    ld d, CMP_SPRITE_H
+    ld hl, bbox_prota
 
-   ;; ASSUMES FIRST BYTE IS Y ANS SECOND IS X
-   assert CMP_SPRITE_Y == 0, "Y attribute is not the first one of sprite component. Y value: {CMP_SPRITE_Y}"
-   assert CMP_SPRITE_X == 1, "X attribute is not the second one of sprite component. X value: {CMP_SPRITE_X}"
+    ;; ASSUMES FIRST BYTE IS Y ANS SECOND IS X
+    assert CMP_SPRITE_Y == 0, "Y attribute is not the first one of sprite component. Y value: {CMP_SPRITE_Y}"
+    assert CMP_SPRITE_X == 1, "X attribute is not the second one of sprite component. X value: {CMP_SPRITE_X}"
 
-   ;; Store in RAM prota bbox value
-   ld a, [de]
-   ld [hl+], a
-   inc hl
-   inc de
-   ld a, [de]
-   ld [hl], a
+    ;; Store in RAM prota bbox value
+    ld a, [de]
+    ld [hl+], a
+    inc hl
+    inc de
+    ld a, [de]
+    ld [hl], a
 
-   ld hl, check_collision_prota
-   xor a ;; We clear a first to not use filters
-   ;; If we want to use a filter we can do [ld a, CMP_MASK_INGREDIENT]
+    ld hl, check_collision_prota
+    xor a ;; We clear a first to not use filters
+    ;; If we want to use a filter we can do [ld a, CMP_MASK_INGREDIENT]
 jp man_entity_for_each_filtered
 
 
 ;; INPUT:
 ;; DE: Other entity address
 check_collision_prota:
-   ld b, SPRITE_HEIGHT
-   ld c, SPRITE_WIDTH
-   ld a, CMP_BIT_CONTROLLABLE
-   ld [collided_entity_type], a
-   ld a, [de]
+    ld b, SPRITE_HEIGHT
+    ld c, SPRITE_WIDTH
+    ld a, CMP_BIT_CONTROLLABLE
+    ld [collided_entity_type], a
+    ld a, [de]
 
-   bit CMP_BIT_HAZARD, a
-   jr z, .check_if_ingredient
+    bit CMP_BIT_HAZARD, a
+    jr z, .check_if_ingredient
 
-   ;; Collides with enemy or hazard
-   ld b, ENEMY_HEIGHT
-   ld c, ENEMY_WIDTH
-   ld a, CMP_BIT_HAZARD
-   ld [collided_entity_type], a
-   jr .detect
+    ;; Collides with enemy or hazard
+    ld b, ENEMY_HEIGHT
+    ld c, ENEMY_WIDTH
+    ld a, CMP_BIT_HAZARD
+    ld [collided_entity_type], a
+    jr .detect
 
-   .check_if_ingredient
-   bit CMP_BIT_INGREDIENT, a
-   jr z, .detect
+    .check_if_ingredient
+    bit CMP_BIT_INGREDIENT, a
+    jr z, .detect
 
-   ;; Collides with ingredient
-   ld b, SPRITE_HEIGHT_2_SPRITES
-   ld c, SPRITE_WIDTH_2_SPRITES
-   ld a, CMP_BIT_INGREDIENT
-   ld [collided_entity_type], a
+    ;; Collides with ingredient
+    ld b, SPRITE_HEIGHT_2_SPRITES
+    ld c, SPRITE_WIDTH_2_SPRITES
+    ld a, CMP_BIT_INGREDIENT
+    ld [collided_entity_type], a
 
-   .detect
-   ld d, CMP_SPRITE_H
-   ld hl, bbox_other
+    .detect
+    ld d, CMP_SPRITE_H
+    ld hl, bbox_other
 
-   ;; Y and height
-   ld a, [de]
-   ld [hl+], a
-   ld a, b
-   ld [hl], a
+    ;; Y and height
+    ld a, [de]
+    ld [hl+], a
+    ld a, b
+    ld [hl], a
 
-   ;; X and width
-   push de
-   inc de
-   inc hl
-   ld a, [de]
-   ld [hl+], a
-   ld a, c
-   ld [hl], c
+    ;; X and width
+    push de
+    inc de
+    inc hl
+    ld a, [de]
+    ld [hl+], a
+    ld a, c
+    ld [hl], c
 
-   ld de, bbox_prota
-   ld hl, bbox_other
-   call are_boxes_colliding
+    ld de, bbox_prota
+    ld hl, bbox_other
+    call are_boxes_colliding
 
-   pop de
-   ret nc
+    pop de
+    ret nc
 
-   ld a, [collided_entity_type]
-   cp CMP_BIT_HAZARD
-   jr z, die ;; Collides with enemy or hazard
-   cp CMP_BIT_INGREDIENT
-   jr z, ingredient_col ;; Collides with ingredient
+    ld a, [collided_entity_type]
+    cp CMP_BIT_HAZARD
+    jr nz, .check_ingredient_col
+
+    ld a, [wPlayerInvincibilityTimer]
+    or a
+    ret nz
+
+    jr player_hit_hazard
+
+    .check_ingredient_col
+    cp CMP_BIT_INGREDIENT
+    jr z, ingredient_col ;; Collides with ingredient
 ret
 
-die:
-   ld bc, $9800
-   call death_sound
-   .for:
-      call wait_vblank_start
-      ld a, $08
-      ld [bc], a
-      inc bc
-      ld a, b
-      cp $9B
-      jr nz, .for
+player_hit_hazard:
+    call death_sound
+    
+    ld a, PLAYER_INVINCIBILITY_FRAMES
+    ld [wPlayerInvincibilityTimer], a
 
-      call stop_ch_4
+    ld a, [wPlayerLives]
+    dec a
+    ld [wPlayerLives], a
+    cp 0
+    jp z, game_over
+
+    ld hl, reset_player_state
+    call man_entity_controllable
+    
+    call stop_ch_4
+    ret
+
+game_over:
+    ld bc, $9800
+    .for:
+       call wait_vblank_start
+       ld a, $08
+       ld [bc], a
+       inc bc
+       ld a, b
+       cp $9B
+       jr nz, .for
+
+       call stop_ch_4
 jp main
-
 
 ingredient_col:
    ld h, CMP_SPRITE_H
@@ -251,6 +275,42 @@ ingredient_col:
    call falling_sound
    set CMP_BIT_PHYSICS, [hl]
 ret
+    call start_sound
+    
+    ;; --- BUG FIX: Save HL and DE before calling score function ---
+    push hl
+    push de
+
+    ;; --- Add points for ingredient ---
+    ld bc, POINTS_PER_INGREDIENT
+    call sc_game_add_score
+
+    ;; --- Check for order complete ---
+    ld hl, wOrderProgress
+    inc [hl]
+    ld a, [hl]
+    cp INGREDIENTS_PER_ORDER
+    jr nz, .skip_order_bonus
+
+    ;; --- Grant bonus and reset counter ---
+    xor a
+    ld [hl], a
+    ld bc, POINTS_PER_ORDER_BONUS
+    call sc_game_add_score
+
+.skip_order_bonus:
+    ;; --- BUG FIX: Restore HL and DE ---
+    pop de
+    pop hl
+    
+    ld h, CMP_INFO_H
+    ld l, e
+
+    ld a, [alive_ingredients]
+    dec a
+    ld [alive_ingredients], a 
+
+    jp man_entity_destroy
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension
@@ -270,37 +330,37 @@ ret
 ;; Carry: { NC: No overlap }, { C: Overlap }
 ;;
 are_intervals_overlapping:
-   ;; B = [HL] + [HL + 1] = p1 + w1
-   ld a, [hl+]
-   ld b, [hl]
-   add a, b
-   ld b, a
+    ;; B = [HL] + [HL + 1] = p1 + w1
+    ld a, [hl+]
+    ld b, [hl]
+    add a, b
+    ld b, a
 
-   ;; a = p2
-   ld a, [de]
+    ;; a = p2
+    ld a, [de]
 
-   ;; Return hl back to original address
-   dec hl
+    ;; Return hl back to original address
+    dec hl
 
-   ;; p2 > p1 + w1 ?
-   cp a, b
-   ret nc ;; Return if no overlap
+    ;; p2 > p1 + w1 ?
+    cp a, b
+    ret nc ;; Return if no overlap
 
-   ;; B = [DE] + [DE + 1] = p2 + w2
-   ld b, a
-   inc de
-   ld a, [de]
-   add a, b
-   ld b, a
+    ;; B = [DE] + [DE + 1] = p2 + w2
+    ld b, a
+    inc de
+    ld a, [de]
+    add a, b
+    ld b, a
 
-   ;; a = p1
-   ld a, [hl]
+    ;; a = p1
+    ld a, [hl]
 
-   ;; Return de back to original address
-   dec de
+    ;; Return de back to original address
+    dec de
 
-   ;; p1 > p2 + w2 ?
-   cp a, b
+    ;; p1 > p2 + w2 ?
+    cp a, b
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -333,16 +393,16 @@ ret
 ;; DESTROYS: A, BC, DE
 ;:
 get_address_of_tile_being_touched::
-   ;; Y
-   ld a, [hl+]
-   call convert_y_to_ty
-   ld b, a
+    ;; Y
+    ld a, [hl+]
+    call convert_y_to_ty
+    ld b, a
 
-   ;; X
-   ld a, [hl]
-   call convert_x_to_tx
+    ;; X
+    ld a, [hl]
+    call convert_x_to_tx
 
-   ld l, b
+    ld l, b
 jr calculate_address_from_tx_and_ty
 
 ;; 1. Convert Y to TY, and X to TX
@@ -359,13 +419,13 @@ jr calculate_address_from_tx_and_ty
 ;; A: Associated VRAM Tilemap TX-coordinate value
 ;:
 convert_x_to_tx:
-   ;; For the 8 non-visible pixels
-   sub a, 8
+    ;; For the 8 non-visible pixels
+    sub a, 8
 
-   ;; a = a/8 (8 pixels per tile)
-   srl a
-   srl a
-   srl a
+    ;; a = a/8 (8 pixels per tile)
+    srl a
+    srl a
+    srl a
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -380,13 +440,13 @@ ret
 ;; A: Associated VRAM Tilemap TY-coordinate value
 ;:
 convert_y_to_ty:
-   ;; For the 16 non-visible pixels
-   sub a, 16
+    ;; For the 16 non-visible pixels
+    sub a, 16
 
-   ;; a = a/8 (8 pixels per tile)
-   srl a
-   srl a
-   srl a
+    ;; a = a/8 (8 pixels per tile)
+    srl a
+    srl a
+    srl a
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -403,23 +463,23 @@ ret
 ;: DESTROYS: A, BC, DE 
 ;;
 calculate_address_from_tx_and_ty:
-   ;; de = $9800 + A (TX)
-   ld e, a
-   ld d, $98
+    ;; de = $9800 + A (TX)
+    ld e, a
+    ld d, $98
 
-   ;; for every TY add $0020
-   ld bc, $0020
-   xor a
-   cp l
-   .for:
-      jr z, .next
-      call add_de_bc
-      dec l
-   jr .for
+    ;; for every TY add $0020
+    ld bc, $0020
+    xor a
+    cp l
+    .for:
+       jr z, .next
+       call add_de_bc
+       dec l
+    jr .for
 
-   .next:
-   ld h, d
-   ld l, e
+    .next:
+    ld h, d
+    ld l, e
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -443,12 +503,28 @@ ret
 ;; Carry: { NC: Not colliding } { C: colliding }
 ;;
 are_boxes_colliding:
-   call are_intervals_overlapping
-   ret nc
+    call are_intervals_overlapping
+    ret nc
 
-   inc de
-   inc de
-   inc hl
-   inc hl
+    inc de
+    inc de
+    inc hl
+    inc hl
 jr are_intervals_overlapping
 ;; No hace falta ret, al hacer jr el ret de are_intervals_overlapping ya vuelve a donde deberia
+
+reset_player_state:
+    ld h, CMP_PHYSICS_H
+    ld l, e
+    xor a
+    ld [hl+], a
+    ld [hl+], a
+    ld [hl], a
+
+    ld h, CMP_SPRITE_H
+    ld l, e
+    ld a, $60
+    ld [hl+], a
+    ld [hl], $34
+    ret
+
