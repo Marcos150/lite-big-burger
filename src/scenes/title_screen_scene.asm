@@ -4,11 +4,13 @@ INCLUDE "managers/entity_manager.inc"
 
 SECTION "Tile Screen Data", WRAM0
 
-animation_delay:: DS 1
+animation_delay: DS 1
 
 SECTION "Title Screen Scene" , ROM0
 
 sc_title_screen_hold::
+	ld a, 0
+	ld [animation_delay], a
 	.music_driver_init:
     ld hl, funiculi
    	call hUGE_init
@@ -29,7 +31,7 @@ sc_title_screen_hold::
 		jr nz, .dont_play
 		.play:
 			call animate_start_button
-			ld a, $31
+			ld a, $30
 			ld [animation_delay], a
 		.dont_play:
 			dec a
@@ -40,7 +42,7 @@ sc_title_screen_hold::
 		ld a, b
 		and BUTTON_START
 
-		jr z, .loop
+		jp z, .loop
 
 		call mute_music
 	.scroll_loop:
