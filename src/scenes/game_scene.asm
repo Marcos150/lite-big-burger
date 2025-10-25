@@ -16,7 +16,7 @@ SECTION "Scene Game Data" , ROM0
 ;; M A U R I C I O
 mauricio_entity:
     DB ENTITY_WITH_ALL_1_SPRITE, 0, 0, 0, 0, 0, 0, 0 ;; CMP_INFO
-    DB $60, $34, $8C, %00000000, 0, 0, 0, 0 ;; CMP_SPRITE
+    DB $60, $34, $8C, %00010000, 0, 0, 0, 0 ;; CMP_SPRITE
     DB 0, 0, 1, 0, 0, 0, 0, 0 ;; CMP_PHYSICS
 
 SECTION "Scene Game", ROM0
@@ -87,7 +87,7 @@ sc_game_init::
     call init_dma_copy
     SET_BGP DEFAULT_PAL
     SET_OBP1 DEFAULT_PAL
-
+    SET_OBP2 DEFAULT_PAL
 
     ld hl, rLCDC
     set rLCDC_OBJ_ENABLE, [hl]

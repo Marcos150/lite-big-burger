@@ -10,6 +10,12 @@ MACRO SET_OBP1
    ld [rOBP1], a ;; rOBP1
 ENDM
 
+MACRO SET_OBP2
+   ;; Set Sprite Palette 2
+   ld a, \1
+   ld [rOBP2], a
+ENDM
+
 MACRO MEMCPY_256
    ;; MOVE TO VRAM
    ld hl, \1
