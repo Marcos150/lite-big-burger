@@ -34,7 +34,7 @@ init_level:
     call load_level_layout
     call respawn_entities
     call lcd_on
-    call dma_copy ; <-- Mantenido de HEAD
+    call dma_copy
 
     jp sc_game_update_hud
 
@@ -87,7 +87,7 @@ sc_game_init::
     call init_dma_copy
     SET_BGP DEFAULT_PAL
     SET_OBP1 DEFAULT_PAL
-    SET_OBP2 DEFAULT_PAL ; <-- Mantenido de HEAD
+    SET_OBP2 DEFAULT_PAL
 
     ld hl, rLCDC
     set rLCDC_OBJ_ENABLE, [hl]
@@ -153,9 +153,9 @@ sc_game_run::
 
         call celebration
         call mute_music
-        call fade_out ; <-- Mantenido de HEAD
+        call fade_out
         call init_level
-        call fade_in ; <-- Mantenido de HEAD
+        call fade_in
 
         .check_out_of_screen
         ld hl, obliterate_entities
@@ -277,6 +277,7 @@ sc_game_update_hud::
 sc_game_add_score::
     push hl
     push de
+    push bc ; Salva BC (puntos a añadir)
 
     ;; --- Add to wPlayerScore (16-bit) ---
     ld hl, wPlayerScore
@@ -288,9 +289,6 @@ sc_game_add_score::
     adc a, b
     ld [hl], a
 
-    ;; --- Cap score at 9999 (Eliminado para permitir 5 cifras) ---
-    
-.score_ok:
     ;; --- Add to wPointsForExtraLife (16-bit) ---
     ld hl, wPointsForExtraLife
     ld a, [hl]
@@ -300,38 +298,64 @@ sc_game_add_score::
     ld a, [hl]
     adc a, b
     ld [hl], a
+    
+    pop bc ; Restaura BC (puntos a añadir)
+           ; (ya no se usa, pero equilibra la pila)
 
-    ;; --- Check if wPointsForExtraLife >= POINTS_PER_EXTRA_LIFE ---
-    ld a, HIGH(POINTS_PER_EXTRA_LIFE)
-    cp [hl]
-    jr c, .grant_life
-    jr nz, .no_life
+    ;; --- Check if wPointsForExtraLife >= POINTS_PER_EXTRA_LIFE (Looping) ---
+.life_check_loop:
+    ;; Carga el contador (CONTADOR) en DE
+    ld hl, wPointsForExtraLife
+    ld a, [hl]
+    ld e, a
+    inc hl
+    ld a, [hl]
+    ld d, a
+    
+    ;; Carga la constante (CONSTANTE) en BC
+    ld bc, POINTS_PER_EXTRA_LIFE
 
-    ld a, LOW(POINTS_PER_EXTRA_LIFE)
-    dec hl
-    cp [hl]
-    jr c, .no_life
+    ;; Compara: if (DE < BC) salta a .no_life
+    ld a, d
+    cp b
+    jr c, .no_life ; if D < B
+    jr nz, .grant_life ; if D > B
+    ; if D == B, check E
+    ld a, e
+    cp c
+    jr c, .no_life ; if E < C
 
 .grant_life:
+    ;; 1. Dar vida (max 9)
+    push de ; Salva el valor del CONTADOR
+    push bc ; Salva el valor de la CONSTANTE
+    
     ld hl, wPlayerLives
     ld a, [hl]
     cp 9
-    jr z, .reset_life_counter
-    
+    jr z, .skip_inc_life
     inc a
     ld [hl], a
+.skip_inc_life:
+    pop bc ; Restaura CONSTANTE
+    pop de ; Restaura CONTADOR (DE = CONTADOR)
+    
+    ;; 2. Restar puntos: DE = DE - BC (CONTADOR = CONTADOR - CONSTANTE)
+    ld a, e
+    sub c
+    ld e, a
+    ld a, d
+    sbc b
+    ld d, a
+    
+    ;; 3. Guardar el nuevo valor del CONTADOR (DE)
+    ld a, e
+    ld [wPointsForExtraLife], a ; Guarda el byte bajo
+    ld a, d
+    ld [wPointsForExtraLife+1], a ; Guarda el byte alto
 
-.reset_life_counter:
-    ;; --- Subtract POINTS_PER_EXTRA_LIFE from wPointsForExtraLife ---
-    ld hl, wPointsForExtraLife
-    ld de, POINTS_PER_EXTRA_LIFE
-    ld a, [hl]
-    sub a, e
-    ld [hl], a
-    inc hl
-    ld a, [hl]
-    sbc a, d
-    ld [hl], a
+    ;; 4. Volver al bucle para comprobar de nuevo
+    jr .life_check_loop
     
 .no_life:
     pop de
