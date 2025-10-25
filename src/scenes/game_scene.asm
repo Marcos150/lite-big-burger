@@ -34,6 +34,7 @@ init_level:
    call load_level_layout
    call respawn_entities
    call lcd_on
+   call dma_copy
 
    jp sc_game_update_hud
 
@@ -152,7 +153,9 @@ sc_game_run::
 
       call celebration
       call mute_music
+      call fade_out
       call init_level
+      call fade_in
 
       .check_out_of_screen
       ld hl, obliterate_entities
@@ -360,4 +363,61 @@ ret
    ld h, CMP_INFO_H
    ld l, e
    call man_entity_destroy
+ret
+
+fade_out:
+    ld b, 3
+    .for:
+        push bc
+        ld e, 20
+        call wait_vblank_ntimes
+        ld hl, rBGP
+        sla [hl]
+        sla [hl]
+        ld hl, rOBP1
+        sla [hl]
+        sla [hl]
+        pop bc
+        dec b
+    jr nz, .for
+ret
+
+fade_in:
+    ld e, 20
+    call wait_vblank_ntimes
+
+    ld hl, rBGP
+    scf
+    rr [hl]
+    rr [hl]
+    ld hl, rOBP1
+    scf
+    rr [hl]
+    rr [hl]
+
+    ld e, 20
+    call wait_vblank_ntimes
+
+    ld hl, rBGP
+    rr [hl]
+    scf
+    rr [hl]
+    ld hl, rOBP1
+    rr [hl]
+    scf
+    rr [hl]
+
+    ld e, 20
+    call wait_vblank_ntimes
+
+    ld hl, rBGP
+    scf
+    rr [hl]
+    scf
+    rr [hl]
+    ld hl, rOBP1
+    scf
+    rr [hl]
+    scf
+    rr [hl]
 ret
