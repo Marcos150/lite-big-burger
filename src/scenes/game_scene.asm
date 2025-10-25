@@ -31,11 +31,11 @@ ret
 init_level:
     call lcd_off
 
-    call man_entity_init
-    call load_level_layout
-    call respawn_entities
-    call lcd_on
-    call dma_copy
+   call man_entity_init
+   call load_level_layout
+   call respawn_entities
+   call dma_copy
+   call lcd_on
 
     jp sc_game_update_hud
 
@@ -61,6 +61,10 @@ load_level_layout:
     jp memcpy
 
 sc_game_init::
+    ;; Enable vblank interrupt
+    ld a, %00000001
+    ld [rIE], a
+    ei
     call lcd_off
 
     ld hl, main_game_tiles

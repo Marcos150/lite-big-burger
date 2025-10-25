@@ -253,8 +253,6 @@ player_hit_hazard::
 
     ret
 
-;; --- La vieja función game_over:: ha sido eliminada ---
-
 ingredient_col:
     ld h, CMP_SPRITE_H
     ld l, e

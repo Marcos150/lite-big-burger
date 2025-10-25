@@ -7,7 +7,7 @@ SECTION "Utils", ROM0
 lcd_off::
     ;; BEWARE!!
     di
-    call wait_vblank_start
+    call wait_vblank_start_no_interrupt
     ld hl, rLCDC
     res 7, [hl] ;; LCD OFF
     ei
@@ -24,12 +24,16 @@ lcd_on::
 ;; VBLANK
 ;; DESTROYS AF, HL
 
-wait_vblank_start::
+wait_vblank_start_no_interrupt::
     ld hl, rLY
     ld a, $90
 .loop:
     cp [hl]
     jr nz, .loop
+ret
+
+wait_vblank_start::
+    halt
 ret
 
 ;; E=> Times
@@ -105,8 +109,6 @@ memset_256::
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DMA CODE
-;; Inspired by Game Boy Coding Adventure Early Access, chapter 12
-;; Code available here: https://github.com/mdagois/gca
 
 ;; Function to call from our code. Initializes the DMA
 dma_copy::
