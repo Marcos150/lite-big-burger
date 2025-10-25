@@ -16,7 +16,6 @@ DS ALIGN[8]
 
 EXPORT DEF CMP_SPRITE_H = HIGH(@)
 ;; Throws error when assembling if components don't start at xx00 adress. Needed for DMA
-;; Extracted from Game Boy Coding Adventure Early Access, page 230
 assert low(@) == 0, "components must be 256-byte-aligned {CMP_SPRITE_H}"
 components_sprite: DS SIZEOF_ARRAY_CMP
 DS ALIGN[8]
@@ -168,6 +167,7 @@ man_entity_for_each::
     cp 0
     ret z
     .process_alive_entities
+    assert SIZEOF_ARRAY_CMP < $FF, "Component array size is larger than $FF. Array size: {SIZEOF_ARRAY_CMP}"
     ld de, components_info ;; DONT GO OUT OF $Cx00!
     ld b, a
     .for:

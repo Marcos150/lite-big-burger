@@ -105,8 +105,6 @@ memset_256::
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DMA CODE
-;; Inspired by Game Boy Coding Adventure Early Access, chapter 12
-;; Code available here: https://github.com/mdagois/gca
 
 ;; Function to call from our code. Initializes the DMA
 dma_copy::
