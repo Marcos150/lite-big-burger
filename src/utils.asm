@@ -105,6 +105,8 @@ memset_256::
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DMA CODE
+;; Inspired by Game Boy Coding Adventure Early Access, chapter 12
+;; Code available here: https://github.com/mdagois/gca
 
 ;; Function to call from our code. Initializes the DMA
 dma_copy::
@@ -183,7 +185,7 @@ utils_bcd_convert_16bit::
     inc de
 
     ; --- Unidades (1s) ---
-    ld a, l     ; Lo que queda en HL (específicamente en L) son las unidades
+    ld a, l       ; Lo que queda en HL (específicamente en L) son las unidades
     ld [de], a
     ret
 
