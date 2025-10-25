@@ -10,6 +10,7 @@ animation_frame_counter:: DS 1
 current_level:: DS 1
 ingredients_left:: DS 1
 wTempBCDBuffer:: ds 5
+wPlayerIsDead:: ds 1
 
 SECTION "Scene Game Data" , ROM0
 
@@ -96,6 +97,7 @@ sc_game_init::
     xor a
     ld [animation_frame_counter], a
     ld [current_level], a
+    ld [wPlayerIsDead], a ; Inicializa la nueva variable a 0
 
     ;; All channels in left and right
     ld a, $FF
@@ -124,6 +126,11 @@ sc_game_init::
 
 sc_game_run::
     .main_loop:
+        ;; Comprueba si el jugador ha muerto
+        ld a, [wPlayerIsDead]
+        or a
+        jp nz, sc_game_over ; Si es 1, salta a la pantalla de Game Over
+
         ld e, 2
         call wait_vblank_ntimes
 
@@ -459,3 +466,98 @@ fade_in:
     scf
     rr [hl]
 ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; RUTINA DE GAME OVER (SOBRE PANTALLA PAUSADA)
+;;
+sc_game_over::
+    call mute_music
+    call death_sound
+    ;; NO llamar a fade_out
+    ;; NO limpiar pantalla
+
+    ;; 1. Apagar sprites (OBJ) para que no se muevan
+    ld hl, rLCDC
+    res rLCDC_OBJ_ENABLE, [hl]
+
+    ;; 2. Asegurar paleta correcta (por si acaso algo la cambió)
+    call wait_vblank_start ;; Esperar antes de tocar VRAM
+    SET_BGP DEFAULT_PAL
+
+    ;; 3. Escribir "G A M E O V E R" encima de la pantalla existente
+    ; G=$EC, A=$ED, M=$EE, E=$EF, O=$F1, V=$F2, R=$7B
+    ld hl, VRAM_SCREEN_START + (8 * 32) + 6 ; Fila 8, Columna 6
+    ld a, $EC ; G
+    ld [hl+], a
+    ld a, $ED ; A
+    ld [hl+], a
+    ld a, $EE ; M
+    ld [hl+], a
+    ld a, $EF ; E
+    ld [hl+], a
+    ld a, $00 ; (espacio) - Usa tile vacío para separar
+    ld [hl+], a
+    ld a, $F1 ; O
+    ld [hl+], a
+    ld a, $F2 ; V
+    ld [hl+], a
+    ld a, $EF ; E
+    ld [hl+], a
+    ld a, $7B ; R
+    ld [hl+], a
+
+    ;; 4. Escribir "S C O R E" encima
+    ; S=$EA, C=$E7, O=$F1, R=$7B, E=$EF
+    ld hl, VRAM_SCREEN_START + (10 * 32) + 4 ; Fila 10, Columna 4
+    ld a, $EA ; S
+    ld [hl+], a
+    ld a, $E7 ; C
+    ld [hl+], a
+    ld a, $F1 ; O
+    ld [hl+], a
+    ld a, $7B ; R
+    ld [hl+], a
+    ld a, $EF ; E
+    ld [hl+], a
+    ld a, $00 ; (espacio)
+    ld [hl+], a
+    ; (El puntero HL queda en la Columna 10)
+
+    ;; 5. Mostrar puntuación encima
+    push hl ; Guarda la posición de VRAM (Fila 10, Col 10)
+    ld a, [wPlayerScore]
+    ld l, a
+    ld a, [wPlayerScore+1]
+    ld h, a
+    call utils_bcd_convert_16bit
+    pop hl ; Recupera la posición
+
+    ld b, 5 ; 5 dígitos
+    ld de, wTempBCDBuffer
+.draw_score_loop:
+    ld a, [de]
+    add a, $D4 ; Base para '0'
+    ld [hl+], a
+    inc de
+    dec b
+    jr nz, .draw_score_loop
+
+    ;; NO llamar a fade_in
+
+    ;; 6. Esperar a que se pulse START
+.wait_press:
+    call read_input
+    ld a, b
+    and BUTTON_START
+    jr z, .wait_press
+
+    ;; 7. Esperar a que se suelte START
+.wait_release:
+    call read_input
+    ld a, b
+    and BUTTON_START
+    jr nz, .wait_release
+
+    ;; NO llamar a fade_out
+
+    ;; 8. Salir de sc_game_run (esto hará que main.asm reinicie el juego)
+    ret

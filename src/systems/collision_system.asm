@@ -22,16 +22,16 @@ collision_init::
     ;; Height
     ld [hl], SPRITE_HEIGHT
 
-   ;; Width
-   inc hl
-   inc hl
-   ld [hl], SPRITE_WIDTH
+    ;; Width
+    inc hl
+    inc hl
+    ld [hl], SPRITE_WIDTH
 
-   ld hl, touching_tile_l
-   xor a
-   REPT collided_entity_type - prota_y
-      ld [hl+], a
-   ENDR
+    ld hl, touching_tile_l
+    xor a
+    REPT collided_entity_type - prota_y
+        ld [hl+], a
+    ENDR
 ret
 
 collision_update::
@@ -44,8 +44,8 @@ jp man_entity_controllable
 wait_until_VRAM_readable:
     ld hl, rSTAT
     .wait
-       bit 1, [hl]
-       jr nz, .wait
+        bit 1, [hl]
+        jr nz, .wait
 ret
 
 
@@ -91,18 +91,18 @@ ret
 ;; INPUT:
 ;; DE: Prota entity address
 check_collision:
-   ld d, CMP_SPRITE_H
-   ld a, [de]
-   ld [prota_y], a
-   ld d, CMP_INFO_H
+    ld d, CMP_SPRITE_H
+    ld a, [de]
+    ld [prota_y], a
+    ld d, CMP_INFO_H
 
-   ;; Checks if floor underneath or on ladders to stop entity then
-   ld hl, touching_tile_ddl
-   call check_if_touching_floor
-   jr z, .stop_entity
-   inc hl
-   call check_if_touching_floor
-   jr z, .stop_entity
+    ;; Checks if floor underneath or on ladders to stop entity then
+    ld hl, touching_tile_ddl
+    call check_if_touching_floor
+    jr z, .stop_entity
+    inc hl
+    call check_if_touching_floor
+    jr z, .stop_entity
 
     ld hl, touching_tile_dl
     call check_if_touching_ladders
@@ -232,8 +232,18 @@ player_hit_hazard::
     ld a, [wPlayerLives]
     dec a
     ld [wPlayerLives], a
+    
+    ;; --- INICIO DE LA MODIFICACIÓN ---
     cp 0
-    jp z, game_over
+    jr nz, .update_hud ; Si no es 0, solo actualiza el HUD
+
+    ; Si vidas == 0, avisa a game_scene
+    ld a, 1
+    ld [wPlayerIsDead], a
+    ret ; Salir, no reiniciar al jugador
+    
+.update_hud:
+    ;; --- FIN DE LA MODIFICACIÓN ---
 
     ld hl, reset_player_state
     call man_entity_controllable
@@ -243,39 +253,26 @@ player_hit_hazard::
 
     ret
 
-game_over:
-    call death_sound
-    ld bc, $9800
-    .for:
-       call wait_vblank_start
-       ld a, $08
-       ld [bc], a
-       inc bc
-       ld a, b
-       cp $9B
-       jr nz, .for
-
-       call stop_ch_4
-jp main
+;; --- La vieja función game_over:: ha sido eliminada ---
 
 ingredient_col:
-   ld h, CMP_SPRITE_H
-   ld l, e
+    ld h, CMP_SPRITE_H
+    ld l, e
 
-   ;; Check that prota is on the same "y" as ingredient 
-   ld a, [prota_y]
-   ld c, a
-   ld a, [hl]
-   cp c
-   ret nz
+    ;; Check that prota is on the same "y" as ingredient 
+    ld a, [prota_y]
+    ld c, a
+    ld a, [hl]
+    cp c
+    ret nz
 
-   ;; Check that ingredient is not already falling
-   ld h, CMP_INFO_H
-   bit CMP_BIT_PHYSICS, [hl]
-   ret nz
+    ;; Check that ingredient is not already falling
+    ld h, CMP_INFO_H
+    bit CMP_BIT_PHYSICS, [hl]
+    ret nz
 
-   call falling_sound
-   set CMP_BIT_PHYSICS, [hl]
+    call falling_sound
+    set CMP_BIT_PHYSICS, [hl]
 
     ;; --- Add points for ingredient ---
     ld bc, POINTS_PER_INGREDIENT
@@ -456,9 +453,9 @@ calculate_address_from_tx_and_ty:
     xor a
     cp l
     .for:
-       jr z, .next
-       call add_de_bc
-       dec l
+        jr z, .next
+        call add_de_bc
+        dec l
     jr .for
 
     .next:
@@ -511,4 +508,3 @@ reset_player_state:
     ld [hl+], a
     ld [hl], $34
     ret
-
