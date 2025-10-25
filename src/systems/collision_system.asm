@@ -240,6 +240,8 @@ player_hit_hazard:
     call man_entity_controllable
     
     call stop_ch_4
+    call sc_game_update_hud
+
     ret
 
 game_over:
@@ -274,43 +276,25 @@ ingredient_col:
 
    call falling_sound
    set CMP_BIT_PHYSICS, [hl]
-ret
-    call start_sound
-    
-    ;; --- BUG FIX: Save HL and DE before calling score function ---
-    push hl
-    push de
 
     ;; --- Add points for ingredient ---
     ld bc, POINTS_PER_INGREDIENT
     call sc_game_add_score
+    call sc_game_update_hud
 
     ;; --- Check for order complete ---
     ld hl, wOrderProgress
     inc [hl]
     ld a, [hl]
     cp INGREDIENTS_PER_ORDER
-    jr nz, .skip_order_bonus
+    ret nz
 
     ;; --- Grant bonus and reset counter ---
     xor a
     ld [hl], a
     ld bc, POINTS_PER_ORDER_BONUS
     call sc_game_add_score
-
-.skip_order_bonus:
-    ;; --- BUG FIX: Restore HL and DE ---
-    pop de
-    pop hl
-    
-    ld h, CMP_INFO_H
-    ld l, e
-
-    ld a, [alive_ingredients]
-    dec a
-    ld [alive_ingredients], a 
-
-    jp man_entity_destroy
+    jp sc_game_update_hud
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Checks if two integral intervals overlap in one dimension
