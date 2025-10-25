@@ -36,7 +36,7 @@ DEF rLCDC_OBJ_16x8 equ 2
 DEF rLCDC_OBJ_ENABLE equ 1
 DEF rSTAT equ $FF41
 
-;; Atributos de Sprite <-- AÑADIDO AQUÍ, EN UN LUGAR LÓGICO
+;; Atributos de Sprite
 DEF SPRITE_ATTR_FLIP_X equ %00100000  ; Bit 5 para el flip horizontal
 
 DEF DEFAULT_PAL equ %11100100
@@ -48,16 +48,16 @@ DEF VRAM_TILE_SIZE equ $10
 DEF VRAM_TILE_32 equ VRAM_TILE_START + ($20 * VRAM_TILE_SIZE)
 
 ;; Joypad options
-def SELECT_BUTTONS    equ $10
-def SELECT_PAD        equ $20
-def BUTTON_RIGHT      equ $01
-def BUTTON_LEFT       equ $02
-def BUTTON_UP         equ $04
-def BUTTON_DOWN       equ $08
-def BUTTON_A          equ $10
-def BUTTON_B          equ $20
-def BUTTON_SELECT     equ $40
-def BUTTON_START      equ $80
+def SELECT_BUTTONS     equ $10
+def SELECT_PAD         equ $20
+def BUTTON_RIGHT       equ $01
+def BUTTON_LEFT        equ $02
+def BUTTON_UP          equ $04
+def BUTTON_DOWN        equ $08
+def BUTTON_A           equ $10
+def BUTTON_B           equ $20
+def BUTTON_SELECT      equ $40
+def BUTTON_START       equ $80
 
 ; Tileset sizes
 def SIZE_OF_MAINGAME equ 138 * 8 * 2
@@ -109,11 +109,12 @@ DEF LEVEL3 EQU 2
 DEF LEFT_BORDER EQU $10
 DEF RIGHT_BORDER_LEVEL1 EQU $58
 DEF RIGHT_BORDER_LEVEL2 EQU $89
+
 ; HUD Constants (Score)
 DEF HUD_SCORE_Y EQU 17
-DEF HUD_SCORE_ICON_X EQU 12
-DEF HUD_SCORE_X_X EQU 13
-DEF HUD_SCORE_VALUE_X EQU 14
+DEF HUD_SCORE_ICON_X EQU 11 ; <-- CAMBIADO (12 -> 11)
+DEF HUD_SCORE_X_X EQU 12    ; <-- CAMBIADO (13 -> 12)
+DEF HUD_SCORE_VALUE_X EQU 13; <-- CAMBIADO (14 -> 13)
 
 DEF TILE_ID_HUD_SCORE_ICON EQU $DF
 DEF TILE_ID_HUD_X EQU $DE
@@ -132,4 +133,3 @@ DEF INGREDIENTS_PER_ORDER EQU 8
 DEF POINTS_PER_INGREDIENT EQU 10
 DEF POINTS_PER_ORDER_BONUS EQU 50
 DEF POINTS_PER_EXTRA_LIFE EQU 1000
-
