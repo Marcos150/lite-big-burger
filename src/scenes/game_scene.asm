@@ -383,6 +383,9 @@ fade_out:
         ld hl, rOBP1
         sla [hl]
         sla [hl]
+        inc l ;; rOBP2
+        sla [hl]
+        sla [hl]
         pop bc
         dec b
     jr nz, .for
@@ -400,6 +403,10 @@ fade_in:
     scf
     rr [hl]
     rr [hl]
+    inc l ;; rOBP2
+    scf
+    rr [hl]
+    rr [hl]
 
     ld e, 20
     call wait_vblank_ntimes
@@ -412,6 +419,10 @@ fade_in:
     rr [hl]
     scf
     rr [hl]
+    inc l ;; rOBP2
+    rr [hl]
+    scf
+    rr [hl]
 
     ld e, 20
     call wait_vblank_ntimes
@@ -422,6 +433,11 @@ fade_in:
     scf
     rr [hl]
     ld hl, rOBP1
+    scf
+    rr [hl]
+    scf
+    rr [hl]
+    inc l ;; rOBP2
     scf
     rr [hl]
     scf
