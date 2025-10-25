@@ -362,6 +362,12 @@ ret
 .obliterate:
    ld h, CMP_INFO_H
    ld l, e
+
+   ;; If prota falls, -1 life
+   ld a, [hl]
+   and CMP_MASK_CONTROLLABLE
+   jp nz, player_hit_hazard
+
    call man_entity_destroy
 ret
 

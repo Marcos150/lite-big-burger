@@ -224,9 +224,8 @@ check_collision_prota:
     jr z, ingredient_col ;; Collides with ingredient
 ret
 
-player_hit_hazard:
-    call death_sound
-    
+player_hit_hazard::
+    call start_sound
     ld a, PLAYER_INVINCIBILITY_FRAMES
     ld [wPlayerInvincibilityTimer], a
 
@@ -245,6 +244,7 @@ player_hit_hazard:
     ret
 
 game_over:
+    call death_sound
     ld bc, $9800
     .for:
        call wait_vblank_start
