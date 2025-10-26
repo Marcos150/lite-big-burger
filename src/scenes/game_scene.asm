@@ -8,6 +8,7 @@ SECTION "Game Scene Data", WRAM0
 
 animation_frame_counter:: DS 1
 current_level:: DS 1
+current_iteration:: DS 1 ;; Times that all levels have been beaten
 ingredients_left:: DS 1
 wTempBCDBuffer:: ds 5
 wPlayerIsDead:: ds 1
@@ -57,6 +58,16 @@ load_level_layout:
     jr z, .copy_tiles
 
     ld hl, level3_layout
+    cp LEVEL3
+    jr z, .copy_tiles
+    
+    ;; All levels done, start from 1 with more enemies
+    ld hl, current_iteration
+    inc [hl]
+
+    xor a
+    ld [current_level], a
+    ld hl, main_game_screen_layout
 
     .copy_tiles
     ld de, VRAM_SCREEN_START
@@ -104,7 +115,8 @@ sc_game_init::
     xor a
     ld [animation_frame_counter], a
     ld [current_level], a
-    ld [wPlayerIsDead], a ; Inicializa la nueva variable a 0
+    ld [wPlayerIsDead], a
+    ld [current_iteration], a
 
     ;; All channels in left and right
     ld a, $FF

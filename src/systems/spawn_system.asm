@@ -40,10 +40,16 @@ spawn_update::
     cp 2
     call c, create_ingredients
 
-    ;; Re-spawns enemies and hazards if 1 or less left
+    ;; Re-spawns enemies
+    ld a, [current_iteration]
+    add a
+    ld b, a ;; B = current iteration * 2
     ld a, [alive_hazards_and_enemies]
-    cp MAX_HAZARDS
-    jr c, create_hazards
+    ld c, a
+    ld a, MAX_HAZARDS
+    add a, b ;; Max hazards = MAX_HAZARDS + (current iteration * 2)
+    cp c
+    jr nc, create_hazards
 ret
 
 create_ingredients:
@@ -202,9 +208,14 @@ spawn_one_ingredient::
 ;; DESTROYS:
 ;; A, B, C, D, E, HL
 spawn_one_hazard::
+    ld a, HAZARD_RATIO
+    ld hl, current_iteration
+    add a, [hl] ;; ratio = HAZARD_RATIO + current_iteration
+    ld b, a
+
     ld a, [$FF04]
     swap a
-    cp HAZARD_RATIO
+    cp b
     ret nc
 
     ld a, e
