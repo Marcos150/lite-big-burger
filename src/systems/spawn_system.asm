@@ -15,6 +15,14 @@ ing_x2:
 ing_y:
     DB $19, $31, $49, $61, $19, $31, $49, $61
 
+hazards_x:
+    DB $10, $22, $37, $4E
+hazards_x_end:
+
+hazards_x_level2:
+    DB $20, $38, $4B, $66
+hazards_x_end_level2:
+
 def BASE_SPRITE_TILE equ $A2
 def KNIFE_SPRITE equ $CE
 def OIL_SPRITE equ $CC
@@ -63,14 +71,29 @@ create_hazards:
     ld e, 1
     call spawn_one_hazard
 
-    ld d, $34
-    ld e, 0
-    call spawn_one_hazard
-    ld d, $22
-    ld e, 0
-    call spawn_one_hazard
+    ld c, hazards_x_end - hazards_x
+    ld hl, hazards_x
+    ld a, [current_level]
+    cp LEVEL1
+    jr z, .spawn_oil
 
-    ld a, 4
+    ld c, hazards_x_end_level2 - hazards_x_level2
+    ld hl, hazards_x_level2
+    
+    .spawn_oil
+    .for
+        ld d, [hl]
+        inc hl
+        ld e, 0
+        push bc
+        push hl
+        call spawn_one_hazard
+        pop hl
+        pop bc
+    dec c
+    jr nz, .for
+
+    ld a, 6
     ld [alive_hazards_and_enemies], a
 ret
 
@@ -181,7 +204,6 @@ spawn_one_ingredient::
 ;; E: Sprite bits (0 for oil and 1 for knives)
 ;; DESTROYS:
 ;; A, B, C, D, E, HL
-
 spawn_one_hazard::
     ld a, e
     cp 0
