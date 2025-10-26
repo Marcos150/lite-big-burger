@@ -271,21 +271,6 @@ add_de_bc::
     ld d, a
 ret
 
-;;-------------------------------------------------------
-;; Input: BC, DE (Two 16-bit numbers)
-;; Output: BC = BC - DE
-;; Condition: HL cannot be used
-sub_bc_de::
-    ld a, e
-    sub a, c
-    ld e, a
-
-    ld a, d
-    sbc a, b ;; sbc -> sub con acarreo
-    ld d, a
-ret
-
-
 ;; INPUT:  A = number
 ;; OUTPUT: A
 get_closest_divisible_by_8::

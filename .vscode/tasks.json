@@ -39,7 +39,7 @@
                     ]
                 }
             },
-            "command": "make",
+            "command": "make -j",
             "presentation": {
                 "reveal": "silent",
                 "panel": "shared"
