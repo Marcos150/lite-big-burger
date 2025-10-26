@@ -439,6 +439,10 @@ ret
 
     .move
     ld d, CMP_SPRITE_H
+    ;; No se salga de la cinta
+    ld a, $84
+    ld [de], a
+
     inc de
     ld a, [de]
     add a, SPEED
@@ -446,6 +450,11 @@ ret
     inc e
     inc e
     inc e
+
+    ;; No se salga de la cinta
+    ld a, $84
+    ld [de], a
+
     inc e
     ld a, [de]
     add a, SPEED
