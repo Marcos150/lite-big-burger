@@ -197,12 +197,14 @@ sc_game_run::
         ld a, $8B
         ld [hl], a
         .wait_unpress:
+            call wait_vblank_start
             call read_input
             ld a, b
             cp 0
             jr nz, .wait_unpress
 
         .loop_paused:
+            call wait_vblank_start
             call read_input
             ld a, b
             and BUTTON_START
@@ -216,6 +218,7 @@ sc_game_run::
         ENDR
 
         .wait_unpress_again:
+            call wait_vblank_start
             call read_input
             ld a, b
             cp 0
