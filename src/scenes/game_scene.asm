@@ -478,7 +478,7 @@ fade_in:
     rr [hl]
 ret
 
-death_animation_burn:
+death_animation_burn::
     ld d, CMP_SPRITE_H
     REPT CMP_SPRITE_TILE
         inc e
@@ -500,7 +500,7 @@ death_animation_burn:
     call wait_vblank_ntimes
 ret
 
-death_animation_cut:
+death_animation_cut::
     ld d, CMP_SPRITE_H
     REPT CMP_SPRITE_TILE
         inc e

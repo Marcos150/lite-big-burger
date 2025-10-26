@@ -13,9 +13,6 @@ physics_update::
     call man_entity_for_each
     ld hl, confine_mauricio
     call man_entity_controllable
-    ld hl, hazard_routine
-    ld a, CMP_MASK_HAZARD
-    call man_entity_for_each_filtered
 ret
 
 process_accel:
@@ -141,36 +138,3 @@ ret
     ld [de], a
 ret
 
-hazard_routine::
-    ld d, CMP_SPRITE_H
-    inc de
-    inc de
-    ld a, [de]
-    cp KNIFE_SPRITE
-    ret nz
-
-    .check_bounce:
-        dec de
-        ld a, [de]
-        cp $12
-        jr c, .bounce_left
-        cp $56
-        jr nc, .bounce_right
-
-    .bounce_left:
-        ld a, $13
-        ld [de],a 
-        ld d, CMP_PHYSICS_H
-        inc de
-        ld a, 2
-        ld [de], a
-        ret
-
-    .bounce_right:
-        ld a, $55
-        ld [de],a 
-        ld d, CMP_PHYSICS_H
-        inc de
-        ld a, $FD
-        ld [de], a
-        ret

@@ -225,7 +225,8 @@ check_collision_prota:
 ret
 
 player_hit_hazard::
-    call start_sound
+    call death_sound
+
     ld a, PLAYER_INVINCIBILITY_FRAMES
     ld [wPlayerInvincibilityTimer], a
 
@@ -234,7 +235,7 @@ player_hit_hazard::
     ld [wPlayerLives], a
     
     ;; --- INICIO DE LA MODIFICACIÓN ---
-    cp 0
+    cp $FF             ; Morir solo en la vida 0
     jr nz, .update_hud ; Si no es 0, solo actualiza el HUD
 
     ; Si vidas == 0, avisa a game_scene

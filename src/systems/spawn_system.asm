@@ -247,10 +247,28 @@ spawn_one_hazard::
         ld [hl+], a
         ld a, b         ; Get Base Tile ID
         ld [hl+], a
+
+        ; Attributes
+        cp KNIFE_SPRITE
+        jr nz, .skip_sprite_att
+
+        ld a, c
+        cp LEFT_BORDER
+        jr nz, .flip_yx
+        ld a, $40
+        ld [hl+], a
+
+        .flip_yx:
+        ld a, $60
+        ld [hl+], a
+        jr .sec_sprite
+
+        .skip_sprite_att:
         xor a           ; Get Attribute (None)
         ld [hl+], a
 
         ; Sprite 2
+        .sec_sprite:
         xor a           ; Null
         REPT 4
             ld [hl+], a
@@ -267,12 +285,12 @@ spawn_one_hazard::
         ld a, c
         cp LEFT_BORDER
         jr z, .vel_x_plus
-        ld a, $FD
+        ld a, $FF
         ld [hl+], a
         jr .continue
 
         .vel_x_plus:
-        ld a, 3
+        ld a, 1
         ld [hl+], a
         jr .continue
 
