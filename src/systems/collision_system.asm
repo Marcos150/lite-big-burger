@@ -238,7 +238,13 @@ player_hit_hazard::
     jr nz, .update_hud ; Si no es 0, solo actualiza el HUD
 
     ; Si vidas == 0, avisa a game_scene
-    ld a, 1
+    ld d, CMP_SPRITE_H
+    REPT CMP_SPRITE_TILE
+        inc e
+    ENDR
+
+    ;; We store the sprite to know what has killed the player
+    ld a, [de]
     ld [wPlayerIsDead], a
     ret ; Salir, no reiniciar al jugador
     

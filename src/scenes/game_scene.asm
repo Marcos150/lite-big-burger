@@ -474,14 +474,75 @@ fade_in:
     scf
     rr [hl]
 ret
+
+death_animation_burn:
+    ld d, CMP_SPRITE_H
+    REPT CMP_SPRITE_TILE
+        inc e
+    ENDR
+
+    ld h, d
+    ld l, e
+
+    ld [hl], $98
+    call dma_copy
+
+    ld e, 50
+    call wait_vblank_ntimes
+
+    ld [hl], $9B
+    call dma_copy
+
+    ld e, 50
+    call wait_vblank_ntimes
+ret
+
+death_animation_cut:
+    ld d, CMP_SPRITE_H
+    REPT CMP_SPRITE_TILE
+        inc e
+    ENDR
+
+    ld h, d
+    ld l, e
+
+    ld [hl], $9C
+    call dma_copy
+
+    ld e, 50
+    call wait_vblank_ntimes
+
+    ld [hl], $9E
+    call dma_copy
+
+    ld e, 50
+    call wait_vblank_ntimes
+
+    ld [hl], $A0
+    call dma_copy
+
+    ld e, 50
+    call wait_vblank_ntimes
+ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; RUTINA DE GAME OVER (SOBRE PANTALLA PAUSADA)
 ;;
 sc_game_over::
     call mute_music
     call death_sound
-    ;; NO llamar a fade_out
-    ;; NO limpiar pantalla
+
+    ld a, [wPlayerIsDead]
+    cp KNIFE_SPRITE
+    jr z, .cut
+    .burn
+    ld hl, death_animation_burn
+    jr .play_animation
+    .cut
+    ld hl, death_animation_cut
+
+    .play_animation
+    call man_entity_controllable
 
     ;; 1. Apagar sprites (OBJ) para que no se muevan
     ld hl, rLCDC

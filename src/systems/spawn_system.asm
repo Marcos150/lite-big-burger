@@ -24,7 +24,7 @@ hazards_x_level2:
 hazards_x_end_level2:
 
 def BASE_SPRITE_TILE equ $A2
-def KNIFE_SPRITE equ $CE
+export def KNIFE_SPRITE equ $CE
 def OIL_SPRITE equ $CC
 
 SECTION "Spawn System", ROM0
