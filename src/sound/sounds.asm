@@ -86,7 +86,7 @@ mute_music::
 celebration::
     ld hl, funiculi
    	call hUGE_init
-    ld a, 224
+    ld a, 192
     .for:
         push af
         call hUGE_dosound

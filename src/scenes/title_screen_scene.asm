@@ -20,7 +20,7 @@ sc_title_screen_hold::
 	ld [rNR50], a
 
 	call set_screen_to_bottom
-	ld a, $30
+	ld a, $10
 	ld [animation_delay], a
 	.loop:
 		;; Plays music.
