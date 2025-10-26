@@ -34,11 +34,11 @@ init_level:
    xor a
    ld [wPlayerInvincibilityTimer], a
 
-   call man_entity_init
-   call load_level_layout
-   call respawn_entities
-   call dma_copy
-   call lcd_on
+    call man_entity_init
+    call load_level_layout
+    call respawn_entities
+    call dma_copy
+    call lcd_on
 
     jp sc_game_update_hud
 
@@ -382,11 +382,11 @@ sc_game_add_score::
 
 obliterate_entities:
     ld d, CMP_SPRITE_H
-    ld a, [de]            ;;Check y
+    ld a, [de]          ;;Check y
     cp $B0
     jr nc, .obliterate
     inc de
-    ld a, [de]            ;;Check x
+    ld a, [de]          ;;Check x
     cp $B0
     dec de
     jr nc, .obliterate
@@ -528,8 +528,9 @@ death_animation_cut:
     call wait_vblank_ntimes
 ret
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; RUTINA DE GAME OVER (SOBRE PANTALLA PAUSADA)
+;; Muestra la pantalla de Game Over
 ;;
 sc_game_over::
     call mute_music
@@ -547,17 +548,47 @@ sc_game_over::
     .play_animation
     call man_entity_controllable
 
-    ;; 1. Apagar sprites (OBJ) para que no se muevan
+    ;; 1. Apagar sprites
     ld hl, rLCDC
     res rLCDC_OBJ_ENABLE, [hl]
 
-    ;; 2. Asegurar paleta correcta (por si acaso algo la cambió)
-    call wait_vblank_start ;; Esperar antes de tocar VRAM
-    SET_BGP DEFAULT_PAL
+    ;; 2. Fundido a negro
+    call fade_out
 
-    ;; 3. Escribir "G A M E O V E R" encima de la pantalla existente
-    ; G=$EC, A=$ED, M=$EE, E=$EF, O=$F1, V=$F2, R=$7B
-    ld hl, VRAM_SCREEN_START + (8 * 32) + 6 ; Fila 8, Columna 6
+    ;; 3. Pausa
+    ld e, 120
+    call wait_vblank_ntimes
+
+    ;; 4. Apagar LCD
+    call lcd_off
+
+    ;; 5. Mover scroll a (0,0)
+    xor a
+    ld [rSCY], a
+    ld [rSCX], a
+
+    ;; 6. Limpiar área visible (20x18) en VRAM (0,0)
+    ld hl, VRAM_SCREEN_START
+    ld b, 18 ; Altura (18 tiles)
+.clear_visible_y_loop:
+    push bc
+    push hl
+    ld c, 20 ; Anchura (20 tiles)
+.clear_visible_x_loop:
+    ld a, $00 ; Tile vacío
+    ld [hl+], a
+    dec c
+    jr nz, .clear_visible_x_loop
+    
+    pop hl
+    ld bc, 32 ; Siguiente fila del mapa
+    add hl, bc
+    pop bc
+    dec b
+    jr nz, .clear_visible_y_loop
+
+    ;; 7. Escribir "GAME OVER"
+    ld hl, VRAM_SCREEN_START + (8 * 32) + 6
     ld a, $EC ; G
     ld [hl+], a
     ld a, $ED ; A
@@ -566,7 +597,7 @@ sc_game_over::
     ld [hl+], a
     ld a, $EF ; E
     ld [hl+], a
-    ld a, $00 ; (espacio) - Usa tile vacío para separar
+    ld a, $00 ; (espacio)
     ld [hl+], a
     ld a, $F1 ; O
     ld [hl+], a
@@ -574,12 +605,11 @@ sc_game_over::
     ld [hl+], a
     ld a, $EF ; E
     ld [hl+], a
-    ld a, $7B ; R
+    ld a, $F8 ; R (mismo tile que en SCORE)
     ld [hl+], a
 
-    ;; 4. Escribir "S C O R E" encima
-    ; S=$EA, C=$E7, O=$F1, R=$7B, E=$EF
-    ld hl, VRAM_SCREEN_START + (10 * 32) + 4 ; Fila 10, Columna 4
+    ;; 8. Escribir "SCORE"
+    ld hl, VRAM_SCREEN_START + (10 * 32) + 4
     ld a, $F5 ; S
     ld [hl+], a
     ld a, $F6 ; C
@@ -592,16 +622,15 @@ sc_game_over::
     ld [hl+], a
     ld a, $00 ; (espacio)
     ld [hl+], a
-    ; (El puntero HL queda en la Columna 10)
 
-    ;; 5. Mostrar puntuación encima
-    push hl ; Guarda la posición de VRAM (Fila 10, Col 10)
+    ;; 9. Mostrar puntuación
+    push hl
     ld a, [wPlayerScore]
     ld l, a
     ld a, [wPlayerScore+1]
     ld h, a
     call utils_bcd_convert_16bit
-    pop hl ; Recupera la posición
+    pop hl
 
     ld b, 5 ; 5 dígitos
     ld de, wTempBCDBuffer
@@ -613,23 +642,25 @@ sc_game_over::
     dec b
     jr nz, .draw_score_loop
 
-    ;; NO llamar a fade_in
+    ;; 10. Encender la LCD
+    call lcd_on
+    
+    ;; 11. Fundido de entrada
+    call fade_in
 
-    ;; 6. Esperar a que se pulse START
+    ;; 12. Esperar pulsación START
 .wait_press:
     call read_input
     ld a, b
     and BUTTON_START
     jr z, .wait_press
 
-    ;; 7. Esperar a que se suelte START
+    ;; 13. Esperar soltar START
 .wait_release:
     call read_input
     ld a, b
     and BUTTON_START
     jr nz, .wait_release
 
-    ;; NO llamar a fade_out
-
-    ;; 8. Salir de sc_game_run (esto hará que main.asm reinicie el juego)
+    ;; 14. Salir de la escena
     ret
