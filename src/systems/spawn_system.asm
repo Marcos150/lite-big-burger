@@ -20,7 +20,7 @@ hazards_x:
 hazards_x_end:
 
 hazards_x_level2:
-    DB $20, $38, $4B, $66
+    DB $20, $38, $4B, $66, $78
 hazards_x_end_level2:
 
 def BASE_SPRITE_TILE equ $A2
@@ -42,8 +42,8 @@ spawn_update::
 
     ;; Re-spawns enemies and hazards if 1 or less left
     ld a, [alive_hazards_and_enemies]
-    cp 2
-    jp c, create_hazards
+    cp MAX_HAZARDS
+    jr c, create_hazards
 ret
 
 create_ingredients:
@@ -92,9 +92,6 @@ create_hazards:
         pop bc
     dec c
     jr nz, .for
-
-    ld a, 6
-    ld [alive_hazards_and_enemies], a
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -205,6 +202,11 @@ spawn_one_ingredient::
 ;; DESTROYS:
 ;; A, B, C, D, E, HL
 spawn_one_hazard::
+    ld a, [$FF04]
+    swap a
+    cp HAZARD_RATIO
+    ret nc
+
     ld a, e
     cp 0
     jr z, .define_oil
@@ -286,7 +288,9 @@ spawn_one_hazard::
             ld [hl+], a
         ENDR
 
+        ld hl, alive_hazards_and_enemies
+        inc [hl]
+
         ; HL pointing to the start again
         ld hl, entity_build_buffer
-        call create_one_entity
-    ret
+        jp create_one_entity
