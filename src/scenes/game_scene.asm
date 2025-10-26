@@ -580,15 +580,15 @@ sc_game_over::
     ;; 4. Escribir "S C O R E" encima
     ; S=$EA, C=$E7, O=$F1, R=$7B, E=$EF
     ld hl, VRAM_SCREEN_START + (10 * 32) + 4 ; Fila 10, Columna 4
-    ld a, $EA ; S
+    ld a, $F5 ; S
     ld [hl+], a
-    ld a, $E7 ; C
+    ld a, $F6 ; C
     ld [hl+], a
-    ld a, $F1 ; O
+    ld a, $F7 ; O
     ld [hl+], a
-    ld a, $7B ; R
+    ld a, $F8 ; R
     ld [hl+], a
-    ld a, $EF ; E
+    ld a, $F9 ; E
     ld [hl+], a
     ld a, $00 ; (espacio)
     ld [hl+], a
