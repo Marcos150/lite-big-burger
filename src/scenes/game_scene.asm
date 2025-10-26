@@ -31,6 +31,9 @@ ret
 init_level:
     call lcd_off
 
+   xor a
+   ld [wPlayerInvincibilityTimer], a
+
    call man_entity_init
    call load_level_layout
    call respawn_entities
@@ -162,6 +165,7 @@ sc_game_run::
         ld hl, current_level
         inc [hl]
 
+        SET_OBP2 DEFAULT_PAL ;; Para el bug visual al pasarse nivel siendo invulnerable
         call celebration
         call mute_music
         call fade_out
