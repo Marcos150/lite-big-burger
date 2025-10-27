@@ -60,6 +60,10 @@ load_level_layout:
     ld hl, level3_layout
     cp LEVEL3
     jr z, .copy_tiles
+
+    ld hl, level4_layout
+    cp LEVEL4
+    jr z, .copy_tiles
     
     ;; All levels done, start from 1 with more enemies
     ld hl, current_iteration
