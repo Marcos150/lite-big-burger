@@ -29,7 +29,7 @@ render_update::
 
 animate_conveyor_belt::
     ld a, [gConveyorBeltTimer]
-    cp 0
+    or a ;; cp 0
     jr nz, .decrement_counter
 
     call wait_vblank_start

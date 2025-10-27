@@ -27,7 +27,7 @@ sc_title_screen_hold::
       	call hUGE_dosound
 
 		ld a, [animation_delay]
-		cp 0
+		or a ;; cp 0
 		jr nz, .dont_play
 		.play:
 			call animate_start_button

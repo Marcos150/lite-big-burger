@@ -2,10 +2,6 @@ INCLUDE "managers/entity_manager.inc"
 INCLUDE "constants.inc"
 INCLUDE "macros.inc"
 
-SECTION "Maurice Variables", WRAM0
-mau_y:: dw    ; Dirección de memoria de Y de Maurice
-mau_x:: dw    ; Dirección de memoria de X de Maurice
-
 SECTION "Entity Manager Data", WRAM0[_WRAM]
 
 components:
@@ -59,9 +55,7 @@ man_entity_init::
     .zero_physics:
        ld hl, components_physics
        ld b, SIZEOF_ARRAY_CMP
-       call memset_256
-
-    ret
+       jp memset_256
 
 ;; Allocate space for one entity
 ;; RETURNS
@@ -119,32 +113,6 @@ man_entity_destroy::
     dec [hl]
 ret
 
-;; Returns the address of the sprite component array
-;; RETURNS
-;; HL: Address of Sprite Components Start
-;; B: Sprite components size
-man_entity_get_sprite_components::
-    ld hl, components_sprite
-    ld b, SIZEOF_ARRAY_CMP
-    ret
-
-;; Checks if entity is controllable
-;; 📥 INPUT:
-;; DE: Address of the entity
-;; RETURNS:
-;; Flag Z
-;; DESTROYS: A
-check_if_controllable::
-    ld a, [de]
-    bit CMP_BIT_CONTROLLABLE, a
-    ret
-
-check_if_ingredient::
-    ld a, [de]
-    bit CMP_BIT_INGREDIENT, a
-    ret
-
-
 process_entity:
     push bc
     push hl
@@ -164,7 +132,7 @@ ret
 man_entity_for_each::
     ld a, [alive_entities]
     .check_if_zero_entities
-    cp 0
+    or a ;; cp 0
     ret z
     .process_alive_entities
     assert SIZEOF_ARRAY_CMP < $FF, "Component array size is larger than $FF. Array size: {SIZEOF_ARRAY_CMP}"
@@ -202,7 +170,7 @@ man_entity_for_each_filtered::
     ld c, a
 
     ld a, [alive_entities]
-    cp 0
+    or a ;; cp 0
     ret z
     ld de, components_info ;; DONT GO OUT OF $Cx00!
     ld b, a
@@ -246,7 +214,7 @@ man_entity_for_each_filtered::
 man_entity_controllable::
     ld a, [alive_entities]
     .check_if_zero_entities
-    cp 0
+    or a ;; cp 0
     ret z
     .process_alive_entities
     ld de, components_info ;; DONT GO OUT OF $Cx00!

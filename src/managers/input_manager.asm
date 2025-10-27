@@ -14,9 +14,8 @@ SECTION "Input Manager", ROM0
 ;   Bit 6: Up
 ;   Bit 7: Down
 read_input::
-    ld a, SELECT_PAD
     ld hl, rJOYP
-    ld [hl], a
+    ld [hl], SELECT_PAD
     
     ld a, [hl]
     ld a, [hl]
@@ -28,14 +27,9 @@ read_input::
     ld b, a           ; Guardar D-pad en B
     
     ; Seleccionar botones de acción
-    ld a, SELECT_BUTTONS
-    ld [hl], a
+    ld [hl], SELECT_BUTTONS
     
     ; Esperar estabilización
-    ld a, [hl]
-    ld a, [hl]
-    ld a, [hl]
-    ld a, [hl]
     ld a, [hl]
     ld a, [hl]
     

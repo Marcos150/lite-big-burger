@@ -26,8 +26,7 @@ SECTION "Scene Game", ROM0
 respawn_entities:
     ld hl, mauricio_entity
     call create_one_entity
-    call spawn_init
-ret
+    jp spawn_init
 
 init_level:
     call lcd_off
@@ -174,7 +173,7 @@ sc_game_run::
 
         ;; Checks if enough ingredients delivered to pass to next level
         ld a, [ingredients_left]
-        cp 0
+        or a ;; cp 0
         jr nz, .check_out_of_screen
         ld hl, current_level
         inc [hl]
@@ -214,7 +213,7 @@ sc_game_run::
             call wait_vblank_start
             call read_input
             ld a, b
-            cp 0
+            or a ;; cp 0
             jr nz, .wait_unpress
 
         .loop_paused:
@@ -235,7 +234,7 @@ sc_game_run::
             call wait_vblank_start
             call read_input
             ld a, b
-            cp 0
+            or a ;; cp 0
             jr nz, .wait_unpress_again
 
         jp .main_loop
@@ -410,7 +409,7 @@ ret
     ld h, CMP_INFO_H
     ld l, e
 
-    ;; If prota falls, -1 life (Mantenido de HEAD)
+    ;; If prota falls, -1 life
     ld a, [hl]
     and CMP_MASK_CONTROLLABLE
     jp nz, player_hit_hazard
@@ -418,7 +417,6 @@ ret
     call man_entity_destroy
 ret
 
-; (Funciones fade mantenidas de HEAD)
 fade_out:
     ld b, 3
     .for:
@@ -511,8 +509,7 @@ death_animation_burn::
     call dma_copy
 
     ld e, 50
-    call wait_vblank_ntimes
-ret
+    jp wait_vblank_ntimes
 
 death_animation_cut::
     ld d, CMP_SPRITE_H
@@ -539,9 +536,7 @@ death_animation_cut::
     call dma_copy
 
     ld e, 50
-    call wait_vblank_ntimes
-ret
-
+    jp wait_vblank_ntimes
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Muestra la pantalla de Game Over

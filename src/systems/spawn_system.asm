@@ -32,7 +32,7 @@ SECTION "Spawn System", ROM0
 spawn_init::
     call create_hazards
 
-    jp create_ingredients
+    jr create_ingredients
 
 spawn_update::
     ;; Re-spawns ingredients if 1 or less left
@@ -142,8 +142,8 @@ spawn_one_ingredient::
     call find_first_set_bit_index
 
     ld a, b         ; B has the index
-    sla a           ; A = index * 2
-    sla a           ; A = index * 4
+    add a           ; A = index * 2
+    add a           ; A = index * 4
     add BASE_SPRITE_TILE
     ld d, a         ; D = Base Tile ID
 
@@ -219,13 +219,13 @@ spawn_one_hazard::
     ret nc
 
     ld a, e
-    cp 0
+    or a ;; cp 0
     jr z, .define_oil
 
     .define_knife:
     ld b, KNIFE_SPRITE
     ld a, d
-    cp 0
+    or a ;; cp 0
     jr nz, .spawn_left
     .spawn_right:
     ld c, $58

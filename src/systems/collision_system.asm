@@ -421,9 +421,10 @@ convert_x_to_tx:
     sub a, 8
 
     ;; a = a/8 (8 pixels per tile)
-    srl a
-    srl a
-    srl a
+    rrca
+	rrca
+	rrca
+	and %00011111
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -442,9 +443,10 @@ convert_y_to_ty:
     sub a, 16
 
     ;; a = a/8 (8 pixels per tile)
-    srl a
-    srl a
-    srl a
+    rrca
+	rrca
+	rrca
+	and %00011111
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

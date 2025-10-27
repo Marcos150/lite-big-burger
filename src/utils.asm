@@ -125,8 +125,7 @@ def HRAM_END rb 0
 
 ;; Checks that the DMA function is not too large, so it does not collide with other HRAM data
 def HRAM_USAGE equ (HRAM_END - _HRAM)
-println "HRAM usage: {d:HRAM_USAGE} bytes"
-assert HRAM_USAGE <= $40, "Too many bytes used in HRAM"
+assert HRAM_USAGE <= $40, "Too many bytes used in HRAM. Bytes in HRAM: {d:HRAM_USAGE}"
 
 ;; Copies the DMA function to HRAM
 init_dma_copy::
@@ -215,35 +214,6 @@ utils_bcd_convert_16bit::
 .digit_done:
     ret
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; CHECK PAD
-;; RETURNS:
-;; B: Current state of the joypad
-;; 
-;; DESTROYS: A, B, HL
-;;
-
-check_pad::
-    ld a, SELECT_PAD
-    ld hl, rJOYP
-    ld [rJOYP], a ;;Select pad
-    ld b, [hl]
-    ld b, [hl]
-    ld b, [hl]
-
-    ret
-
-check_buttons::
-    ld a, SELECT_BUTTONS
-    ld hl, rJOYP
-    ld [rJOYP], a ;;Select pad
-    ld b, [hl]
-    ld b, [hl]
-    ld b, [hl]
-
-    ret
-
 simulated_call_hl::
     jp hl
 
@@ -307,7 +277,7 @@ create_one_entity::
 
 find_first_set_bit_index::
     ld b, 0
-    cp 0
+    or a ;; cp 0
     ret z
 .loop
     rrca

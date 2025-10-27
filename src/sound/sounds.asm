@@ -97,7 +97,7 @@ celebration::
         call render_update
         pop af
         dec a
-        cp 0
+        or a ;; cp 0
     jr nz, .for
 ret
 

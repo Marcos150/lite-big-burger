@@ -31,12 +31,11 @@ ret
 
 movement_update::
     ld hl, move_routine
-    call man_entity_controllable
-ret
+    jp man_entity_controllable
 
 ingredient_movement_update::
     ld a, [ing_movement_count]
-    cp 0
+    or a ;; cp 0
     jr z, .run_movement_logic
 
     dec a
@@ -49,8 +48,7 @@ ret
 
     ld hl, ing_move_routine
     ld a, CMP_MASK_INGREDIENT
-    call man_entity_for_each_filtered
-ret
+    jp man_entity_for_each_filtered
 
 move_routine:
     ld a, [has_jumped]
@@ -111,7 +109,7 @@ check_movement:
     call nz, move_r
 
     ld a, [has_moved_to_sides]
-    cp 0
+    or a ;; cp 0
     ret nz
 .no_r:
     ld a, b
@@ -119,7 +117,7 @@ check_movement:
     call nz, move_l
 
     ld a, [has_moved_to_sides]
-    cp 0
+    or a ;; cp 0
     ret nz
 .no_l:
     ld a, b

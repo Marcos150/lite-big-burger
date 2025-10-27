@@ -7,4 +7,4 @@ main::
 .game_loop:
     call sc_game_init
     call sc_game_run
-    jp .game_loop
+    jr .game_loop

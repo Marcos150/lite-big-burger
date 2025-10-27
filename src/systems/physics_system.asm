@@ -12,8 +12,7 @@ physics_update::
     ld hl, physics_update_one_entity
     call man_entity_for_each
     ld hl, confine_mauricio
-    call man_entity_controllable
-ret
+    jp man_entity_controllable
 
 process_accel:
     ld bc, CMP_PHYSICS_AY
@@ -99,8 +98,7 @@ ret
 
 
 .move_ingredient:
-    call ingredient_movement_update
-ret
+    jp ingredient_movement_update
 
 confine_mauricio::
     ld d, CMP_SPRITE_H
@@ -138,5 +136,3 @@ ret
     ld a, RIGHT_BORDER_LEVEL2 - 1
     ld [de], a
 ret
-
-activate_hazards::
