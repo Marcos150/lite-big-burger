@@ -213,7 +213,7 @@ spawn_one_hazard::
     add a, [hl] ;; ratio = HAZARD_RATIO + current_iteration
     ld b, a
 
-    ld a, [$FF04]
+    ld a, [rDIV]
     swap a
     cp b
     ret nc
