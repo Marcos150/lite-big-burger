@@ -40,17 +40,7 @@ ret
 wait_vblank_ntimes::
 .do:
     call wait_vblank_start
-    call consume_time
     dec e
-    jr nz, .do
-ret
-
-consume_time:
-    ld b, 127
-.do:
-    nop
-    nop
-    dec b
     jr nz, .do
 ret
 
@@ -313,9 +303,7 @@ create_one_entity::
     ld bc, SIZEOF_CMP
     add hl, bc
     ld b, c
-    call memcpy_256
-
-    ret
+    jp memcpy_256
 
 find_first_set_bit_index::
     ld b, 0

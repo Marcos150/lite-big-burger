@@ -555,7 +555,7 @@ sc_game_over::
     call fade_out
 
     ;; 3. Pausa
-    ld e, 120
+    ld e, 60
     call wait_vblank_ntimes
 
     ;; 4. Apagar LCD
@@ -649,6 +649,7 @@ sc_game_over::
 
     ;; 12. Esperar pulsación START
 .wait_press:
+    call wait_vblank_start
     call read_input
     ld a, b
     and BUTTON_START
@@ -656,6 +657,7 @@ sc_game_over::
 
     ;; 13. Esperar soltar START
 .wait_release:
+    call wait_vblank_start
     call read_input
     ld a, b
     and BUTTON_START
