@@ -143,8 +143,6 @@ sc_game_init::
     ld [wPointsForExtraLife], a
     ld [wPointsForExtraLife+1], a
     call sc_game_update_hud
-
-
     jp respawn_entities
 
 sc_game_run::

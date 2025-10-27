@@ -292,6 +292,7 @@ ingredient_col:
     ret nz
 
     ;; --- Grant bonus and reset counter ---
+    call start_sound
     xor a
     ld [hl], a
     ld bc, POINTS_PER_ORDER_BONUS

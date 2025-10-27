@@ -97,6 +97,7 @@ physics_update_one_entity::
 ret
 
 
+
 .move_ingredient:
     call ingredient_movement_update
 ret
@@ -138,3 +139,4 @@ ret
     ld [de], a
 ret
 
+activate_hazards::
