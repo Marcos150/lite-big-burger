@@ -547,21 +547,6 @@ ret
 ;; Muestra la pantalla de Game Over
 ;;
 sc_game_over::
-    call mute_music
-    call death_sound
-
-    ld a, [wPlayerIsDead]
-    cp KNIFE_SPRITE
-    jr z, .cut
-    .burn
-    ld hl, death_animation_burn
-    jr .play_animation
-    .cut
-    ld hl, death_animation_cut
-
-    .play_animation
-    call man_entity_controllable
-
     ;; 1. Apagar sprites
     ld hl, rLCDC
     res rLCDC_OBJ_ENABLE, [hl]

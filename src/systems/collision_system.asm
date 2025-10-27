@@ -227,6 +227,25 @@ ret
 player_hit_hazard::
     call death_sound
 
+    ;; Play different death animation depending on type of death
+    ld d, CMP_SPRITE_H
+    REPT CMP_SPRITE_TILE
+        inc e
+    ENDR
+
+    ld a, [de]
+    cp KNIFE_SPRITE
+    jr z, .cut
+
+    .burn
+    ld hl, death_animation_burn
+    jr .play_animation
+    .cut
+    ld hl, death_animation_cut
+
+    .play_animation
+    call man_entity_controllable
+
     ld a, PLAYER_INVINCIBILITY_FRAMES
     ld [wPlayerInvincibilityTimer], a
 
@@ -239,19 +258,11 @@ player_hit_hazard::
     jr nz, .update_hud ; Si no es 0, solo actualiza el HUD
 
     ; Si vidas == 0, avisa a game_scene
-    ld d, CMP_SPRITE_H
-    REPT CMP_SPRITE_TILE
-        inc e
-    ENDR
-
-    ;; We store the sprite to know what has killed the player
     ld a, [de]
     ld [wPlayerIsDead], a
     ret ; Salir, no reiniciar al jugador
     
 .update_hud:
-    ;; --- FIN DE LA MODIFICACIÓN ---
-
     ld hl, reset_player_state
     call man_entity_controllable
     
