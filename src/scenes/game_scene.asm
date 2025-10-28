@@ -173,8 +173,12 @@ sc_game_run::
 
         ;; Checks if enough ingredients delivered to pass to next level
         ld a, [ingredients_left]
-        cp $FF
-        jr c, .check_out_of_screen
+        cp 0
+        jr z, .next_level
+        cp -1
+        jr nz, .check_out_of_screen
+
+        .next_level:
         ld hl, current_level
         inc [hl]
 
