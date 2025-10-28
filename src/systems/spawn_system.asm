@@ -37,7 +37,7 @@ spawn_init::
 spawn_update::
     ;; Re-spawns ingredients if 1 or less left
     ld a, [alive_ingredients]
-    cp 2
+    cp INGREDIENTS_UNTIL_RESPAWN + 1
     call c, create_ingredients
 
     ;; Re-spawns enemies
