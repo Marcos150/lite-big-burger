@@ -74,7 +74,7 @@ life_sound::
     ldh [rNR14], a
 ret
 
-mute_music::
+mute_music_main::
     ;; Mute used channels
     ld c, MUTE_CHANNEL
     ld b, CHANNEL_1
@@ -82,6 +82,25 @@ mute_music::
     ld c, MUTE_CHANNEL
     ld b, CHANNEL_2
     jp hUGE_mute_channel
+
+mute_music_all::
+    call mute_music_main
+    ld c, MUTE_CHANNEL
+    ld b, CHANNEL_3
+    jp hUGE_mute_channel
+
+unmmute_music_all::
+    ld c, UNMUTE_CHANNEL
+    ld b, CHANNEL_1
+    call hUGE_mute_channel
+
+    ld c, UNMUTE_CHANNEL
+    ld b, CHANNEL_2
+    call hUGE_mute_channel
+
+    ld c, UNMUTE_CHANNEL
+    ld b, CHANNEL_3
+    jp hUGE_mute_channel  
 
 celebration::
     ld hl, funiculi

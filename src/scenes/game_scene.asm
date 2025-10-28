@@ -38,6 +38,8 @@ init_level:
     call load_level_layout
     call respawn_entities
     call dma_copy
+    ld hl, musiquita
+    call hUGE_init
     call lcd_on
 
     jp sc_game_update_hud
@@ -130,6 +132,9 @@ sc_game_init::
     call render_update
     call sc_title_screen_hold
 
+    ld hl, musiquita
+    call hUGE_init
+
     .init_game_state
     ld a, PLAYER_INITIAL_LIVES
     ld [wPlayerLives], a
@@ -146,6 +151,8 @@ sc_game_init::
 
 sc_game_run::
     .main_loop:
+        call hUGE_dosound
+        call hUGE_dosound
         ;; Comprueba si el jugador ha muerto
         ld a, [wPlayerIsDead]
         or a
@@ -183,11 +190,13 @@ sc_game_run::
         inc [hl]
 
         SET_OBP2 DEFAULT_PAL ;; Para el bug visual al pasarse nivel siendo invulnerable
+        call mute_music_all
         call celebration
-        call mute_music
+        call mute_music_all
         call fade_out
         call init_level
         call fade_in
+        call unmmute_music_all
 
         .check_out_of_screen
         ld hl, obliterate_entities

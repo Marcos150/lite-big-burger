@@ -44,7 +44,7 @@ sc_title_screen_hold::
 
 		jp z, .loop
 
-		call mute_music
+		call mute_music_main
 	.scroll_loop:
     	call wait_vblank_start
     	ld a, [rSCY]

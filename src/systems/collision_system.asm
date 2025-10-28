@@ -225,6 +225,7 @@ check_collision_prota:
 ret
 
 player_hit_hazard::
+    call mute_music_all
     call death_sound
 
     ;; Play different death animation depending on type of death
@@ -245,6 +246,8 @@ player_hit_hazard::
 
     .play_animation
     call man_entity_controllable
+
+        call unmmute_music_all
 
     ld a, PLAYER_INVINCIBILITY_FRAMES
     ld [wPlayerInvincibilityTimer], a
