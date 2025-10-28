@@ -371,6 +371,7 @@ sc_game_add_score::
 
 .grant_life:
     ;; 1. Dar vida (max 9)
+    call extra_life_sound
     push de ; Salva el valor del CONTADOR
     push bc ; Salva el valor de la CONSTANTE
     

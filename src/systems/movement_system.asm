@@ -297,22 +297,6 @@ move_r:
 .move:
     call correct_position
 
-    ld l, CMP_SPRITE_X
-    ld a, [current_level]
-    cp LEVEL1
-    jr z, .level1
-
-    .level2
-    ld a, [hl]
-    cp RIGHT_BORDER_LEVEL2
-    jr z, .no_platform
-    jr .physics
-
-    .level1
-    ld a, [hl]
-    cp RIGHT_BORDER_LEVEL1
-    jr z, .no_platform
-
     .physics
     ld e, CMP_PHYSICS_VX
     ld a, [de]
@@ -338,11 +322,6 @@ move_l:
 
 .move:
     call correct_position
-
-    ld l, CMP_SPRITE_X
-    ld a, [hl]
-    cp LEFT_BORDER
-    jr z, .no_platform
 
     ld e, CMP_PHYSICS_VX
     ld a, [de]

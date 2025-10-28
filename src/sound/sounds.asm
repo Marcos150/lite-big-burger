@@ -61,6 +61,34 @@ start_sound::
     ldh [rNR24], a
 ret
 
+extra_life_sound::
+    ld  a, $26
+    ldh [rNR10], a
+    ld  a, $97
+    ldh [rNR11], a
+    ld  a, $19
+    ldh [rNR12], a
+    ld  a, $69
+    ldh [rNR13], a
+    ld  a, $85
+    ldh [rNR14], a
+ret
+
+collision_sound::
+    call is_playing_sound_ch1
+    ret nz
+    ld  a, $2E
+    ldh [rNR10], a
+    ld  a, $81
+    ldh [rNR11], a
+    ld  a, %01011110
+    ldh [rNR12], a
+    ld  a, $69
+    ldh [rNR13], a
+    ld  a, $C5
+    ldh [rNR14], a
+ret
+
 life_sound::
     ld  a, $35
     ldh [rNR10], a

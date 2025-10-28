@@ -123,16 +123,19 @@ confine_mauricio::
 ret
 
 .reposition_left:
-    ld a, LEFT_BORDER + 1
+    call collision_sound
+    ld a, LEFT_BORDER
     ld [de], a
 ret
 
 .reposition_right_level1:
+    call collision_sound
     ld a, RIGHT_BORDER_LEVEL1 - 1
     ld [de], a
 ret
 
 .reposition_right_level2:
+    call collision_sound
     ld a, RIGHT_BORDER_LEVEL2 - 1
     ld [de], a
 ret
