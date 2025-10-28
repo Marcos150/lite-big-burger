@@ -225,8 +225,10 @@ check_collision_prota:
 ret
 
 player_hit_hazard::
+    push de
     call mute_music_all
     call death_sound
+    pop de
 
     ;; Play different death animation depending on type of death
     ld d, CMP_SPRITE_H
