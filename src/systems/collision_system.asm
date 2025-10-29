@@ -237,6 +237,9 @@ player_hit_hazard::
     ENDR
 
     ld a, [de]
+    cp EXCLAMATION_SPRITE
+    ret z
+
     cp KNIFE_SPRITE
     jr z, .cut
 

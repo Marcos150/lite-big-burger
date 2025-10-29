@@ -26,6 +26,7 @@ hazards_x_end_level2:
 def BASE_SPRITE_TILE equ $A2
 export def KNIFE_SPRITE equ $CE
 def OIL_SPRITE equ $CC
+EXPORT DEF EXCLAMATION_SPRITE EQU $D2
 
 SECTION "Spawn System", ROM0
 
@@ -39,6 +40,11 @@ spawn_update::
     ld a, [alive_ingredients]
     cp INGREDIENTS_UNTIL_RESPAWN + 1
     call c, create_ingredients
+
+    ;; Hazard warning timers
+    ld hl, update_hazards
+    ld a, CMP_MASK_HAZARD
+    call man_entity_for_each_filtered
 
     ;; Re-spawns enemies
     ld a, [current_iteration]
@@ -245,19 +251,36 @@ spawn_one_hazard::
         ; Write CMP_INFO (8 bytes)
         ld a, ENTITY_HAZARD_SPAWNING
         ld [hl+], a
+
+        inc l ;; HL -> CMP_INFO_TAGS
+        ld a, KNIFE_SPRITE
+        cp b
+        jr nz, .oil
+        .knife:
+        ld [hl], TYPE_KNIFE
+        jr .timer
+
+        .oil:
+        ld [hl], TYPE_OIL
+
+        .timer:
+        inc l ;; HL -> CMP_INFO_TIMER
+        ld a, HAZARD_WARNING_FRAMES
+        ld [hl+], a
         xor a           ; A = 0 (for all padding bytes)
-        REPT 7
+        REPT 4
             ld [hl+], a
         ENDR
 
         ; Write CMP_SPRITE (8 bytes)
         ; Sprite 1
-        xor a           ; Y-Pos = 0
+        ld a, 16           ; Y-Pos = 16 (warning)
         ld [hl+], a
         ld a, c         ; Get X-Pos
         ld [hl+], a
-        ld a, b         ; Get Base Tile ID
+        ld a, EXCLAMATION_SPRITE         ; Get Base Tile ID
         ld [hl+], a
+        ld a, b
 
         ; Attributes
         cp KNIFE_SPRITE
@@ -323,3 +346,49 @@ spawn_one_hazard::
         ; HL pointing to the start again
         ld hl, entity_build_buffer
         jp create_one_entity
+
+update_hazards::
+    ld a, e
+    add a, CMP_INFO_TIMER
+    ld e, a
+
+    ld a, [de]
+    cp 0
+    ret z
+
+    dec a
+    ld [de], a
+    ret nz
+
+
+    .activate_physics
+    REPT CMP_INFO_TIMER - CMP_INFO_CMPS
+        dec e
+    ENDR
+
+    ld a, ENTITY_HAZARD_PHYSICS
+    ld [de], a
+
+    ld d, CMP_SPRITE_H
+    ld a, [de]
+    sub a, 16
+    ld [de], a
+
+    ld d, CMP_INFO_H
+    inc e
+    inc e ;; de -> INFO_TYPE
+    ld a, [de]
+
+    cp TYPE_KNIFE
+    ld d, CMP_SPRITE_H
+    jr nz, .oil
+    .knife:
+    ld a, KNIFE_SPRITE
+    jr .write_sprite
+
+    .oil:
+    ld a, OIL_SPRITE
+
+    .write_sprite:
+    ld [de], a
+ret
