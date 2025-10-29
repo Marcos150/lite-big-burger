@@ -140,7 +140,7 @@ celebration::
         call wait_vblank_start
         ld hl, animation_frame_counter
         inc [hl]
-        call animate_walk ;; "Dance" animation
+        call animate_dance ;; "Dance" animation
         call render_update
         pop af
         dec a

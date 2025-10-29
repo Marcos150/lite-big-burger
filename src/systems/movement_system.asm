@@ -14,6 +14,7 @@ DEF LADDER_TILE         equ $96     ; Tile del personaje en la escalera.
 DEF PROTA_STATIC_TILE   equ $8C     ; Tile 1 de caminar y tile de REPOSO.
 DEF PROTA_WALK_TILE     equ $8E     ; Tile 1 de caminar y tile de REPOSO.
 DEF PROTA_WALK_TILE_2   equ $90     ; Tile 2 del personaje al caminar.
+DEF PROTA_DANCE_TILE    equ $94
 DEF PROTA_JUMP_TILE     equ $92
 
 DEF LADDER_ANIM_SPEED   equ 2       ; Velocidad de la animación de la escalera.
@@ -72,7 +73,7 @@ move_routine:
 
     ; Lógica de reposo (idle)
     ld a, b
-    and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
+    and (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT | BUTTON_B)
     ret nz                   ; Si se pulsó algo, las funciones de `move` ya gestionaron el tile.
 
     inc de                          ; Apuntar a X
@@ -103,6 +104,10 @@ ret
 check_movement:
     ld hl, has_moved_to_sides
     ld [hl], 0
+
+    ld a, b
+    and BUTTON_B
+    call nz, animate_dance
 
     ld a, b
     and BUTTON_RIGHT
@@ -164,7 +169,7 @@ check_jump:
 ret
 
 ; =============================================================================
-; == Rutinas de Animación y Movimiento (SIN CAMBIOS)
+; == Rutinas de Animación y Movimiento
 ; =============================================================================
 
 animate_walk::
@@ -183,6 +188,57 @@ animate_walk::
 .set_frame_1:
     ld a, PROTA_WALK_TILE
     ld [hl], a
+.animation_done:
+    pop hl
+    pop af
+    ret
+
+animate_dance::
+    push af
+    push hl
+    ld a, [animation_frame_counter]
+    bit WALK_ANIM_SPEED+2, a
+    jr z, .set_frame_2_1
+
+.set_frame_4_3:
+    
+    bit WALK_ANIM_SPEED, a
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_TILE
+
+    jr z, .set_frame_3
+
+    .set_frame_4:
+    
+    ld a, PROTA_WALK_TILE_2
+    ld [hl], a
+    jr .animation_done
+
+    .set_frame_3:
+
+    ld a, PROTA_DANCE_TILE
+    ld [hl], a
+    jr .animation_done
+
+
+.set_frame_2_1:
+    bit WALK_ANIM_SPEED, a
+    ld h, CMP_SPRITE_H
+    ld l, CMP_SPRITE_TILE
+
+    jr z, .set_frame_1
+
+    .set_frame_2:
+    
+    ld a, PROTA_JUMP_TILE
+    ld [hl], a
+    jr .animation_done
+
+    .set_frame_1:
+
+    ld a, PROTA_WALK_TILE
+    ld [hl], a
+
 .animation_done:
     pop hl
     pop af
