@@ -1,6 +1,6 @@
 include "sound/huge_driver/include/hUGE.inc"
 
-SECTION "funiculi Song Data", ROMX
+SECTION "funiculi Song Data", ROM0
 
 funiculi::
 db 8

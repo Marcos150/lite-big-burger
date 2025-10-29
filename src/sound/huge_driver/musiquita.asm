@@ -1,6 +1,6 @@
 include "sound/huge_driver/include/hUGE.inc"
 
-SECTION "musiquita Song Data", ROMX
+SECTION "musiquita Song Data", ROM0
 
 musiquita::
 db 7
