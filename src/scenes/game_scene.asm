@@ -571,6 +571,8 @@ death_animation_cut::
 ;; Muestra la pantalla de Game Over
 ;;
 sc_game_over::
+    ld hl, game_over
+    call hUGE_init
     ;; 1. Apagar sprites
     ld hl, rLCDC
     res rLCDC_OBJ_ENABLE, [hl]
@@ -673,6 +675,7 @@ sc_game_over::
 
     ;; 12. Esperar pulsación START
 .wait_press:
+    call hUGE_dosound
     call wait_vblank_start
     call read_input
     ld a, b
@@ -681,11 +684,14 @@ sc_game_over::
 
     ;; 13. Esperar soltar START
 .wait_release:
+    call hUGE_dosound
     call wait_vblank_start
     call read_input
     ld a, b
     and BUTTON_START
     jr nz, .wait_release
+
+    call mute_music_all
 
     ;; 14. Salir de la escena
     ret
