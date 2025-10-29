@@ -210,6 +210,9 @@ sc_game_run::
     jr z, .main_loop
 
     .is_paused:
+        call mute_music_all
+        call unmmute_music_all
+
         call wait_vblank_start
         ld hl, $9800
         ld a, $8B
