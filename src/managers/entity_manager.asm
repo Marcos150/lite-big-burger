@@ -91,6 +91,7 @@ man_entity_destroy::
    dec [hl]
    ld hl, ingredients_left
    dec [hl]
+   call sc_game_update_hud
    jr .destroy
 
    .check_if_hazard_enemy

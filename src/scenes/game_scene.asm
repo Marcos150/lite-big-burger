@@ -310,6 +310,21 @@ sc_game_update_hud::
     inc de
     dec b
     jr nz, .draw_digit_loop
+
+.draw_order_ing_left:
+    ld a, HUD_ORDER_VALUE_X
+    ld l, a
+    ld a, $9A
+    ld h, a
+    ld a, HUD_PEN_TILE
+    ld [hl+], a
+    ld a, HUD_NOTE_TILE
+    ld [hl+], a
+    ld a, TILE_ID_HUD_X
+    ld [hl+], a
+    ld a, [ingredients_left]
+    add a, TILE_ID_NUM_0
+    ld [hl+], a
     
     ret
 
