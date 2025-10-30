@@ -82,6 +82,55 @@ memcpy::
 ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; MEMCPY_MAPS
+;; INPUT:
+;; HL: Source Address
+;; DE: Destiny Address
+;; B: Colums to copy
+;; 
+;; DESTROYS: AF, BC, HL, DE
+;;
+
+memcpy_maps::
+    ld a, b
+    or a
+    ret z
+
+.row_loop:
+    ld c, 20 ; C = 20
+
+.column_loop:
+    ld a, [hl+]
+    ld [de], a
+    inc de
+    dec c
+    jr nz, .column_loop
+
+    push hl
+    push bc
+    
+    ; Movemos DE a HL para poder sumar
+    ld h, d
+    ld l, e
+
+    ; Cargamos el salto (12)
+    ld bc, 12
+    add hl, bc
+
+    ; Movemos el resultado de vuelta a DE
+    ld d, h
+    ld e, l
+    
+    ; Restauramos
+    pop bc
+    pop hl
+
+    ; Siguiente fila
+    dec b
+    jr nz, .row_loop
+
+    ret
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MEMSET 256
 ;; INPUT:
 ;; HL: Destination Address

@@ -36,7 +36,7 @@ animate_conveyor_belt::
     ld a, CONVEYOR_BELT_ANIM_DELAY
     ld [gConveyorBeltTimer], a
     ld hl, TILESET_BELT_START
-    ld b, $13 ; B = 20
+    ld b, $15 ; B = 20
 
 .anim_loop:
     ld a, [hl]  ; Carga el tile actual

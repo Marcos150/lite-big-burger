@@ -65,6 +65,10 @@ load_level_layout:
     ld hl, level4_layout
     cp LEVEL4
     jr z, .copy_tiles
+
+    ld hl, level5_layout
+    cp LEVEL5
+    jr z, .copy_tiles
     
     ;; All levels done, start from 1 with more enemies
     ld hl, current_iteration
@@ -76,8 +80,9 @@ load_level_layout:
 
     .copy_tiles
     ld de, VRAM_SCREEN_START
-    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
-    jp memcpy
+    ld b, SCREEN_HEIGHT
+    call memcpy_maps
+ret
 
 sc_game_init::
     ;; Enable vblank interrupt
@@ -103,10 +108,11 @@ sc_game_init::
     call man_entity_init
     call collision_init
     call movement_init
+
     ld hl, main_game_screen_layout
     ld de, VRAM_SCREEN_START
-    ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
-    call memcpy
+    ld b, BGMAP_HEIGHT
+    call memcpy_maps
 
     call init_dma_copy
     SET_BGP DEFAULT_PAL
