@@ -234,7 +234,16 @@ spawn_one_hazard::
     or a ;; cp 0
     jr nz, .spawn_left
     .spawn_right:
-    ld c, $58
+    ld a, [current_level]
+    cp LEVEL1
+    jr z, .level1
+
+    .level2
+    ld c, RIGHT_BORDER_LEVEL2
+    jr .spawn
+    
+    .level1
+    ld c, RIGHT_BORDER_LEVEL1
     jr .spawn
     
     .spawn_left:
