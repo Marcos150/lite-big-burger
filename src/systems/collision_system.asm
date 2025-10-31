@@ -236,10 +236,12 @@ player_hit_hazard::
     cp EXCLAMATION_SPRITE
     ret z
 
+    push af
     push de
     call mute_music_all
     call death_sound
     pop de
+    pop af
 
     cp KNIFE_SPRITE
     jr z, .cut
@@ -253,7 +255,7 @@ player_hit_hazard::
     .play_animation
     call man_entity_controllable
 
-        call unmmute_music_all
+    call unmmute_music_all
 
     ld a, PLAYER_INVINCIBILITY_FRAMES
     ld [wPlayerInvincibilityTimer], a
