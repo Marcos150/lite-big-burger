@@ -237,10 +237,8 @@ player_hit_hazard::
     ret z
 
     push af
-    push de
     call mute_music_all
     call death_sound
-    pop de
     pop af
 
     cp KNIFE_SPRITE
@@ -269,7 +267,7 @@ player_hit_hazard::
     jr nz, .update_hud ; Si no es 0, solo actualiza el HUD
 
     ; Si vidas == 0, avisa a game_scene
-    ld a, [de]
+    ld a, 1
     ld [wPlayerIsDead], a
     ret ; Salir, no reiniciar al jugador
     
